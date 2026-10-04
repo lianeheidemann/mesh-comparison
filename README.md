@@ -4,6 +4,8 @@
 
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
 
+<p align="center"><img src="https://img.shields.io/badge/%E2%8F%B3-Early%20Stage-3B82F6?style=flat-square" alt="Mesh project in early stage"></p>
+
 This workspace compares a ground-truth mesh with a reconstructed mesh. Convert FBX models to STL (or another supported `trimesh` format) before running the evaluation scripts; they do not load FBX directly.
 
 ## Workspace layout

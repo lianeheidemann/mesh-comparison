@@ -1,4 +1,8 @@
-# Mesh Comparison: Mesh Evaluation
+<p align="center">
+  <img src="assets/mesh-comparison-logo.png" width="180" alt="Mesh Comparison logo">
+</p>
+
+<h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
 
 This workspace compares a ground-truth mesh with a reconstructed mesh. Convert FBX models to STL (or another supported `trimesh` format) before running the evaluation scripts; they do not load FBX directly.
 

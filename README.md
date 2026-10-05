@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/mesh-comparison-logo-v2.png" width="180" alt="Mesh Comparison logo">
+  <img src="assets/mesh-comparison-logo.png" width="180" alt="Mesh Comparison logo">
 </p>
 
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>

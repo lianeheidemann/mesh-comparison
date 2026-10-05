@@ -1,6 +1,7 @@
 <p align="center">
-  <img src="assets/mesh-comparison-logo-animated.svg" width="180" alt="Mesh Comparison logo">
+  <img src="assets/mesh-comparison-logo-animation.gif" width="180" alt="Animated Mesh Comparison logo">
 </p>
+<p align="center"><a href="assets/mesh-comparison-logo-animated.svg">Animated SVG source</a></p>
 
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
 

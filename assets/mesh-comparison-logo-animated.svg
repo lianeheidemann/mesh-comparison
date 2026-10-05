@@ -71,15 +71,15 @@
       <path class="match-line" d="M465 250 L465 474">
         
       </path>
-      <circle class="signal signal-a" r="6" fill="#55C5FF">
+      <circle class="signal signal-a" cx="235" cy="259" r="6" fill="#55C5FF">
         
         
       </circle>
-      <circle class="signal signal-b" r="6" fill="#55C5FF">
+      <circle class="signal signal-b" cx="360" cy="232" r="6" fill="#55C5FF">
         
         
       </circle>
-      <circle class="signal signal-c" r="6" fill="#55C5FF">
+      <circle class="signal signal-c" cx="465" cy="250" r="6" fill="#55C5FF">
         
         
       </circle>

@@ -17,6 +17,24 @@
 
 This workspace compares a ground-truth mesh with a reconstructed mesh. Convert FBX models to STL (or another supported `trimesh` format) before running the evaluation scripts; they do not load FBX directly.
 
+## Technologies
+
+| Technology | Role in the project |
+| --- | --- |
+| Python | Main language for both evaluation pipelines. |
+| Conda | Isolated Python environment and dependency management. |
+| NumPy | Numerical operations on coordinates, arrays, and distances. |
+| Trimesh | Loading, inspecting, transforming, and exporting 3D meshes. |
+| Open3D | Iterative Closest Point (ICP) mesh alignment. |
+| SciPy (cKDTree) | Efficient nearest-neighbor searches for geometric metrics. |
+| pyrender | Offscreen rendering of meshes for image-based comparison. |
+| Matplotlib | Geometric distance visualization and heatmap color mapping. |
+| imageio | Writing rendered images to disk. |
+| PyTorch | Neural-network execution for perceptual evaluation, with optional CUDA acceleration. |
+| LPIPS | Learned perceptual similarity between rendered views. |
+| scikit-image | Structural Similarity Index (SSIM) calculation. |
+| pandas | Tabular metrics, summaries, and CSV exports. |
+
 ## Workspace layout
 
 ```text

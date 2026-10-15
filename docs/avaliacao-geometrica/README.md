@@ -94,7 +94,7 @@ A métrica avalia as imagens renderizadas, não as distâncias entre vértices d
 Para cada ângulo, o SSIM compara as renderizações correspondentes da GT e da RM em regiões locais. Em cada região, considera **luminância** (brilho médio), **contraste** e **estrutura** (como os padrões e detalhes se relacionam). Os resultados locais são combinados em um índice: **quanto mais próximo de 1, maior a semelhança estrutural**; imagens idênticas recebem 1.
 
 <p align="center">
-  <img src="images/explicacao-ssim.svg" width="100%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />
+  <img src="images/explicacao-ssim-v2.png" width="100%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />
 </p>
 
 No pipeline deste projeto, o SSIM é calculado por vista sobre recortes mascarados das renderizações, com o fundo zerado, e os canais RGB são considerados em conjunto. A métrica avalia **imagens renderizadas**, não distâncias entre vértices da malha; câmera, enquadramento e máscara influenciam o valor.

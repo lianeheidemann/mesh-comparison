@@ -1,38 +1,36 @@
-# 08 — LPIPS, PSNR e SSIM
+# 08 — Construir as vistas e calcular LPIPS, PSNR e SSIM
 
-![Esquema de avaliação multivista](images/multiview.svg)
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Pipeline implementado
-O script `percept_eval_pipeline.py` alinha as malhas como o geométrico e usa **100 azimutes uniformemente distribuídos** por padrão, de 0° até menos de 360°, com elevação fixa em 25,264°. Para cada câmera ortográfica, renderiza GT/RM com a **mesma pose e enquadramento**, calcula máscaras alfa, recorta a união das silhuetas (12 pixels de margem), zera o fundo e calcula três métricas.
+![Esquema da etapa](images/multiview.svg)
 
-Por padrão, apenas as vistas **1, 33 e 66** são exportadas como PNG, embora todas as 100 participem das métricas.
+## Passo 1 — O que criar
 
-## PSNR (Peak Signal-to-Noise Ratio)
-\[
-PSNR=10\log_{10}\left(\frac{MAX^2}{MSE_{pixels}}\right)
-\]
+No `percept_eval_pipeline.py`, reutilize as etapas 03 e 04. Para cada azimute, crie uma câmera ortográfica comum, renderize GT e RM em RGBA, forme máscaras pelo canal alfa e recorte a união das silhuetas. Por padrão, percorra 100 vistas.
 
-`masked_psnr` calcula erro RGB ao quadrado para pixels na **máscara da união** das silhuetas; imagens são normalizadas para [0,1] e `MAX=1`. Erro nulo retorna infinito. **Maior é melhor**, em dB.
+## Passo 2 — Implementação inicial
 
-**Observação de código:** o denominador atual conta os pixels da máscara **uma vez**, mas soma erros em 3 canais RGB: isso gera uma convenção de agregação diferente do MSE RGB usual que divide por 3 também. Ao confrontar com outros PSNRs, padronizar o denominador.
+```python
+# Calcula as métricas perceptuais sobre imagens recortadas e mascaradas
+import numpy as np
+import torch
+import lpips
+from skimage.metrics import structural_similarity
 
-## SSIM (Structural Similarity Index)
-SSIM combina luminância, contraste e estrutura local:
+model = lpips.LPIPS(net='alex').eval()
+ssim = structural_similarity(gt_rgb, rm_rgb, channel_axis=-1, data_range=1.0)
+with torch.no_grad():
+    a = torch.from_numpy(gt_rgb).permute(2, 0, 1)[None].float() * 2 - 1
+    b = torch.from_numpy(rm_rgb).permute(2, 0, 1)[None].float() * 2 - 1
+    lpips_value = float(model(a, b).item())
+```
 
-\[
-SSIM(x,y)=\frac{(2\mu_x\mu_y+C_1)(2\sigma_{xy}+C_2)}{(\mu_x^2+\mu_y^2+C_1)(\sigma_x^2+\sigma_y^2+C_2)}
-\]
+## Passo 3 — Completar, executar e validar
 
-`masked_ssim` usa `skimage.metrics.structural_similarity` sobre a imagem RGB **recortada com fundo zerado**. Não usa diretamente um SSIM verdadeiramente ponderado por máscara; pixels de fundo dentro do recorte ainda participam. **Maior é melhor**, com 1 indicando correspondência estrutural máxima para a convenção.
+Implemente também PSNR como `10 log10(1/MSE_imagem)` para pixels em `[0,1]`, com tratamento de erro zero. Para reproduzir **exatamente** os resultados atuais, consulte `masked_psnr` do script: o denominador conta pixels mascarados, enquanto o numerador soma os três canais, diferente da média RGB convencional. SSIM e LPIPS atuais recebem o fundo zerado, não uma máscara ponderada. Salve exemplos das vistas 1, 33 e 66.
 
-## LPIPS (Learned Perceptual Image Patch Similarity)
-`masked_lpips` converte H×W×3 para lote de tensores 1×3×H×W, transforma intensidades de [0,1] para [−1,1] e aplica `lpips.LPIPS(net="alex")` em `torch.no_grad()`. LPIPS compara características de camadas de uma rede neural pré-treinada; **menor geralmente é melhor**. Não é distância geométrica, nem medida direta da qualidade da topologia.
+## Passo 4 — Próxima etapa
 
-O termo *masked* no nome da função não significa que a rede aplique uma máscara de pesos em cada posição: a implementação zera o fundo antes de inferir.
+Continue para [09 — Exportar resultados e verificar a execução](09-relatorios-validacao.md).
 
-## Implementar com cuidado
-1. Garantir iluminação e câmera idênticas no par de uma mesma vista.
-2. Preservar diferenças de silhueta na máscara de união.
-3. Conferir `crop_h` e `crop_w`; recortes minúsculos podem invalidar a janela SSIM ou reduzir a robustez do LPIPS.
-4. Instalar `torch`, `torchvision`, `lpips` e `scikit-image`.
-5. Exportar valores por vista e estatísticas agregadas. **Não comparar LPIPS de resoluções/crops distintos sem controlar o protocolo.**
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

@@ -1,23 +1,32 @@
-# 10 — Limitações metodológicas e próximos passos
+# 10 — Validar os limites antes de ampliar o projeto
 
-## Distinção entre qualidade geométrica e qualidade de malha
-O projeto **mede proximidade geométrica por vértices** e **semelhança visual de renderizações**. Atualmente isso **não equivale** a auditar topologia, variedade (*manifold*), faces degeneradas, normais invertidas, interseções, número de componentes conectados, UVs, materiais nem custo de renderização.
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Pontos de atenção verificados no código
-1. **Densidade de vértices:** distâncias são `vertex-to-vertex`, não `point-to-triangle` ou amostragem uniforme da superfície.
-2. **Escala no alinhamento:** ICP permite escala uniforme, o que pode esconder variações dimensionais importantes.
-3. **Critério de alinhamento:** um MSE inicial abaixo do limiar impede ICP, mesmo que haja diferenças de orientação relevantes; um ICP executado não é rejeitado automaticamente quando piora o MSE.
-4. **Perceptual:** PSNR tem denominador não usual para RGB; SSIM e LPIPS usam fundo zerado e não máscara espacial ponderada; LPIPS depende da rede AlexNet e configurações de entrada.
-5. **Comparação entre experimentos:** escolha da câmera, iluminação, proporção de recorte, distância de correspondência e percentil de heatmap precisam ser controlados.
-6. **Exportação:** ambos os programas escrevem o mesmo `output/aligned/rm_aligned.ply` e podem sobrescrever resultados.
+![Esquema da etapa](images/pipeline.svg)
 
-## Evolução priorizada (ainda não implementada)
-- **P1 — Qualidade e testes:** testes unitários para fórmulas, proteção contra NaN e arrays vazios, documentação de unidades e versões congeladas.
-- **P2 — Distâncias contínuas:** comparar pontos amostrados uniformemente por área, usar ponto-superfície para reduzir viés de triangulação e relatar método/amostragem.
-- **P3 — Registro controlado:** oferecer ICP rígido (sem escala), inspeção visual do resultado e rejeição opcional por piora no MSE.
-- **P4 — Métricas de malha:** faces degeneradas, buracos, orientabilidade, componentes conectados, manifold e auto-interseção.
-- **P5 — Resultados estatísticos:** executar múltiplas seeds, descrever intervalos de confiança e produzir gráficos de distribuição por vista.
-- **P6 — Engenharia:** criar configuração YAML/JSON, CI, testes de regressão e versão de saída sem sobrescrita.
+## Passo 1 — O que criar
 
-## Critérios científicos
-Antes de afirmar que um método é “melhor”, declarar: tipo de entrada, unidade de medida, protocolo de alinhamento, definição precisa da métrica, estratégia de amostragem, hardware, versão de bibliotecas e número de repetições. Uma avaliação robusta combina métricas geométricas, inspeção visual e validação das propriedades topológicas pertinentes ao uso final.
+Monte casos controlados: malhas idênticas, deslocadas, escaladas, com vértices extras, buracos e densidades diferentes. Execute o pipeline completo e registre os resultados esperados para cada métrica.
+
+## Passo 2 — Implementação inicial
+
+```python
+# Verifica um caso mínimo de consistência das métricas geométricas
+import numpy as np
+
+points = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]])
+result = compute_metrics(points, points.copy())
+assert np.isclose(result['chamfer_mean'], 0.0)
+assert np.isclose(result['hausdorff'], 0.0)
+assert np.isclose(result['rmse'], 0.0)
+```
+
+## Passo 3 — Completar, executar e validar
+
+Depois de reproduzir o comportamento atual, considere implementar amostragem uniforme de superfícies, inspeção de topologia, testes automatizados, opção de ICP sem escala, PSNR RGB convencional e separação de módulos. Essas são **etapas futuras**, não recursos existentes. Documente as diferenças de metodologia antes de comparar novos resultados com CSVs antigos.
+
+## Passo 4 — Próxima etapa
+
+Continue para a revisão do roteiro em [docs/README.md](README.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

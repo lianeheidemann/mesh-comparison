@@ -1,36 +1,40 @@
-# 02 — Arquitetura e plano de implementação
+# 02 — Criar os programas e a interface de linha de comando
 
-![Etapas de processamento](images/pipeline.svg)
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Código existente
-- `mesh_eval_pipeline.py`: carrega GT/RM, normaliza, avalia MSE inicial, opcionalmente executa ICP, calcula Chamfer/Hausdorff/RMSE, renderiza e salva CSV/PLY/PNG.
-- `percept_eval_pipeline.py`: repete a preparação geométrica e realiza renderização multivista, PSNR, SSIM e LPIPS.
-- `run_mesh_eval.bat` e `run_percept_eval.bat`: inicializadores Windows.
-- `output/`: resultados, que podem ser sobrescritos nas próximas execuções.
+![Esquema da etapa](images/pipeline.svg)
 
-## Sequência para reproduzir a implementação
-1. **Entrada e validação:** implementar `load_mesh(path)`, distinguir malha/cena, aplicar as transformações da cena e excluir vértices sem faces.
-2. **Escala:** copiar ambas as malhas e dividir coordenadas pela diagonal da caixa delimitadora da GT.
-3. **Comparação inicial:** calcular vizinho mais próximo nos dois sentidos e o MSE simétrico.
-4. **Alinhamento:** se o MSE normalizado superar `--mse-threshold`, executar ICP de similaridade RM → GT em duas fases.
-5. **Métricas finais:** recomputar distâncias e agregações geométricas com a malha alinhada.
-6. **Visualização:** compartilhar câmera ortográfica e produzir mapa de calor nas posições GT.
-7. **Comparação perceptual:** amostrar azimutes, renderizar cada par de vistas, recortar região relevante, computar LPIPS/PSNR/SSIM.
-8. **Persistência:** registrar CSVs, `rm_aligned.ply`, mapas de calor e renders.
+## Passo 1 — O que criar
 
-## Mapeamento de funções
-| Responsabilidade | Funções do código |
-|---|---|
-| Diretórios | `ensure_dirs` |
-| Importação | `load_mesh` |
-| Pontos próximos | `nn_distances`, `symmetric_vertex_errors` |
-| Erro inicial | `symmetric_mse` |
-| ICP | `initial_similarity_from_bboxes`, `similarity_icp_align` |
-| Métricas geométricas | `compute_metrics` (pipeline geométrico) |
-| Câmera e render | `look_at`, `build_shared_camera` ou `build_tight_ortho_camera`, `render_mesh` |
-| Cores por erro | `colorize_gt_heatmap`, `save_heatmap_figure` |
-| Perceptual | `masked_psnr`, `masked_ssim`, `masked_lpips` |
-| Agregação | `summarize_stats` |
+Crie `mesh_eval_pipeline.py` e `percept_eval_pipeline.py`. Em ambos, implemente primeiro a leitura de argumentos e a criação das pastas de saída.
 
-## Proposta futura: modularizar sem alterar o comportamento
-Extrair `mesh_io.py`, `normalization.py`, `registration.py`, `geometry_metrics.py`, `rendering.py`, `perceptual_metrics.py`, `reports.py`; criar `tests/` antes de mudar os pipelines. **Essa estrutura ainda não existe no repositório.** Priorizar testes de regressão com os CSVs atuais e explicar diferenças de tolerância numérica.
+## Passo 2 — Implementação inicial
+
+```python
+# Lê os caminhos de entrada e prepara as pastas do experimento
+import argparse
+from pathlib import Path
+
+def ensure_dirs(base_out):
+    paths = {name: Path(base_out) / name for name in ('renders', 'heatmaps', 'metrics', 'aligned')}
+    for path in paths.values():
+        path.mkdir(parents=True, exist_ok=True)
+    return paths
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--gt', required=True)
+parser.add_argument('--rm', required=True)
+parser.add_argument('--out', default='output')
+args = parser.parse_args()
+paths = ensure_dirs(args.out)
+```
+
+## Passo 3 — Completar, executar e validar
+
+Execute `python mesh_eval_pipeline.py --gt gt.stl --rm mod.stl --out output` e verifique se as quatro pastas foram criadas. Depois acrescente `run_pipeline(...)` e as opções de alinhamento e câmera. O script perceptual terá também subpastas `renders/gt`, `renders/rm` e `renders/pairs`.
+
+## Passo 4 — Próxima etapa
+
+Continue para [03 — Importar e normalizar duas malhas](03-malhas-normalizacao.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

@@ -1,26 +1,36 @@
-# 07 — Renderização ortográfica e mapa de calor
+# 07 — Criar câmera compartilhada, renders e heatmap
 
-![Distâncias e malhas](images/distancias.svg)
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Câmera compartilhada
-`build_shared_camera` calcula limites das duas malhas normalizadas (GT e RM alinhada), centro e diagonal, depois uma pose `look_at`. Os limites projetados dos oito cantos da bounding box determinam `xmag` e `ymag` de `pyrender.OrthographicCamera`.
+![Esquema da etapa](images/distancias.svg)
 
-O pipeline geométrico usa por padrão azimute **−135°** e elevação **25,264°**, com imagens de **1600 × 1200 pixels**. Renderiza GT e RM na mesma pose, impedindo que mudança de enquadramento produza comparação injusta.
+## Passo 1 — O que criar
 
-## Mapa de calor
-`colorize_gt_heatmap` associa a **cada vértice GT** a distância até o vértice RM alinhado mais próximo (`d_gt2rm`). Aplica `matplotlib` com colormap `RdYlGn_r`: próximo de zero tende a verde; distâncias maiores tendem a amarelo/vermelho. O limite máximo da escala é o **percentil 95**, que reduz a influência de valores extremos na aparência (valores acima dele saturam na mesma extremidade).
+Implemente `look_at`, `bounds_corners` e `build_shared_camera`: calcule uma única câmera ortográfica a partir da caixa envolvente conjunta GT+RM. Use `pyrender.Scene`, `OrthographicCamera` e `OffscreenRenderer` para salvar as duas vistas com enquadramento igual.
 
-Arquivos:
-- `output/heatmaps/gt_heatmap_colored.ply`: vértices coloridos.
-- `output/heatmaps/gt_heatmap_ortho.png`: renderização com escala lateral.
-- `output/renders/gt_ortho.png` e `rm_aligned_ortho.png`.
+## Passo 2 — Implementação inicial
 
-## Interpretação e limites
-O mapa mostra **GT → RM**, não o erro simétrico completo. Um componente extra existente só na RM pode não aparecer com destaque no heatmap GT. O heatmap mede erro **geométrico por vértice**, não textura nem percepção visual.
+```python
+# Associa a cada vértice GT uma cor proporcional à distância até a RM
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import numpy as np
 
-## Checklist de implementação
-1. Usar uma câmera para ambas as malhas.
-2. Calcular distâncias GT → RM após o eventual alinhamento.
-3. Normalizar valores para a paleta (registrar o percentil e a unidade).
-4. Atribuir `vertex_colors` e exportar o PLY.
-5. Renderizar e anexar uma legenda com unidades.
+def colorize_gt_heatmap(gt_mesh, d_gt2rm):
+    colored = gt_mesh.copy()
+    vmax = max(float(np.nanpercentile(d_gt2rm, 95)), 1e-12)
+    norm = mpl.colors.Normalize(vmin=0, vmax=vmax)
+    cmap = plt.get_cmap('RdYlGn_r')
+    colored.visual.vertex_colors = (cmap(norm(d_gt2rm)) * 255).astype(np.uint8)
+    return colored, norm, cmap
+```
+
+## Passo 3 — Completar, executar e validar
+
+Renderize `gt_ortho.png`, `rm_aligned_ortho.png` e a malha colorida; acrescente uma barra de cores com Matplotlib para produzir `gt_heatmap_ortho.png`. Exporte também `gt_heatmap_colored.ply`. Observe que as cores representam somente GT→RM, não a distância simétrica.
+
+## Passo 4 — Próxima etapa
+
+Continue para [08 — Construir as vistas e calcular LPIPS, PSNR e SSIM](08-metricas-perceptuais.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

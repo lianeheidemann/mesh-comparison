@@ -1,29 +1,28 @@
-# 01 — Preparação do ambiente
+# 01 — Preparar o projeto e instalar as dependências
 
-## Objetivo
-Reproduzir os comandos do [README principal](../README.md) em Windows com Conda. O repositório contém dois programas Python independentes e dois inicializadores `.bat`.
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Etapas
-1. Instalar Python/Conda e criar o ambiente `meshEval` com Python 3.12.
-2. Instalar bibliotecas numéricas, geométricas, renderização e aprendizado profundo.
-3. Manter `gt.stl` e `mod.stl` na raiz ou usar caminhos próprios.
-4. Rodar primeiro o pipeline geométrico e inspecionar o CSV; depois o perceptual.
+![Esquema da etapa](images/pipeline.svg)
 
-```powershell
-# Cria e ativa um ambiente isolado para a avaliação
+## Passo 1 — O que criar
+
+Crie uma pasta `mesh-comparison`, abra um terminal nela e crie um ambiente Conda Python 3.12.
+
+## Passo 2 — Implementação inicial
+
+```bash
+# Cria e ativa o ambiente isolado
 conda create -n meshEval python=3.12
 conda activate meshEval
 pip install numpy pandas trimesh pyrender open3d matplotlib imageio scipy scikit-image torch torchvision lpips
 ```
 
-```powershell
-# Executa as avaliações a partir da raiz do repositório
-python mesh_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
-python percept_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
-```
+## Passo 3 — Completar, executar e validar
 
-**GPU:** `percept_eval_pipeline.py` escolhe CUDA quando disponível e CPU como alternativa. Para CUDA, conferir [instalação oficial do PyTorch](https://pytorch.org/get-started/locally/). Os renderizadores `pyrender.OffscreenRenderer` dependem de configuração gráfica OpenGL/EGL/OSMesa compatível com o sistema.
+Confirme `python -c "import trimesh, open3d, scipy, pyrender; print('OK')"`. Coloque dois arquivos de teste `gt.stl` e `mod.stl` na raiz. Para modelos FBX, converta antes para um formato aceito pelo Trimesh. O renderizador offscreen pode exigir configuração gráfica específica do sistema.
 
-**FBX:** os scripts rejeitam `.fbx` explicitamente. Converter a geometria para STL, PLY ou OBJ em um aplicativo externo e conferir escala, orientação e partes antes de avaliar. STL não retém materiais nem textura.
+## Passo 4 — Próxima etapa
 
-**Verificação:** o programa deve criar `output/metrics/mesh_metrics.csv`. Em execução perceptual, deve criar `per_view_metrics.csv`, `metric_summary.csv` e `run_metadata.csv`. O nome do ambiente é relevante aos `.bat` existentes; a execução direta por Python usa o ambiente ativo.
+Continue para [02 — Criar os programas e a interface de linha de comando](02-arquitetura-implementacao.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

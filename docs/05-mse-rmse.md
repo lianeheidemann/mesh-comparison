@@ -1,40 +1,38 @@
-# 05 — MSE e RMSE simétricos entre vértices
+# 05 — Implementar MSE e RMSE simétricos
 
-![Distâncias entre vértices](images/distancias.svg)
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Etapa 1: distância direcionada
-Para um vértice `a` da GT, o algoritmo encontra o vértice mais próximo da RM:
+![Esquema da etapa](images/distancias.svg)
 
-\[
-d(a,B)=\min_{b\in B}\lVert a-b\rVert_2
-\]
+## Passo 1 — O que criar
 
-O mesmo é calculado de RM para GT. `nn_distances` implementa essa operação usando `scipy.spatial.cKDTree`.
+Depois de criar `nn_distances` na etapa 04, obtenha distâncias GT→RM e RM→GT. Use ambas as direções para evitar que uma malha incompleta pareça perfeita apenas por estar contida na outra.
 
-## MSE simétrico
-Com `A` = vértices GT e `B` = vértices RM:
+## Passo 2 — Implementação inicial
 
-\[
-MSE_{sym}(A,B)=\frac12\left(\frac1{|A|}\sum_{a\in A}d(a,B)^2+\frac1{|B|}\sum_{b\in B}d(b,A)^2\right)
-\]
+```python
+# Mede erro quadrático simétrico e sua raiz usando distâncias entre vértices
+import numpy as np
 
-É implementado em `symmetric_mse`; valores menores indicam correspondência geométrica mais próxima. A unidade é **comprimento²**. O código registra MSE antes/depois do ICP em unidades normalizadas e em unidades originais quadráticas.
+def symmetric_vertex_errors(gt_vertices, rm_vertices):
+    a, _ = nn_distances(gt_vertices, rm_vertices)
+    b, _ = nn_distances(rm_vertices, gt_vertices)
+    return a, b
 
-## RMSE simétrico
-\[
-RMSE_{sym}=\sqrt{MSE_{sym}}
-\]
+def symmetric_mse(gt_vertices, rm_vertices):
+    a, b = symmetric_vertex_errors(gt_vertices, rm_vertices)
+    return 0.5 * (np.mean(a ** 2) + np.mean(b ** 2))
 
-Implementado em `compute_metrics` e salvo como `symmetric_rmse_normalized` e `symmetric_rmse_gt_units`. A unidade é **comprimento**.
+def symmetric_rmse(gt_vertices, rm_vertices):
+    return np.sqrt(symmetric_mse(gt_vertices, rm_vertices))
+```
 
-### Exemplo didático
-Se todas as distâncias direcionadas fossem `0,1` na escala normalizada, então `MSE = 0,01` e `RMSE = 0,1`. Um único vértice com erro muito alto aumenta bastante o MSE por causa do quadrado.
+## Passo 3 — Completar, executar e validar
 
-## Como implementar e testar
-1. Validar vértices não vazios e coordenadas finitas.
-2. Construir uma `cKDTree` para a nuvem de destino e buscar `k=1`.
-3. Repetir no sentido inverso; calcular as médias separadas e depois a média das duas.
-4. Criar testes com conjuntos idênticos (zero), translados conhecidos e outliers.
-5. Não confundir MSE geométrico (distância 3D) com MSE de imagens (pixel RGB), usado no PSNR.
+A fórmula é `MSE = (média(d_GT→RM²) + média(d_RM→GT²))/2` e `RMSE = √MSE`. Em malhas idênticas, espere valores próximos de zero. A unidade de MSE é quadrática; a de RMSE é linear. Registre valores pré e pós-alinhamento.
 
-**Limitação:** amostragem de vértices não é uniforme sobre a área da malha; triangulações diferentes podem alterar a pontuação sem alterar muito a superfície física.
+## Passo 4 — Próxima etapa
+
+Continue para [06 — Implementar Chamfer e Hausdorff](06-chamfer-hausdorff.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

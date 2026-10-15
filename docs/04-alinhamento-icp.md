@@ -1,33 +1,32 @@
-# 04 — Alinhamento por ICP de similaridade
+# 04 — Construir a correspondência e o ICP
 
-![Antes e depois do ICP](images/icp.svg)
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Quando é acionado?
-`run_pipeline` calcula `pre_mse_norm = symmetric_mse(gt.vertices, rm.vertices)`. Se `pre_mse_norm > 1e-4` por padrão, chama `similarity_icp_align(rm.vertices, gt.vertices)`; caso contrário, preserva a transformação identidade.
+![Esquema da etapa](images/icp.svg)
 
-O valor **1e-4 é MSE de distância normalizada ao quadrado**. Não é um limiar de distância linear.
+## Passo 1 — O que criar
 
-## O que o ICP faz?
-1. Amostra até 50.000 vértices de cada conjunto (`maybe_subsample`; sementes fixas 1 e 2).
-2. Estima uma transformação inicial pela razão das diagonais das caixas e pela diferença dos centros médios dos vértices (`initial_similarity_from_bboxes`).
-3. Executa registro ICP ponto-a-ponto com correspondências por proximidade.
-4. Itera uma etapa grossa com distância máxima 0,25 e outra refinada com 0,05, até 100 iterações em cada.
-5. Aplica a transformação da RM para o sistema de coordenadas da GT.
+Primeiro crie `nn_distances` com `scipy.spatial.cKDTree` para localizar o vértice de destino mais próximo de cada vértice de origem. Calcule o MSE simétrico pré-alinhamento. Quando superar `1e-4`, aplique ICP à RM, mantendo GT fixa.
 
-A transformação homogênea é
+## Passo 2 — Implementação inicial
 
-\[
-\begin{bmatrix}p'\\1\end{bmatrix} =
-\begin{bmatrix}sR&t\\0&1\end{bmatrix}
-\begin{bmatrix}p\\1\end{bmatrix},
-\]
+```python
+# Calcula vizinhos mais próximos e configura o estimador ICP com escala uniforme
+from scipy.spatial import cKDTree
+import open3d as o3d
 
-onde `R` é uma rotação, `t` uma translação e `s` uma escala uniforme. `Open3D.TransformationEstimationPointToPoint(with_scaling=True)` habilita a escala.
+def nn_distances(src, dst):
+    return cKDTree(dst).query(src, k=1)
 
-## Interpretação
-- **Fitness do ICP:** fração de correspondências consideradas dentro do limite pelo algoritmo; não é uma nota geral de qualidade.
-- **inlier RMSE:** erro residual das correspondências aceitas pelo ICP; não confundir com o `symmetric_rmse` calculado em todos os vértices após registro.
-- Uma correspondência ruim, oclusão, simetria ou mudança topológica pode gerar mínimos locais.
+estimator = o3d.pipelines.registration.TransformationEstimationPointToPoint(with_scaling=True)
+```
 
-## Recomendação de validação
-Comparar **MSE antes e depois**, verificar a matriz de transformação e inspecionar visualmente as malhas; o script atual não desfaz automaticamente um ICP cujo MSE pós-alinhamento ficou pior.
+## Passo 3 — Completar, executar e validar
+
+Para completar `similarity_icp_align`, converta os vértices em `o3d.geometry.PointCloud`, limite a amostra a 50 mil pontos, estime escala e translação iniciais pelas caixas envolventes e execute `registration_icp` em duas passagens (limiares 0,25 e 0,05, até 100 iterações cada). Aplique a matriz 4×4 resultante à RM. Teste com uma malha deslocada e verifique a queda do MSE. O ICP atual também pode corrigir escala: documente essa decisão antes de interpretar diferenças dimensionais.
+
+## Passo 4 — Próxima etapa
+
+Continue para [05 — Implementar MSE e RMSE simétricos](05-mse-rmse.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

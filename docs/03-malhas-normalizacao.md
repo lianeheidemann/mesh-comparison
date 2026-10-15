@@ -1,27 +1,35 @@
-# 03 — Importação e normalização das malhas
+# 03 — Importar e normalizar duas malhas
 
-## Geometria de entrada
-`load_mesh(path)` usa `trimesh.load(..., force='scene', process=False, maintain_order=True)`. Se obtiver uma cena, percorre geometrias e nós, aplica as transformações registradas e concatena os componentes em uma malha. Depois remove vértices não referenciados. O resultado é um `trimesh.Trimesh`; os dois pipelines rejeitam `.fbx`.
+> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-## Normalização pela diagonal da GT
-Se a caixa delimitadora da GT tiver mínimo `b_min` e máximo `b_max`:
+![Esquema da etapa](images/pipeline.svg)
 
-\[
-D_{GT}=\lVert b_{max}-b_{min}\rVert_2,\quad s=1/D_{GT}
-\]
+## Passo 1 — O que criar
 
-Cada coordenada em **ambas** as malhas passa a `p' = s p`. A GT fica com diagonal igual a 1; a RM mantém suas diferenças relativas de escala até um possível ICP.
+Implemente `load_mesh(path)` usando `trimesh.load(path, force='scene', process=False, maintain_order=True)`. Se o retorno for uma cena, percorra as instâncias e aplique as transformações do grafo antes de concatenar as geometrias. Remova vértices não referenciados e rejeite `.fbx` explicitamente.
 
-### Por que usar a diagonal da referência?
-Permite comparar casos com dimensões globais diferentes usando uma medida adimensional consistente **dentro de cada par**. Não significa que um resultado normalizado represente milímetros.
+## Passo 2 — Implementação inicial
 
-### Volta às unidades de entrada
-- Distância: `d_original = d_normalizada × D_GT`.
-- MSE: `MSE_original = MSE_normalizado × D_GT²`.
-- A malha alinhada é reescalada antes de exportar `output/aligned/rm_aligned.ply`.
+```python
+# Normaliza as duas malhas usando a mesma escala derivada da referência
+import numpy as np
 
-## Cuidados técnicos
-- O código verifica `D_GT < 1e-12` e aborta para uma referência degenerada.
-- Não há centragem global das duas malhas antes do cálculo inicial: deslocamento/orientação afetam o MSE e podem disparar ICP.
-- Modelos com unidades inconsistentes exigem inspeção prévia.
-- Escala uniforme permitida no ICP pode **ocultar um erro dimensional real** de reconstrução. Para estudos de fidelidade de tamanho, medir também antes de permitir escala.
+gt = load_mesh(gt_path)
+rm = load_mesh(rm_path)
+diagonal_gt = np.linalg.norm(gt.bounds[1] - gt.bounds[0])
+if diagonal_gt < 1e-12:
+    raise ValueError('Malha GT degenerada')
+scale = 1.0 / diagonal_gt
+gt.apply_scale(scale)
+rm.apply_scale(scale)
+```
+
+## Passo 3 — Completar, executar e validar
+
+Teste com duas cópias idênticas de um STL: após normalizar, as coordenadas devem continuar coincidentes. Não normalize cada malha por sua própria diagonal: isso apagaria diferenças de tamanho antes da avaliação.
+
+## Passo 4 — Próxima etapa
+
+Continue para [04 — Construir a correspondência e o ICP](04-alinhamento-icp.md).
+
+**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

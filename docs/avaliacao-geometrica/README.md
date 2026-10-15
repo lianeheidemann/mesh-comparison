@@ -66,6 +66,14 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 | **PSNR** | Intensidade das diferenças entre pixels, expressa em decibéis. | **Maior**: imagens mais próximas em termos de erro de pixel. |
 | **SSIM** | Semelhança de estrutura, contraste e luminância das imagens. | **Maior**: maior semelhança estrutural; normalmente próximo de 1 para imagens muito similares. |
 
+#### Como funciona o LPIPS?
+
+Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da RM pela mesma rede neural pré-treinada. A rede extrai características visuais em diferentes camadas, e a métrica calcula a distância entre essas representações. **Um valor menor indica imagens mais semelhantes perceptualmente.** O LPIPS compara características visuais aprendidas; não mede diretamente distâncias entre vértices da malha.
+
+<p align="center">
+  <img src="images/explicacao-lpips.jpg" width="100%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
+</p>
+
 #### Como funciona o PSNR?
 
 Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da RM com o mesmo enquadramento. Ele calcula as diferenças entre pixels, eleva cada diferença ao quadrado e tira a média (MSE). Em seguida, converte o MSE para decibéis: PSNR = 10 log10(MAX² / MSE), em que MAX é o maior valor possível de pixel. **Quanto maior o PSNR, menor o erro médio entre as imagens.**

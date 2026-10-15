@@ -27,6 +27,6 @@ Depois de reproduzir o comportamento atual, considere implementar amostragem uni
 
 ## Passo 4 — Próxima etapa
 
-Continue para a revisão do roteiro em [docs/README.md](README.md).
+Continue para a revisão do roteiro em [docs/README.md](../README.md).
 
 **Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

@@ -72,7 +72,7 @@ Uma deformação pode ficar invisível quando vista de frente, mas evidente de l
 
 **Limitação importante:** as métricas perceptuais avaliam **renderizações**, não a geometria diretamente. Iluminação, enquadramento, máscaras e configuração da câmera influenciam os resultados. Além disso, o PSNR implementado no projeto tem uma convenção própria de agregação dos canais RGB, que deve ser considerada ao comparar valores com outras ferramentas.
 
-![](images/multi-angle-comparison.png)
+![](images/multi-angle-comparison-v2.png)
 
 ## 6. Qual avaliação é mais relevante?
 

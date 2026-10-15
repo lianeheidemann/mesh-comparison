@@ -17,7 +17,7 @@ A pergunta central não é simplesmente “os arquivos são iguais?”, mas **�
 
 Imagine duas cópias idênticas de uma xícara: uma foi deslocada para a direita. Se compararmos diretamente suas posições, parecerão muito diferentes, mesmo tendo a mesma forma.
 
-Por isso, o projeto primeiro **normaliza** os modelos usando uma escala comum baseada no tamanho da GT. Depois, pode executar o **ICP**, um procedimento que tenta alinhar as malhas por rotação, translação e, nesta implementação, escala uniforme.
+Por isso, o projeto primeiro **normaliza** os modelos usando uma escala comum baseada no tamanho da GT (*Ground Truth*, ou malha de referência). Depois, pode executar o **ICP** (*Iterative Closest Point*, algoritmo iterativo dos pontos mais próximos), um procedimento que tenta alinhar as malhas por rotação, translação e, nesta implementação, escala uniforme.
 
 **Por que importa?** O alinhamento ajuda a separar diferenças de posicionamento das diferenças de geometria. Entretanto, permitir mudança de escala também pode esconder um erro dimensional real. É importante observar as métricas antes e depois do alinhamento.
 
@@ -51,16 +51,16 @@ Um número resume o resultado, mas não mostra **onde** a reconstrução falhou.
 Ele complementa as métricas: duas malhas podem ter valores médios semelhantes e distribuições de erro completamente diferentes. A interpretação das cores depende da escala utilizada na visualização.
 
 <p align="center">
-  <img src="images/mapa-de-calor-desvio-geometrico-v2.png" width="50%" alt="Mapa de calor do desvio geométrico: o corpo da xícara apresenta baixo erro e a região deformada da alça concentra os maiores desvios" />
+  <img src="images/mapa-de-calor-desvio-geometrico-v2.png" width="70%" alt="Mapa de calor do desvio geométrico: o corpo da xícara apresenta baixo erro e a região deformada da alça concentra os maiores desvios" />
 </p>
 
 Na escala, azul indica menor desvio e vermelho indica maior desvio. O ponto de maior erro aparece sobre a região deformada da alça reconstruída.
 
 ## 5. Avaliação perceptual: os modelos parecem iguais?
 
-Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto renderiza GT e RM com **a mesma câmera** em diferentes ângulos e compara as imagens resultantes.
+Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto gera imagens da GT (malha de referência) e da RM (malha reconstruída) usando **a mesma câmera** em diferentes ângulos e compara os resultados.
 
-![Avaliação em múltiplos ângulos](../implementation/images/multiview.svg)
+![Avaliação em múltiplos ângulos](images/avaliacao-perceptual-v4.png)
 
 | Métrica | O que observa | Melhor resultado |
 | --- | --- | --- |
@@ -68,11 +68,62 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 | **PSNR** | Intensidade das diferenças entre pixels, expressa em decibéis. | **Maior**: imagens mais próximas em termos de erro de pixel. |
 | **SSIM** | Semelhança de estrutura, contraste e luminância das imagens. | **Maior**: maior semelhança estrutural; normalmente próximo de 1 para imagens muito similares. |
 
+
+<br>
+
+
+<table>
+<tr>
+<th align="left">Como funciona o LPIPS?</th>
+</tr>
+<tr>
+<td>
+<p>Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da RM pela mesma rede neural pré-treinada. A rede extrai características visuais em diferentes camadas, e a métrica calcula a distância entre essas representações. <strong>Um valor menor indica imagens mais semelhantes perceptualmente.</strong> O LPIPS compara características visuais aprendidas; não mede diretamente distâncias entre vértices da malha.</p>
+<p align="left">
+<img src="images/explicacao-lpips-v4.png" width="80%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
+</p>
+<p><strong>Referências:</strong> <a href="https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html">artigo original do LPIPS (CVPR 2018)</a> e <a href="https://www.mathworks.com/help/images/image-quality-metrics.html">visão geral de métricas de qualidade de imagem no MATLAB</a>. A documentação do MATLAB apresenta MSE, PSNR e SSIM nessa página, mas não documenta LPIPS como função nativa.</p>
+</td>
+</tr>
+<tr>
+<th align="left">Como funciona o PSNR?</th>
+</tr>
+<tr>
+<td>
+<p>Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da RM com o mesmo enquadramento. Ele calcula as diferenças entre pixels, eleva cada diferença ao quadrado e tira a média (MSE). Em seguida, converte o MSE para decibéis: PSNR = 10 log10(MAX² / MSE), em que MAX é o maior valor possível de pixel. <strong>Quanto maior o PSNR, menor o erro médio entre as imagens.</strong></p>
+<p align="left">
+<img src="images/explicacao-psnr-v4.png" width="80%" alt="Etapas do PSNR: comparação das renderizações GT e RM alinhadas, cálculo do MSE pelas diferenças de pixels e conversão para PSNR" />
+</p>
+<p>A métrica avalia as imagens renderizadas, não as distâncias entre vértices da malha.</p>
+<p><strong>Documentação MATLAB:</strong> <a href="https://www.mathworks.com/help/images/ref/psnr.html">função psnr</a> e <a href="https://www.mathworks.com/help/vision/ref/psnr.html">bloco PSNR no Simulink</a>.</p>
+</td>
+</tr>
+<tr>
+<th align="left">Como funciona o SSIM?</th>
+</tr>
+<tr>
+<td>
+<p>Para cada ângulo, o SSIM compara as renderizações correspondentes da GT e da RM em regiões locais. Em cada região, considera <strong>luminância</strong> (brilho médio), <strong>contraste</strong> e <strong>estrutura</strong> (como os padrões e detalhes se relacionam). Os resultados locais são combinados em um índice: <strong>quanto mais próximo de 1, maior a semelhança estrutural</strong>; imagens idênticas recebem 1.</p>
+<p align="left">
+<img src="images/explicacao-ssim-v4.png" width="80%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />
+</p>
+<p>No pipeline deste projeto, o SSIM é calculado por vista sobre recortes mascarados das renderizações, com o fundo zerado, e os canais RGB são considerados em conjunto. A métrica avalia <strong>imagens renderizadas</strong>, não distâncias entre vértices da malha; câmera, enquadramento e máscara influenciam o valor.</p>
+<p><strong>Referências MATLAB:</strong> <a href="https://www.mathworks.com/help/images/ref/ssim.html">função ssim</a> e <a href="https://www.mathworks.com/help/images/image-quality-metrics.html">visão geral de métricas de qualidade de imagem</a>. O pipeline do projeto calcula essa métrica com <code>scikit-image</code>; os links MATLAB servem como referência conceitual da métrica.</p>
+</td>
+</tr>
+</table>
+
+
+
+
+
 ### Por que usar vários ângulos?
 
 Uma deformação pode ficar invisível quando vista de frente, mas evidente de lado. A avaliação multivista reduz a dependência de uma única perspectiva. No pipeline perceptual, são usadas **100 vistas por padrão**; a quantidade pode ser configurada.
 
 **Limitação importante:** as métricas perceptuais avaliam **renderizações**, não a geometria diretamente. Iluminação, enquadramento, máscaras e configuração da câmera influenciam os resultados. Além disso, o PSNR implementado no projeto tem uma convenção própria de agregação dos canais RGB, que deve ser considerada ao comparar valores com outras ferramentas.
+
+![](images/multi-angle-comparison-v3.png)
 
 ## 6. Qual avaliação é mais relevante?
 

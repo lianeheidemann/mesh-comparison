@@ -2,7 +2,7 @@
 
 > **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-![Esquema da etapa](images/multiview.svg)
+![Esquema da etapa](../images/multiview.svg)
 
 ## Passo 1 — O que criar
 
@@ -33,4 +33,4 @@ Implemente também PSNR como `10 log10(1/MSE_imagem)` para pixels em `[0,1]`, co
 
 Continue para [09 — Exportar resultados e verificar a execução](09-relatorios-validacao.md).
 
-**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

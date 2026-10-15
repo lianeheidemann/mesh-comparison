@@ -56,7 +56,7 @@ Ele complementa as métricas: duas malhas podem ter valores médios semelhantes 
 
 ## 5. Avaliação perceptual: os modelos parecem iguais?
 
-Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto renderiza GT e RM com **a mesma câmera** em diferentes ângulos e compara as imagens resultantes.
+Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto gera imagens da GT (malha de referência) e da RM (malha reconstruída) usando **a mesma câmera** em diferentes ângulos e compara os resultados.
 
 ![Avaliação em múltiplos ângulos](../implementation/images/multiview.svg)
 

@@ -54,6 +54,8 @@ Ele complementa as métricas: duas malhas podem ter valores médios semelhantes 
   <img src="images/mapa-de-calor-desvio-geometrico-v2.png" width="70%" alt="Mapa de calor do desvio geométrico: o corpo da xícara apresenta baixo erro e a região deformada da alça concentra os maiores desvios" />
 </p>
 
+Na escala, azul indica menor desvio e vermelho indica maior desvio. O ponto de maior erro aparece sobre a região deformada da alça reconstruída.
+
 ## 5. Avaliação perceptual: os modelos parecem iguais?
 
 Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto gera imagens da GT (malha de referência) e da RM (malha reconstruída) usando **a mesma câmera** em diferentes ângulos e compara os resultados.

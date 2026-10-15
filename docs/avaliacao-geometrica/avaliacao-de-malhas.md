@@ -40,7 +40,7 @@ Essa avaliação observa a posição dos vértices no espaço. Para cada vértic
 
 Suponha que uma reconstrução de uma xícara esteja quase perfeita, mas tenha uma alça muito deformada. A **Chamfer** pode continuar relativamente baixa porque a maior parte da superfície é parecida. A **Hausdorff** tende a destacar o maior erro, revelando que há uma região problemática.
 
-![Exemplo intuitivo: a deformação localizada na alça da xícara pode manter a Chamfer relativamente baixa, enquanto a Hausdorff evidencia o maior desvio](images/exemplo-intuitivo-chamfer-hausdorff.svg)
+![Exemplo intuitivo: a deformação localizada na alça da xícara pode manter a Chamfer relativamente baixa, enquanto a Hausdorff evidencia o maior desvio](images/exemplo-intuitivo-chamfer-hausdorff.png)
 
 **Atenção:** no projeto atual, essas medidas usam **vértices mais próximos**, não a distância exata entre superfícies triangulares. Malhas com densidades ou distribuições de vértices muito diferentes podem produzir resultados influenciados pela discretização.
 

@@ -2,7 +2,7 @@
 
 > **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-![Esquema da etapa](images/pipeline.svg)
+![Esquema da etapa](../images/pipeline.svg)
 
 ## Passo 1 — O que criar
 
@@ -32,4 +32,4 @@ No código final, crie previamente os diretórios, inclua os demais campos e mul
 
 Continue para [10 — Validar os limites antes de ampliar o projeto](10-limitacoes-evolucao.md).
 
-**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../mesh_eval_pipeline.py) e [pipeline perceptual](../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

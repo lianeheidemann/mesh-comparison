@@ -2,7 +2,7 @@
 
 > **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
 
-![Esquema da etapa](images/icp.svg)
+![Esquema da etapa](../images/icp.svg)
 
 ## Passo 1 — O que criar
 
@@ -29,4 +29,4 @@ Para completar `similarity_icp_align`, converta os vértices em `o3d.geometry.Po
 
 Continue para [05 — Implementar MSE e RMSE simétricos](05-mse-rmse.md).
 
-**Código de referência:** [pipeline geométrico](../mesh_eval_pipeline.py) e [pipeline perceptual](../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../mesh_eval_pipeline.py) e [pipeline perceptual](../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

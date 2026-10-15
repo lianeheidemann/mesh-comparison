@@ -1,6 +1,6 @@
 # Como avaliar a qualidade de uma malha 3D
 
-Este guia explica **o que o Mesh Comparison procura medir**, por que diferentes avaliações são necessárias e como interpretar os resultados. Não é um tutorial de programação. Para construir os pipelines, consulte o [tutorial de implementação](implementation/README.md).
+Este guia explica **o que o Mesh Comparison procura medir**, por que diferentes avaliações são necessárias e como interpretar os resultados. Não é um tutorial de programação. Para construir os pipelines, consulte o [tutorial de implementação](../implementation/README.md).
 
 ## 1. O que estamos comparando?
 
@@ -21,13 +21,13 @@ Por isso, o projeto primeiro **normaliza** os modelos usando uma escala comum ba
 
 **Por que importa?** O alinhamento ajuda a separar diferenças de posicionamento das diferenças de geometria. Entretanto, permitir mudança de escala também pode esconder um erro dimensional real. É importante observar as métricas antes e depois do alinhamento.
 
-![Exemplo de alinhamento](implementation/images/icp.svg)
+![Exemplo de alinhamento](../implementation/images/icp.svg)
 
 ## 3. Avaliação geométrica: a forma é parecida?
 
 Essa avaliação observa a posição dos vértices no espaço. Para cada vértice de uma malha, procura-se o vértice mais próximo na outra; a comparação é feita nos dois sentidos.
 
-![Distâncias entre modelos](implementation/images/distancias.svg)
+![Distâncias entre modelos](../implementation/images/distancias.svg)
 
 | Métrica | Pergunta que responde | Como interpretar |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ Ele complementa as métricas: duas malhas podem ter valores médios semelhantes 
 
 Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto renderiza GT e RM com **a mesma câmera** em diferentes ângulos e compara as imagens resultantes.
 
-![Avaliação em múltiplos ângulos](implementation/images/multiview.svg)
+![Avaliação em múltiplos ângulos](../implementation/images/multiview.svg)
 
 | Métrica | O que observa | Melhor resultado |
 | --- | --- | --- |

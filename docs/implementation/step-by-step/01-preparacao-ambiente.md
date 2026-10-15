@@ -25,4 +25,4 @@ Confirme `python -c "import trimesh, open3d, scipy, pyrender; print('OK')"`. Col
 
 Continue para [02 — Criar os programas e a interface de linha de comando](02-arquitetura-implementacao.md).
 
-**Código de referência:** [pipeline geométrico](../../mesh_eval_pipeline.py) e [pipeline perceptual](../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

@@ -33,4 +33,4 @@ Renderize `gt_ortho.png`, `rm_aligned_ortho.png` e a malha colorida; acrescente 
 
 Continue para [08 — Construir as vistas e calcular LPIPS, PSNR e SSIM](08-metricas-perceptuais.md).
 
-**Código de referência:** [pipeline geométrico](../../mesh_eval_pipeline.py) e [pipeline perceptual](../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

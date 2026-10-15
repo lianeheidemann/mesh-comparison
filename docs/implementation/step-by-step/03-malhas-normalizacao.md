@@ -32,4 +32,4 @@ Teste com duas cópias idênticas de um STL: após normalizar, as coordenadas de
 
 Continue para [04 — Construir a correspondência e o ICP](04-alinhamento-icp.md).
 
-**Código de referência:** [pipeline geométrico](../../mesh_eval_pipeline.py) e [pipeline perceptual](../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

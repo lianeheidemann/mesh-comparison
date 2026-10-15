@@ -88,6 +88,19 @@ A métrica avalia as imagens renderizadas, não as distâncias entre vértices d
 
 **Documentação MATLAB:** [função psnr](https://www.mathworks.com/help/images/ref/psnr.html) e [bloco PSNR no Simulink](https://www.mathworks.com/help/vision/ref/psnr.html).
 
+
+#### Como funciona o SSIM?
+
+Para cada ângulo, o SSIM compara as renderizações correspondentes da GT e da RM em regiões locais. Em cada região, considera **luminância** (brilho médio), **contraste** e **estrutura** (como os padrões e detalhes se relacionam). Os resultados locais são combinados em um índice: **quanto mais próximo de 1, maior a semelhança estrutural**; imagens idênticas recebem 1.
+
+<p align="center">
+  <img src="images/explicacao-ssim.svg" width="100%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />
+</p>
+
+No pipeline deste projeto, o SSIM é calculado por vista sobre recortes mascarados das renderizações, com o fundo zerado, e os canais RGB são considerados em conjunto. A métrica avalia **imagens renderizadas**, não distâncias entre vértices da malha; câmera, enquadramento e máscara influenciam o valor.
+
+**Referências MATLAB:** [função ssim](https://www.mathworks.com/help/images/ref/ssim.html) e [visão geral de métricas de qualidade de imagem](https://www.mathworks.com/help/images/image-quality-metrics.html). O pipeline do projeto calcula essa métrica com `scikit-image`; os links MATLAB servem como referência conceitual da métrica.
+
 ### Por que usar vários ângulos?
 
 Uma deformação pode ficar invisível quando vista de frente, mas evidente de lado. A avaliação multivista reduz a dependência de uma única perspectiva. No pipeline perceptual, são usadas **100 vistas por padrão**; a quantidade pode ser configurada.

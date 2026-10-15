@@ -97,7 +97,7 @@ Both scripts require `--gt` and `--rm`; `--out` defaults to `output`.
 
 Main outputs:
 
-- `output/metrics/mesh_metrics.csv`: pre/post-alignment MSE, mean Chamfer distance, symmetric Hausdorff distance, symmetric RMSE, alignment status, and transform metadata. Distance metrics are reported both normalized and in the original ground-truth units.
+- `output/metrics/metrics_geometry.csv`: pre/post-alignment MSE, mean Chamfer distance, symmetric Hausdorff distance, symmetric RMSE, alignment status, and transform metadata. Distance metrics are reported both normalized and in the original ground-truth units.
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh, exported in the input ground-truth scale.
 - `output/renders/gt_ortho.png` and `output/renders/rm_aligned_ortho.png`: orthographic renders.
 - `output/heatmaps/gt_heatmap_ortho.png`: rendered distance heatmap; `gt_heatmap_colored.ply` is the colored mesh used to create it.
@@ -109,7 +109,7 @@ Main outputs:
 Main outputs:
 
 - `output/metrics/per_view_metrics.csv`: one row per view with LPIPS, PSNR, SSIM, camera angle, and framing values.
-- `output/metrics/metric_summary.csv`: min, max, 25th/75th percentiles, median, and mean for each perceptual metric.
+- `output/metrics/metrics_perceptual.csv`: min, max, 25th/75th percentiles, median, and mean for each perceptual metric.
 - `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, and the final transform.
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh in the ground-truth input scale.
 - `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.

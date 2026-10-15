@@ -6,7 +6,7 @@
 
 ## Passo 1 — O que criar
 
-Depois de calcular as métricas, monte uma linha de resultados geométricos e grave `output/metrics/mesh_metrics.csv`. Para o fluxo perceptual, grave uma linha por vista em `per_view_metrics.csv` e estatísticas de mínimo, máximo, percentis 25/75, mediana e média em `metric_summary.csv`. Salve também `run_metadata.csv`.
+Depois de calcular as métricas, monte uma linha de resultados geométricos e grave `output/metrics/metrics_geometry.csv`. Para o fluxo perceptual, grave uma linha por vista em `per_view_metrics.csv` e estatísticas de mínimo, máximo, percentis 25/75, mediana e média em `metrics_perceptual.csv`. Salve também `run_metadata.csv`.
 
 ## Passo 2 — Implementação inicial
 
@@ -18,7 +18,7 @@ pd.DataFrame([{
     'chamfer_mean_normalized': metrics['chamfer_mean'],
     'hausdorff_normalized': metrics['hausdorff'],
     'rmse_normalized': metrics['rmse'],
-}]).to_csv('output/metrics/mesh_metrics.csv', index=False)
+}]).to_csv('output/metrics/metrics_geometry.csv', index=False)
 rm_export = rm_aligned.copy()
 rm_export.apply_scale(diagonal_gt)
 rm_export.export('output/aligned/rm_aligned.ply')

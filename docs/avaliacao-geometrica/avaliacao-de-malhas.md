@@ -50,7 +50,9 @@ Um número resume o resultado, mas não mostra **onde** a reconstrução falhou.
 
 Ele complementa as métricas: duas malhas podem ter valores médios semelhantes e distribuições de erro completamente diferentes. A interpretação das cores depende da escala utilizada na visualização.
 
-![Mapa de calor do desvio geométrico: o corpo da xícara apresenta baixo erro e a região deformada da alça concentra os maiores desvios](images/mapa-de-calor-desvio-geometrico.png)
+<p align="center">
+  <img src="images/mapa-de-calor-desvio-geometrico-v2.png" width="50%" alt="Mapa de calor do desvio geométrico: o corpo da xícara apresenta baixo erro e a região deformada da alça concentra os maiores desvios" />
+</p>
 
 Na escala, azul indica menor desvio e vermelho indica maior desvio. O ponto de maior erro aparece sobre a região deformada da alça reconstruída.
 

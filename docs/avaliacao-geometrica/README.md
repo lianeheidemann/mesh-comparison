@@ -17,7 +17,7 @@ A pergunta central não é simplesmente “os arquivos são iguais?”, mas **�
 
 Imagine duas cópias idênticas de uma xícara: uma foi deslocada para a direita. Se compararmos diretamente suas posições, parecerão muito diferentes, mesmo tendo a mesma forma.
 
-Por isso, o projeto primeiro **normaliza** os modelos usando uma escala comum baseada no tamanho da GT. Depois, pode executar o **ICP**, um procedimento que tenta alinhar as malhas por rotação, translação e, nesta implementação, escala uniforme.
+Por isso, o projeto primeiro **normaliza** os modelos usando uma escala comum baseada no tamanho da GT (*Ground Truth*, ou malha de referência). Depois, pode executar o **ICP** (*Iterative Closest Point*, algoritmo iterativo dos pontos mais próximos), um procedimento que tenta alinhar as malhas por rotação, translação e, nesta implementação, escala uniforme.
 
 **Por que importa?** O alinhamento ajuda a separar diferenças de posicionamento das diferenças de geometria. Entretanto, permitir mudança de escala também pode esconder um erro dimensional real. É importante observar as métricas antes e depois do alinhamento.
 

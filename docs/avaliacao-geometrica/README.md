@@ -71,7 +71,7 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da RM pela mesma rede neural pré-treinada. A rede extrai características visuais em diferentes camadas, e a métrica calcula a distância entre essas representações. **Um valor menor indica imagens mais semelhantes perceptualmente.** O LPIPS compara características visuais aprendidas; não mede diretamente distâncias entre vértices da malha.
 
 <p align="center">
-  <img src="images/explicacao-lpips.jpg" width="100%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
+  <img src="images/explicacao-lpips-v2.png" width="100%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
 </p>
 
 **Referências:** [artigo original do LPIPS (CVPR 2018)](https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html) e [visão geral de métricas de qualidade de imagem no MATLAB](https://www.mathworks.com/help/images/image-quality-metrics.html). A documentação do MATLAB apresenta MSE, PSNR e SSIM nessa página, mas não documenta LPIPS como função nativa.
@@ -81,7 +81,7 @@ Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da R
 Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da RM com o mesmo enquadramento. Ele calcula as diferenças entre pixels, eleva cada diferença ao quadrado e tira a média (MSE). Em seguida, converte o MSE para decibéis: PSNR = 10 log10(MAX² / MSE), em que MAX é o maior valor possível de pixel. **Quanto maior o PSNR, menor o erro médio entre as imagens.**
 
 <p align="center">
-  <img src="images/explicacao-psnr.jpg" width="100%" alt="Etapas do PSNR: comparação das renderizações GT e RM alinhadas, cálculo do MSE pelas diferenças de pixels e conversão para PSNR" />
+  <img src="images/explicacao-psnr-v2.png" width="100%" alt="Etapas do PSNR: comparação das renderizações GT e RM alinhadas, cálculo do MSE pelas diferenças de pixels e conversão para PSNR" />
 </p>
 
 A métrica avalia as imagens renderizadas, não as distâncias entre vértices da malha.

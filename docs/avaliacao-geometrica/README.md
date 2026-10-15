@@ -68,7 +68,11 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 
 #### Como funciona o LPIPS?
 
-Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da RM pela mesma rede neural pré-treinada. A rede extrai características visuais em diferentes camadas, e a métrica calcula a distância entre essas representações. **Um valor menor indica imagens mais semelhantes perceptualmente.** O LPIPS compara características visuais aprendidas; não mede diretamente distâncias entre vértices da malha.
+| Etapa | O que acontece | Interpretação |
+| --- | --- | --- |
+| **1. Entradas** | As renderizações da GT e da RM, no mesmo ângulo, são enviadas para comparação. | O enquadramento precisa corresponder. |
+| **2. Características** | A mesma rede neural pré-treinada extrai características visuais em diferentes camadas. | A rede representa padrões visuais das imagens. |
+| **3. Distância LPIPS** | A métrica calcula a distância entre as características extraídas. | **Menor valor indica maior semelhança perceptual.** Não mede distâncias entre vértices da malha. |
 
 <p align="center">
   <img src="images/explicacao-lpips-v4.png" width="85%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
@@ -78,7 +82,11 @@ Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da R
 
 #### Como funciona o PSNR?
 
-Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da RM com o mesmo enquadramento. Ele calcula as diferenças entre pixels, eleva cada diferença ao quadrado e tira a média (MSE). Em seguida, converte o MSE para decibéis: PSNR = 10 log10(MAX² / MSE), em que MAX é o maior valor possível de pixel. **Quanto maior o PSNR, menor o erro médio entre as imagens.**
+| Etapa | O que acontece | Interpretação |
+| --- | --- | --- |
+| **1. Comparação** | Compara os pixels das renderizações da GT e da RM, com o mesmo ângulo e enquadramento. | Diferenças menores indicam imagens mais próximas. |
+| **2. Erro médio (MSE)** | Eleva ao quadrado as diferenças entre pixels e calcula a média. | O quadrado dá mais peso às diferenças maiores. |
+| **3. Conversão (PSNR)** | Converte o MSE para decibéis: **PSNR = 10 log₁₀(MAX² / MSE)**, em que MAX é o maior valor possível de pixel. | **Maior PSNR indica menor erro médio entre as imagens.** |
 
 <p align="center">
   <img src="images/explicacao-psnr-v4.png" width="85%" alt="Etapas do PSNR: comparação das renderizações GT e RM alinhadas, cálculo do MSE pelas diferenças de pixels e conversão para PSNR" />
@@ -91,7 +99,11 @@ A métrica avalia as imagens renderizadas, não as distâncias entre vértices d
 
 #### Como funciona o SSIM?
 
-Para cada ângulo, o SSIM compara as renderizações correspondentes da GT e da RM em regiões locais. Em cada região, considera **luminância** (brilho médio), **contraste** e **estrutura** (como os padrões e detalhes se relacionam). Os resultados locais são combinados em um índice: **quanto mais próximo de 1, maior a semelhança estrutural**; imagens idênticas recebem 1.
+| Etapa | O que acontece | Interpretação |
+| --- | --- | --- |
+| **1. Regiões locais** | Compara recortes correspondentes das renderizações da GT e da RM. | As imagens devem ter o mesmo ângulo e enquadramento. |
+| **2. Componentes** | Avalia **luminância** (brilho médio), **contraste** e **estrutura** (padrões e detalhes). | Considera diferentes aspectos da semelhança visual. |
+| **3. Índice SSIM** | Combina as comparações locais em um índice. | **Quanto mais próximo de 1, maior a semelhança estrutural.** Imagens idênticas recebem 1. |
 
 <p align="center">
   <img src="images/explicacao-ssim-v4.png" width="85%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />

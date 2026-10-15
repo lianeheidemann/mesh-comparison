@@ -77,8 +77,8 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 <tr>
 <td>
 <p>Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da RM pela mesma rede neural pré-treinada. A rede extrai características visuais em diferentes camadas, e a métrica calcula a distância entre essas representações. <strong>Um valor menor indica imagens mais semelhantes perceptualmente.</strong> O LPIPS compara características visuais aprendidas; não mede diretamente distâncias entre vértices da malha.</p>
-<p align="center">
-<img src="images/explicacao-lpips-v4.png" width="100%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
+<p align="left">
+<img src="images/explicacao-lpips-v4.png" width="80%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
 </p>
 <p><strong>Referências:</strong> <a href="https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html">artigo original do LPIPS (CVPR 2018)</a> e <a href="https://www.mathworks.com/help/images/image-quality-metrics.html">visão geral de métricas de qualidade de imagem no MATLAB</a>. A documentação do MATLAB apresenta MSE, PSNR e SSIM nessa página, mas não documenta LPIPS como função nativa.</p>
 </td>
@@ -89,8 +89,8 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 <tr>
 <td>
 <p>Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da RM com o mesmo enquadramento. Ele calcula as diferenças entre pixels, eleva cada diferença ao quadrado e tira a média (MSE). Em seguida, converte o MSE para decibéis: PSNR = 10 log10(MAX² / MSE), em que MAX é o maior valor possível de pixel. <strong>Quanto maior o PSNR, menor o erro médio entre as imagens.</strong></p>
-<p align="center">
-<img src="images/explicacao-psnr-v4.png" width="100%" alt="Etapas do PSNR: comparação das renderizações GT e RM alinhadas, cálculo do MSE pelas diferenças de pixels e conversão para PSNR" />
+<p align="left">
+<img src="images/explicacao-psnr-v4.png" width="80%" alt="Etapas do PSNR: comparação das renderizações GT e RM alinhadas, cálculo do MSE pelas diferenças de pixels e conversão para PSNR" />
 </p>
 <p>A métrica avalia as imagens renderizadas, não as distâncias entre vértices da malha.</p>
 <p><strong>Documentação MATLAB:</strong> <a href="https://www.mathworks.com/help/images/ref/psnr.html">função psnr</a> e <a href="https://www.mathworks.com/help/vision/ref/psnr.html">bloco PSNR no Simulink</a>.</p>
@@ -102,8 +102,8 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 <tr>
 <td>
 <p>Para cada ângulo, o SSIM compara as renderizações correspondentes da GT e da RM em regiões locais. Em cada região, considera <strong>luminância</strong> (brilho médio), <strong>contraste</strong> e <strong>estrutura</strong> (como os padrões e detalhes se relacionam). Os resultados locais são combinados em um índice: <strong>quanto mais próximo de 1, maior a semelhança estrutural</strong>; imagens idênticas recebem 1.</p>
-<p align="center">
-<img src="images/explicacao-ssim-v4.png" width="100%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />
+<p align="left">
+<img src="images/explicacao-ssim-v4.png" width="80%" alt="Etapas do SSIM: imagens correspondentes da GT e RM são comparadas em janelas locais considerando luminância, contraste e estrutura para produzir um índice de semelhança" />
 </p>
 <p>No pipeline deste projeto, o SSIM é calculado por vista sobre recortes mascarados das renderizações, com o fundo zerado, e os canais RGB são considerados em conjunto. A métrica avalia <strong>imagens renderizadas</strong>, não distâncias entre vértices da malha; câmera, enquadramento e máscara influenciam o valor.</p>
 <p><strong>Referências MATLAB:</strong> <a href="https://www.mathworks.com/help/images/ref/ssim.html">função ssim</a> e <a href="https://www.mathworks.com/help/images/image-quality-metrics.html">visão geral de métricas de qualidade de imagem</a>. O pipeline do projeto calcula essa métrica com <code>scikit-image</code>; os links MATLAB servem como referência conceitual da métrica.</p>

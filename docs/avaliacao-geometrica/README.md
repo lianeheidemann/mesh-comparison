@@ -74,6 +74,8 @@ Para cada ângulo, o LPIPS envia as renderizações correspondentes da GT e da R
   <img src="images/explicacao-lpips.jpg" width="100%" alt="Etapas do LPIPS: renderizações GT e RM passam pela mesma rede neural, suas características visuais são extraídas e comparadas para gerar a métrica" />
 </p>
 
+**Referências:** [artigo original do LPIPS (CVPR 2018)](https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html) e [visão geral de métricas de qualidade de imagem no MATLAB](https://www.mathworks.com/help/images/image-quality-metrics.html). A documentação do MATLAB apresenta MSE, PSNR e SSIM nessa página, mas não documenta LPIPS como função nativa.
+
 #### Como funciona o PSNR?
 
 Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da RM com o mesmo enquadramento. Ele calcula as diferenças entre pixels, eleva cada diferença ao quadrado e tira a média (MSE). Em seguida, converte o MSE para decibéis: PSNR = 10 log10(MAX² / MSE), em que MAX é o maior valor possível de pixel. **Quanto maior o PSNR, menor o erro médio entre as imagens.**
@@ -83,6 +85,8 @@ Para cada ângulo, o PSNR compara as renderizações correspondentes da GT e da 
 </p>
 
 A métrica avalia as imagens renderizadas, não as distâncias entre vértices da malha.
+
+**Documentação MATLAB:** [função psnr](https://www.mathworks.com/help/images/ref/psnr.html) e [bloco PSNR no Simulink](https://www.mathworks.com/help/vision/ref/psnr.html).
 
 ### Por que usar vários ângulos?
 

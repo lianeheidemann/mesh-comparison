@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="tit desc">
+<title id="tit">Comparacao intuitiva de Chamfer e Hausdorff entre duas malhas de xicaras</title>
+<desc id="desc">Duas xicaras trianguladas. A reconstruida tem alca deformada, com erros localizados. A Chamfer resume as distancias medias; Hausdorff destaca a maior discrepancia.</desc>
+<rect width="1200" height="620" rx="24" fill="#f6f8fb"/>
+<g font-family="Arial,Helvetica,sans-serif" fill="#26354b">
+<text x="600" y="52" font-size="31" font-weight="700" text-anchor="middle">Uma deformação localizada pode passar despercebida na média</text>
+<text x="290" y="112" font-size="23" font-weight="700" text-anchor="middle">GT · Referência</text>
+<text x="902" y="112" font-size="23" font-weight="700" text-anchor="middle">RM · Reconstrução</text>
+</g>
+<g fill="#dbe8f1" stroke="#456781" stroke-width="3" stroke-linejoin="round">
+<path d="M162 201 L395 201 376 435 Q278 468 181 435Z"/>
+<path d="M774 201 L1007 201 988 435 Q890 468 793 435Z"/>
+</g>
+<g fill="none" stroke="#456781" stroke-width="3">
+<ellipse cx="278" cy="201" rx="116" ry="23"/>
+<ellipse cx="890" cy="201" rx="116" ry="23"/>
+<path d="M395 244 C538 216 525 391 382 378 L388 340 C476 348 482 270 393 282Z" fill="#dbe8f1"/>
+<path d="M1007 244 C1170 183 1166 397 998 378 L1002 335 C1089 363 1133 275 1032 280Z" fill="#ffe7d6"/>
+</g>
+<g stroke="#86a0b5" stroke-width="1.5" fill="none" opacity=".75">
+<path d="M162 201L231 275 180 434 278 201 300 310 181 435 376 435 300 310 395 201 376 435 M231 275L300 310 395 201 M181 435L300 310M278 201L395 201 M162 201L231 275 278 201"/>
+<path d="M774 201L843 275 792 434 890 201 912 310 793 435 988 435 912 310 1007 201 988 435 M843 275L912 310 1007 201 M793 435L912 310M890 201L1007 201 M774 201L843 275 890 201"/>
+</g>
+<g stroke="#86a0b5" stroke-width="1.5" fill="none" opacity=".78">
+<path d="M397 246L449 249 480 278 499 323 463 364 383 378 417 340 465 341 477 305 445 276 395 282 449 249 445 276 465 341 499 323"/>
+</g>
+<g stroke="#db6945" stroke-width="1.7" fill="none">
+<path d="M1008 244L1075 232 1135 252 1150 321 1105 369 998 378 1044 343 1109 342 1129 297 1097 269 1032 280 1075 232 1097 269 1109 342 1150 321"/>
+</g>
+<g stroke="#b93e35" stroke-width="4" stroke-dasharray="7 7" fill="none">
+<path d="M1096 267 Q1112 226 1127 195"/>
+</g>
+<circle cx="1127" cy="195" r="7" fill="#c8473d"/>
+<g fill="#ad392f" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700">
+<text x="1068" y="158">Maior</text><text x="1068" y="180">desvio</text>
+</g>
+<g font-family="Arial,Helvetica,sans-serif">
+<rect x="77" y="486" width="501" height="100" rx="14" fill="#e5edf7" stroke="#b5c8dd"/>
+<rect x="622" y="486" width="501" height="100" rx="14" fill="#fff0e4" stroke="#ebc2a8"/>
+<text x="327" y="522" fill="#294e7b" font-size="25" font-weight="700" text-anchor="middle">Chamfer Distance</text>
+<text x="327" y="548" fill="#334b63" font-size="19" text-anchor="middle">Desvio médio pode ser relativamente baixo</text>
+<text x="327" y="571" fill="#334b63" font-size="16" text-anchor="middle">A maior parte das malhas coincide</text>
+<text x="872" y="522" fill="#a4432b" font-size="25" font-weight="700" text-anchor="middle">Hausdorff Distance</text>
+<text x="872" y="548" fill="#674638" font-size="19" text-anchor="middle">Destaca o afastamento máximo</text>
+<text x="872" y="571" fill="#674638" font-size="16" text-anchor="middle">A deformação está concentrada na alça</text>
+</g>
+</svg>

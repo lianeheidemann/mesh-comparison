@@ -72,7 +72,7 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 
 <table>
 <tr>
-<th align="left">**Como funciona o LPIPS?*$</th>
+<th align="left">Como funciona o LPIPS?</th>
 </tr>
 <tr>
 <td>
@@ -84,7 +84,7 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 </td>
 </tr>
 <tr>
-<th align="left">**Como funciona o PSNR?**</th>
+<th align="left">Como funciona o PSNR?</th>
 </tr>
 <tr>
 <td>
@@ -97,7 +97,7 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 </td>
 </tr>
 <tr>
-<th align="left">**Como funciona o SSIM?**</th>
+<th align="left">Como funciona o SSIM?</th>
 </tr>
 <tr>
 <td>

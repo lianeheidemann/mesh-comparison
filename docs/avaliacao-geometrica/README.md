@@ -58,7 +58,7 @@ Ele complementa as métricas: duas malhas podem ter valores médios semelhantes 
 
 Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagens visualmente diferentes — por exemplo, no contorno ou em detalhes visíveis. O projeto gera imagens da GT (malha de referência) e da RM (malha reconstruída) usando **a mesma câmera** em diferentes ângulos e compara os resultados.
 
-![Avaliação em múltiplos ângulos](images/avaliacao-perceptual.png)
+![Avaliação em múltiplos ângulos](images/avaliacao-perceptual-v2.png)
 
 | Métrica | O que observa | Melhor resultado |
 | --- | --- | --- |
@@ -71,6 +71,8 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 Uma deformação pode ficar invisível quando vista de frente, mas evidente de lado. A avaliação multivista reduz a dependência de uma única perspectiva. No pipeline perceptual, são usadas **100 vistas por padrão**; a quantidade pode ser configurada.
 
 **Limitação importante:** as métricas perceptuais avaliam **renderizações**, não a geometria diretamente. Iluminação, enquadramento, máscaras e configuração da câmera influenciam os resultados. Além disso, o PSNR implementado no projeto tem uma convenção própria de agregação dos canais RGB, que deve ser considerada ao comparar valores com outras ferramentas.
+
+![](images/multi-angle-comparison.png)
 
 ## 6. Qual avaliação é mais relevante?
 

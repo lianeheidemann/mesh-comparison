@@ -1,0 +1,20 @@
+# Mesh Comparison — tutorial de implementação do zero
+
+Este material ensina a **construir o projeto desde o primeiro arquivo**, inclusive todas as funcionalidades que já existem nos scripts. Leia em ordem e implemente uma etapa antes de avançar. Os arquivos `mesh_eval_pipeline.py` e `percept_eval_pipeline.py` são referências do resultado esperado, não pré-requisitos para seguir o tutorial.
+
+![Visão geral](images/pipeline.svg)
+
+## Roteiro de construção
+
+1. [01 — Preparar o projeto e instalar bibliotecas](01-preparacao-ambiente.md)
+2. [02 — Criar os arquivos, CLI e diretórios](02-arquitetura-implementacao.md)
+3. [03 — Importar e normalizar as malhas](03-malhas-normalizacao.md)
+4. [04 — Implementar correspondência e alinhamento ICP](04-alinhamento-icp.md)
+5. [05 — Implementar MSE e RMSE](05-mse-rmse.md)
+6. [06 — Implementar Chamfer e Hausdorff](06-chamfer-hausdorff.md)
+7. [07 — Implementar câmera, renders e heatmap](07-renderizacao-heatmaps.md)
+8. [08 — Implementar renderização multivista, LPIPS, PSNR e SSIM](08-metricas-perceptuais.md)
+9. [09 — Salvar CSVs, exportar PLY e validar](09-relatorios-validacao.md)
+10. [10 — Testar limitações e planejar evolução](10-limitacoes-evolucao.md)
+
+**Convenção:** GT é a malha de referência; RM é a malha a avaliar. As métricas geométricas atuais usam vizinhos mais próximos **entre vértices**. Cada etapa mostra o que criar, como implementar e como testar; não é uma lista de funcionalidades prontas.

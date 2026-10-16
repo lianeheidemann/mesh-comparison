@@ -85,6 +85,8 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 <p><strong>Referências:</strong> <a href="https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html">artigo original do LPIPS (CVPR 2018)</a> e <a href="https://www.mathworks.com/help/images/image-quality-metrics.html">visão geral de métricas de qualidade de imagem no MATLAB</a>. A documentação do MATLAB apresenta MSE, PSNR e SSIM nessa página, mas não documenta LPIPS como função nativa.</p>
 </td>
 </tr>
+</table>
+<table>
 <tr>
 <th align="left">Como funciona o PSNR?</th>
 </tr>
@@ -98,6 +100,8 @@ Duas malhas podem apresentar diferenças geométricas pequenas, mas gerar imagen
 <p><strong>Documentação MATLAB:</strong> <a href="https://www.mathworks.com/help/images/ref/psnr.html">função psnr</a> e <a href="https://www.mathworks.com/help/vision/ref/psnr.html">bloco PSNR no Simulink</a>.</p>
 </td>
 </tr>
+</table>
+<table>
 <tr>
 <th align="left">Como funciona o SSIM?</th>
 </tr>

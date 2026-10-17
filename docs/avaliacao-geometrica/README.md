@@ -141,7 +141,7 @@ Depende do objetivo:
 | Avaliar consistência ao redor de todo o objeto | Métricas perceptuais multivista | Revelam diferenças que aparecem somente em certos ângulos. |
 | Investigar efeito do posicionamento | MSE antes/depois do ICP e transformação | Ajuda a distinguir pose de diferenças de forma. |
 
-**Nenhuma métrica, isoladamente, determina a “qualidade total” de uma malha.** Uma malha pode ser visualmente parecida e ainda conter problemas de topologia, faces invertidas, partes desconectadas ou geometria inadequada para impressão 3D. Esses aspectos não são auditados de forma abrangente pelos pipelines atuais.
+**Nenhuma métrica, isoladamente, determina a “qualidade total” de uma malha.** Uma malha pode ser visualmente parecida e ainda conter problemas de topologia, faces invertidas, partes desconectadas ou geometria inadequada. Esses aspectos não são auditados de forma abrangente pelos pipelines atuais.
 
 ## 7. Como ler os resultados em conjunto
 

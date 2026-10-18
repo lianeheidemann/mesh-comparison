@@ -1,12 +1,14 @@
-# 10 — Validar os limites antes de ampliar o projeto
+# 10 — Planejar a validação e a evolução
+
+> **Status: pendente de validação sistemática.** Esta etapa organiza testes que ainda precisam ser executados e melhorias propostas; não é uma funcionalidade já concluída.
 
 ![Esquema da etapa](../images/pipeline.svg)
 
-## Passo 1 — O que criar
+## Passo 1 — Planejar os testes que faltam
 
-Monte casos controlados: malhas idênticas, deslocadas, escaladas, com vértices extras, buracos e densidades diferentes. Execute o pipeline completo e registre os resultados esperados para cada métrica.
+Ainda falta executar e registrar casos controlados para: malhas idênticas, deslocadas, escaladas, com vértices extras, buracos e densidades diferentes. Execute o pipeline completo e registre os resultados esperados para cada métrica.
 
-## Passo 2 — Implementação inicial
+## Passo 2 — Caso mínimo de referência
 
 ```python
 # Verifica um caso mínimo de consistência das métricas geométricas
@@ -19,12 +21,12 @@ assert np.isclose(result['hausdorff'], 0.0)
 assert np.isclose(result['rmse'], 0.0)
 ```
 
-## Passo 3 — Completar, executar e validar
+## Passo 3 — Separar validações pendentes de melhorias futuras
 
-Depois de reproduzir o comportamento atual, considere implementar amostragem uniforme de superfícies, inspeção de topologia, testes automatizados, opção de ICP sem escala, PSNR RGB convencional e separação de módulos. Essas são **etapas futuras**, não recursos existentes. Documente as diferenças de metodologia antes de comparar novos resultados com CSVs antigos.
+A validação sistemática ainda está pendente: o repositório não possui uma suíte automatizada para esses casos. Como melhorias futuras, considere amostragem uniforme de superfícies, inspeção de topologia, opção de ICP sem escala, PSNR RGB convencional e separação em módulos. Essas mudanças alteram a metodologia ou a organização do código; documente-as antes de comparar resultados novos com CSVs antigos.
 
 ## Passo 4 — Próxima etapa
 
-Continue para a revisão do roteiro em [docs/README.md](../README.md).
+Depois de executar e documentar os testes, atualize o status desta etapa e a revisão do roteiro em [docs/README.md](../README.md).
 
 **Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

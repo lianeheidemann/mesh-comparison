@@ -23,21 +23,23 @@ This workspace compares a ground-truth mesh with a reconstructed mesh. Convert F
 
 ## Technologies
 
-| Technology | Role in the project |
-| --- | --- |
-| Python | Main language for both evaluation pipelines. |
-| Conda | Isolated Python environment and dependency management. |
-| NumPy | Numerical operations on coordinates, arrays, and distances. |
-| Trimesh | Loading, inspecting, transforming, and exporting 3D meshes. |
-| Open3D | Iterative Closest Point (ICP) mesh alignment. |
-| SciPy (cKDTree) | Efficient nearest-neighbor searches for geometric metrics. |
-| pyrender | Offscreen rendering of meshes for image-based comparison. |
-| Matplotlib | Geometric distance visualization and heatmap color mapping. |
-| imageio | Writing rendered images to disk. |
-| PyTorch | Neural-network execution for perceptual evaluation, with optional CUDA acceleration. |
-| LPIPS | Learned perceptual similarity between rendered views. |
-| scikit-image | Structural Similarity Index (SSIM) calculation. |
-| pandas | Tabular metrics, summaries, and CSV exports. |
+| Technology | Version / installation target | Role in the project |
+| --- | --- | --- |
+| Python | 3.12 | Main language for both evaluation pipelines. |
+| Conda | Current stable Miniconda3 (Windows x86_64); Conda version not pinned | Isolated Python environment and dependency management. |
+| NumPy | Not pinned | Numerical operations on coordinates, arrays, and distances. |
+| Trimesh | Not pinned | Loading, inspecting, transforming, and exporting 3D meshes. |
+| Open3D | Not pinned | Iterative Closest Point (ICP) mesh alignment. |
+| SciPy (cKDTree) | Not pinned | Efficient nearest-neighbor searches for geometric metrics. |
+| pyrender | Not pinned | Offscreen rendering of meshes for image-based comparison. |
+| Matplotlib | Not pinned | Geometric distance visualization and heatmap color mapping. |
+| imageio | Not pinned | Writing rendered images to disk. |
+| PyTorch | Not pinned | Neural-network execution for perceptual evaluation, with optional CUDA acceleration. |
+| LPIPS | Not pinned | Learned perceptual similarity between rendered views. |
+| scikit-image | Not pinned | Structural Similarity Index (SSIM) calculation. |
+| pandas | Not pinned | Tabular metrics, summaries, and CSV exports. |
+
+Python 3.12 is the environment version specified by this project. The Python version bundled with the Miniconda installer may differ; `conda create -n meshEval python=3.12` selects the project version independently. Library versions are not yet recorded in a requirements or lock file, so exact versions used to generate the existing results cannot be confirmed. “Not pinned” does not mean that every release is compatible; a tested dependency set still needs to be recorded.
 
 ## Workspace layout
 

@@ -1,4 +1,6 @@
-# Resultados atuais
+# Resultados de exemplo — registro histórico
+
+> **Escopo:** resultados previamente registrados e versionados em `examples/output/`. A reorganização do código em `src/meshcomparison/` e a GUI PySide6/PyVistaQt **não foram revalidadas por esta publicação**; não trate os números abaixo como benchmark de um novo commit.
 
 Este relatório registra a execução de exemplo dos pipelines geométrico e perceptual com `data/samples/gt.stl` como referência (GT) e `data/samples/mod.stl` como malha avaliada (RM). Os resultados foram gerados localmente e estão disponíveis na pasta [`examples/output/`](../../examples/output/).
 
@@ -123,4 +125,4 @@ Cada imagem já mostra GT e RM lado a lado.
 - [`aligned/rm_aligned.ply`](../../examples/output/aligned/rm_aligned.ply): malha avaliada exportada pelo pipeline geométrico.
 - [`heatmaps/gt_heatmap_colored.ply`](../../examples/output/heatmaps/gt_heatmap_colored.ply): malha com cores do heatmap.
 
-Os CSVs de execução registram caminhos locais das malhas; eles podem variar em outra máquina. [`environment.yml`](../../environments/environment.yml) lista as dependências gerais, enquanto [`environment-lock.yml`](../../environments/environment-lock.yml) fixa as versões exportadas do ambiente Windows `meshEval`. Esse ambiente usa PyTorch CPU-only, sem CUDA; portanto, a aceleração CUDA não foi testada. O pipeline perceptual executou em CPU. A execução de exemplo não valida comportamento para malhas idênticas, deslocadas, redimensionadas, com buracos ou densidades diferentes; esses casos continuam pendentes na [etapa 10](../implementation/step-by-step/10-limitacoes-evolucao.md). Mais detalhes da instalação e validação estão no [guia de preparação do ambiente](../implementation/step-by-step/01-preparacao-ambiente.md).
+Os CSVs de execução registram caminhos locais das malhas; eles podem variar em outra máquina. [`environment.yml`](../../environments/environment.yml) lista as dependências gerais, enquanto [`environment-lock.yml`](../../environments/environment-lock.yml) fixa as versões exportadas do ambiente Windows `meshEval`. Esse ambiente usa PyTorch CPU-only, sem CUDA; portanto, a aceleração CUDA não foi testada. O pipeline perceptual executou em CPU. A execução de exemplo não é uma validação end-to-end desses cenários. Há testes unitários de pontos idênticos, deslocamento e transformações, mas a análise sistemática de malhas deslocadas, redimensionadas, com buracos ou densidades diferentes continua pendente na [etapa 10](../implementation/step-by-step/10-limitacoes-evolucao.md). Mais detalhes da instalação e validação estão no [guia de preparação do ambiente](../implementation/step-by-step/01-preparacao-ambiente.md).

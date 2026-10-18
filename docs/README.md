@@ -1,9 +1,33 @@
 # Documentação — Mesh Comparison
 
-Esta documentação possui dois caminhos complementares:
+Esta é a navegação da documentação para a **branch `ccr-98be27a8-o344ln`**, cujo código está organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro anterior; mudanças recentes na estrutura do projeto não equivalem a uma nova execução validada.
 
-- **[Entender a avaliação de malhas 3D](avaliacao-geometrica/):** explicação simplificada dos critérios de comparação, métricas geométricas e perceptuais, relevância e limitações.
-- **[Tutorial de implementação](implementation/):** passo a passo técnico para construir os pipelines do projeto, com código e diagramas.
-- **[Resultados atuais](results/):** resumo das métricas e visualizações produzidas nas execuções de exemplo.
+| Área | Conteúdo | Quando consultar |
+| --- | --- | --- |
+| [Avaliação de malhas 3D](avaliacao-geometrica/README.md) | Conceitos, métricas geométricas e perceptuais, aplicações e limitações | Antes de interpretar métricas |
+| [Implementação e evolução](implementation/README.md) | Estrutura modular, fluxo dos pipelines e tutoriais passo a passo | Ao estudar ou alterar o código |
+| [Interface desktop](gui/README.md) | Instalação, execução e controles da GUI PySide6/PyVistaQt | Para inspecionar GT, RM, heatmap e relatórios |
+| [Resultados de exemplo](results/README.md) | Métricas e imagens de uma execução previamente registrada | Para consultar um conjunto específico de resultados |
+| [Agent Harness](harness/README.md) | Estado do desenvolvimento assistido por agentes, guardrails e roteiro reutilizável | Para organizar futuras implementações via LLM |
+| [Referências sobre Harness](harness/REFERENCIAS.md) | Fontes oficiais e materiais complementares | Para fundamentar decisões e arquitetura |
 
-A leitura conceitual é recomendada antes do tutorial de implementação.
+## Entrada rápida para a versão atual
+
+O pacote em `src/meshcomparison/` está dividido em:
+
+- **`common/`** — carregamento de malhas, normalização/transformações, distâncias, ICP, renderização e escolha do dispositivo para LPIPS.
+- **`geometry/`** — métricas geométricas, heatmap e pipeline.
+- **`perceptual/`** — câmeras, imagens, LPIPS/PSNR/SSIM e pipeline multivista.
+- **`gui/`** — interface Qt com visualizador PyVistaQt, painel de configuração, relatórios e execução em subprocessos.
+
+Depois de preparar `meshEval` e instalar o pacote em modo editável, os comandos são:
+
+```bash
+python -m meshcomparison.geometry --help
+python -m meshcomparison.perceptual --help
+python -m meshcomparison.gui
+```
+
+O terceiro comando inicia uma **janela desktop** (requer PySide6/PyVista/PyVistaQt e ambiente com interface gráfica). Veja a [instalação detalhada](implementation/step-by-step/01-preparacao-ambiente.md). O CI atual executa `ruff check .`, `pytest -q` e os dois `--help`; ele não testa a janela interativa nem executa os pipelines completos com renderização.
+
+**Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.

@@ -24,7 +24,7 @@
 
 This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Convert FBX models to STL (or another supported `trimesh` format) before running the evaluation scripts; they do not load FBX directly.
 
-**Quick links:** [Example results](#example-results) · [Installation](#installation) · [Run the pipelines](#run) · [Implementation details](#pipelines) · [Limitations](#scope-and-limitations)
+**Quick links:** [Example results](#example-results) · [Installation](#installation) · [Run the pipelines](#run) · [Desktop interface](#desktop-interface) · [Technical documentation](docs/README.md) · [Agent Harness guide](docs/harness/README.md) · [Limitations](#scope-and-limitations)
 
 ### Table of contents
 
@@ -34,10 +34,12 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Run](#run)
+- [Desktop interface](#desktop-interface)
 - [Pipelines](#pipelines)
 - [Options](#options)
 - [Scope and limitations](#scope-and-limitations)
 - [Development](#development)
+- [Troubleshooting](#troubleshooting)
 - [License and credits](#license-and-credits)
 
 ---
@@ -116,7 +118,7 @@ The [full example report](docs/results/README.md) (currently in Portuguese) cont
 | scikit-image | 0.26.0 | Structural Similarity Index (SSIM) calculation. |
 | pandas | 3.0.6 | Tabular metrics, summaries, and CSV exports. |
 
-These versions were reported from the local Windows `meshEval` environment on 2026-10-17. Imports and both example pipelines were confirmed in that environment. PyTorch reports `2.14.1+cpu`; CUDA is unavailable, so perceptual evaluation runs on CPU. [`environments/environment-lock.yml`](environments/environment-lock.yml) records the installed Conda and pip package versions for recreating this Windows environment. [`environments/environment.yml`](environments/environment.yml) remains the general, unpinned dependency list. These observed versions do not identify the environment that produced older outputs already in the repository. The installer’s base Python version is independent of the project environment.
+These versions are a **historical snapshot reported from a Windows `meshEval` environment on 2026-10-17**, not a claim that the refactored package or GUI was retested with exactly those versions. In that recorded environment, PyTorch was `2.14.1+cpu` and CUDA was unavailable. [`environments/environment-lock.yml`](environments/environment-lock.yml) preserves this **Windows-specific pre-GUI snapshot**; it does **not** pin PySide6, PyVista or PyVistaQt. [`environments/environment.yml`](environments/environment.yml) is the general, largely unpinned environment definition and now includes the desktop dependencies. New installations may resolve different package versions. The committed [example results](docs/results/README.md) belong to a recorded run, not to a new verification of this branch.
 
 ## Workspace layout
 
@@ -136,7 +138,7 @@ mesh-comparison/
 │   ├── heatmaps/                  # Geometric distance heatmap assets
 │   ├── metrics/                   # CSV metric reports
 │   └── renders/                   # Mesh and view renders (gt/, rm/, pairs/)
-├── docs/                          # Guides, results report, logo and diagrams (docs/assets/)
+├── docs/                          # Geometric concepts, implementation, GUI and harness guides
 └── tests/                         # pytest suite
 ```
 
@@ -151,7 +153,7 @@ Use Python in a Conda environment named `meshEval` to run the supplied launchers
 Run these commands separately in Anaconda Prompt from the repository root. Choose **one** environment file:
 
 - `environments/environment.yml` is the general setup with unpinned dependencies.
-- `environments/environment-lock.yml` reproduces the recorded Windows environment and package versions.
+- `environments/environment-lock.yml` records the earlier Windows environment, **before GUI dependencies were added**; if you use it to run the GUI, install the extra packages separately.
 
 For the general setup:
 
@@ -175,15 +177,13 @@ If `meshEval` already exists, activate it instead of creating it again. The [env
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
 ```
 
-The recorded local validation used CPU-only PyTorch. On Windows, `pip install torch` installs a **CPU-only** build even when the machine has an NVIDIA GPU, so LPIPS silently runs on the CPU. To use the GPU, replace it with a CUDA build that matches your driver (see the [PyTorch installation selector](https://pytorch.org/get-started/locally/)), for example:
+The previously recorded Windows environment had a **CPU-only PyTorch build**; that does not mean every installation of PyTorch on Windows is CPU-only. Check your environment first:
 
 ```bat
-pip uninstall -y torch torchvision
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
-python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
+python -c "import torch; print('torch:', torch.__version__, 'CUDA build:', torch.version.cuda, 'CUDA available:', torch.cuda.is_available())"
 ```
 
-The second command must print `True` and a CUDA version. The perceptual pipeline always prefers CUDA when it is available (`--device auto`, the default); `--device cpu` forces the CPU and `--device cuda` fails with an explanation if CUDA cannot be used. When an NVIDIA GPU is detected but PyTorch cannot use it, the pipeline and the GUI print a warning with the fix. The geometric pipeline does not use the GPU.
+For GPU-accelerated LPIPS, choose the **installation command matching your operating system, Python version and NVIDIA driver** from the [official PyTorch selector](https://pytorch.org/get-started/locally/). Recheck `torch.cuda.is_available()` afterward; this branch has **no recorded GPU end-to-end validation**. `--device auto` prefers CUDA when PyTorch can use it, `--device cpu` forces CPU, and `--device cuda` fails with an explanation if CUDA is unavailable. Only the LPIPS neural-network calculation selects that device; the geometric pipeline and the offscreen renderer are not made CUDA-accelerated by this option.
 
 ## Run
 
@@ -208,12 +208,12 @@ Both commands require `--gt` and `--rm`; `--out` defaults to `output`.
 An optional Qt window runs both pipelines, shows the metrics and renders, and displays the GT, the aligned RM and the deviation heatmap in an interactive 3D viewer (rotate, zoom, pan, opacity, edges, save image). Install the extra dependencies and start it:
 
 ```bat
-pip install PySide6 pyvista pyvistaqt    # already included when the environment is created from environment.yml
-pip install -e . --no-deps               # registers the mesh-gui command
+python -m pip install PySide6 pyvista pyvistaqt
+python -m pip install -e . --no-deps
 mesh-gui
 ```
 
-(`python -m meshcomparison.gui` is equivalent.) The pipelines run in a separate process, so a run can be cancelled and the offscreen renderer never conflicts with the viewer. The side panel shows which device LPIPS will use and warns when a GPU is present but PyTorch is a CPU-only build.
+(`python -m meshcomparison.gui` is equivalent.) The packages above are already declared by the **general** `environments/environment.yml`, but they are **not** in the older Windows lock snapshot. Each pipeline runs in a child process and the GUI provides cancellation, progress and logs; this separation avoids sharing the offscreen renderer context with the viewer in the same process. The side panel reports the LPIPS device and any CUDA warning. See the [desktop GUI guide](docs/gui/README.md) for controls, supported files, output handling and troubleshooting.
 
 ## Pipelines
 
@@ -252,9 +252,11 @@ The geometric pipeline also accepts `--azimuth` (default `-135`) and `--elevatio
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
 - The GitHub Actions workflow checks linting, tests, and the command-line help output. It does not run offscreen rendering or validate CUDA execution.
 - LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.
-- Systematic validation of identical, translated, resized, incomplete, and differently sampled meshes is still pending; see the [validation plan](docs/implementation/step-by-step/10-limitacoes-evolucao.md).
+- Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/step-by-step/10-limitacoes-evolucao.md).
 
 ## Development
+
+Implementation details are in the [technical guide](docs/implementation/README.md); the [desktop guide](docs/gui/README.md) covers the Qt/PyVista viewer; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
 
 `environments/environment.yml` also installs `pytest` and `ruff`. From the activated environment (with `pip install -e . --no-deps` done):
 

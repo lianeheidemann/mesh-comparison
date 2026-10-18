@@ -4,37 +4,34 @@
 
 A GUI permite escolher a **malha de referência (GT)** e a **malha reconstruída (RM)**, configurar parâmetros dos pipelines, visualizar modelos 3D e consultar os resultados CSV/PNG. Usa **PySide6** para a aplicação desktop, **PyVista + PyVistaQt (VTK)** para o viewer e executa os scripts científicos em **processos Python separados**, via `QProcess`.
 
-## 1. Requisitos e instalação
+## 1. Instalar e abrir
 
-No terminal, a partir da raiz (onde está `pyproject.toml`), crie o ambiente completo:
+No Windows, abra o **Anaconda Prompt** na pasta do projeto (a pasta que contém `pyproject.toml`). Se ainda não tiver o ambiente, crie-o uma vez:
 
 ```bat
 conda env create -f environments/environment.yml
+```
+
+Ative o ambiente e instale o projeto:
+
+```bat
 conda activate meshEval
 python -m pip install -e . --no-deps
 ```
 
-Se o ambiente já existe, apenas execute `conda activate meshEval` e instale o pacote editável. Os comandos acima pressupõem que `environments/environment.yml` conseguiu instalar as dependências no seu sistema.
-
-**Importante:** [`environments/environment-lock.yml`](../../environments/environment-lock.yml) é um snapshot anterior à interface desktop e **não fixa PySide6, PyVista nem PyVistaQt**. Caso tenha criado `meshEval` a partir desse lock, instale as três dependências manualmente:
+Se aparecer `prefix already exists`, o ambiente já existe: pule a criação e execute os dois comandos acima. O arquivo `environment.yml` inclui os pacotes da interface. Como `--no-deps` não instala dependências, um ambiente antigo pode precisar dos pacotes gráficos:
 
 ```bat
 python -m pip install PySide6 pyvista pyvistaqt
 ```
 
-Para abrir:
+Abra a interface:
 
 ```bat
 mesh-gui
 ```
 
-Alternativamente:
-
-```bat
-python -m meshcomparison.gui
-```
-
-A GUI requer **ambiente gráfico**; não há suporte garantido a interface visível em runner headless de CI.
+Se `mesh-gui` não for reconhecido, use `python -m meshcomparison.gui`. Se aparecer `No module named 'PySide6'`, instale os pacotes gráficos com o comando acima. A interface precisa de uma sessão desktop; não abre em um terminal sem ambiente gráfico.
 
 ## 2. Escolher arquivos e formatos
 

@@ -151,28 +151,26 @@ Use Python in a Conda environment named `meshEval` to run the supplied launchers
 
 ## Installation
 
-Run these commands separately in Anaconda Prompt from the repository root. Choose **one** environment file:
-
-- `environments/environment.yml` is the general setup with unpinned dependencies.
-- `environments/environment-lock.yml` records the earlier Windows environment, **before GUI dependencies were added**; if you use it to run the GUI, install the extra packages separately.
-
-For the general setup:
+Open **Anaconda Prompt** in the repository folder. Create the environment only if it does not already exist:
 
 ```bat
 conda env create -f environments/environment.yml
-conda activate meshEval
-pip install -e . --no-deps
 ```
 
-To recreate the recorded Windows environment instead, use:
+Then activate it and install the project:
 
 ```bat
-conda env create -f environments/environment-lock.yml
 conda activate meshEval
-pip install -e . --no-deps
+python -m pip install -e . --no-deps
 ```
 
-If `meshEval` already exists, activate it instead of creating it again. The [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) records validation details. `pip install -e . --no-deps` registers the `meshcomparison` package (dependencies come from the environment file). Verify imports before running the pipelines:
+If Conda reports `prefix already exists`, the environment is already there. Skip `conda env create` and run the activation and install commands above. The `environment.yml` file includes the desktop interface dependencies. The `--no-deps` option registers the project without installing its dependencies, so an older environment may still need the GUI packages:
+
+```bat
+python -m pip install PySide6 pyvista pyvistaqt
+```
+
+The [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) has additional setup notes. To verify the pipeline dependencies, run:
 
 ```bat
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
@@ -206,15 +204,13 @@ Both commands require `--gt` and `--rm`; `--out` defaults to `output`.
 
 ### Desktop interface
 
-An optional Qt window runs both pipelines, shows the metrics and renders, and displays the GT, the aligned RM and the deviation heatmap in an interactive 3D viewer (rotate, zoom, pan, opacity, edges, save image). Install the extra dependencies and start it:
+With the `meshEval` environment active, start the new interface with:
 
 ```bat
-python -m pip install PySide6 pyvista pyvistaqt
-python -m pip install -e . --no-deps
 mesh-gui
 ```
 
-(`python -m meshcomparison.gui` is equivalent.) The packages above are already declared by the **general** `environments/environment.yml`, but they are **not** in the older Windows lock snapshot. Each pipeline runs in a child process and the GUI provides cancellation, progress and logs; this separation avoids sharing the offscreen renderer context with the viewer in the same process. The side panel reports the LPIPS device and any CUDA warning. See the [desktop GUI guide](docs/gui/README.md) for controls, supported files, output handling and troubleshooting.
+If that command is not found, use `python -m meshcomparison.gui`. If the window does not open and Python reports `No module named 'PySide6'`, install the interface packages with `python -m pip install PySide6 pyvista pyvistaqt`, then try again. The GUI needs a desktop session. See the [desktop GUI guide](docs/gui/README.md) for choosing meshes and running an evaluation.
 
 ## Validate on Windows
 

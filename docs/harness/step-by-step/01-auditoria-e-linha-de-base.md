@@ -29,18 +29,19 @@ ruff check .
 pytest -q
 ```
 
-Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambiente e entrypoint. O `environments/environment-lock.yml` atual do Mesh Comparison foi obtido em Windows e **não deve ser tratado como lock universal de Linux/macOS**.
+Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambiente e entrypoint. O `environments/environment-lock.yml` foi obtido em Windows **antes de PySide6/PyVista/PyVistaQt serem incluídos** e não deve ser tratado como lock universal de Linux/macOS ou garantia de execução da GUI.
 
 ## O que já está implantado no Mesh Comparison
 
 | Item | Estado | Referência |
 | --- | :---: | --- |
 | Gerenciamento de ambiente Conda | ✅ | [environment.yml](../../../environments/environment.yml) |
-| Dependências com versões registradas | ✅ | [environment-lock.yml](../../../environments/environment-lock.yml) |
+| Dependências com versões registradas | 🟡 | [environment-lock.yml](../../../environments/environment-lock.yml) registra versões antigas do Windows, **sem a GUI** |
 | Entradas e scripts executáveis documentados | ✅ | [README](../../../README.md), `data/samples/gt.stl`, `data/samples/mod.stl` e pipelines |
-| Saídas de avaliação e métricas de exemplo | ✅ | [README principal](../../../README.md) e `output/` |
+| Saídas de avaliação e métricas de exemplo | ✅ | [README principal](../../../README.md) e [`examples/output/`](../../../examples/output/); `output/` é pasta local ignorada pelo Git |
 | Baseline sistemática com hashes e comparação de cenários | 🟡 | Exemplos existem; validação ampla documentada como pendente |
 | Reprodutibilidade de toda a renderização entre plataformas | ❓ | Não comprovada; requer validação específica |
+| Interface gráfica PySide6/PyVistaQt | ✅ | [Código](../../../src/meshcomparison/gui/) e [guia desktop](../../gui/README.md); funcionamento precisa ser testado em SO real |
 
 ### Verificação prática deste projeto
 

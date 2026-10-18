@@ -34,14 +34,17 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 | Ferramenta de testes integrada ao projeto | ✅ | `pytest` no [environment.yml](../../../environments/environment.yml) e [CI](../../../.github/workflows/ci.yml) |
 | Execução automatizada de pytest | ✅ | Etapa `pytest -q` do workflow (configurada; não equivale a run comprovadamente verde) |
 | Smoke tests dos dois CLIs | ✅ | Duas chamadas `--help` no workflow |
-| Cobertura de malhas idênticas, transladadas, escaladas, incompletas, densidades distintas | 🟡 | [Plano de validação existente](../../implementation/step-by-step/10-limitacoes-evolucao.md) registra lacunas |
-| Regressão controlada de ICP, Chamfer, Hausdorff e RMSE | ❓ | Precisa ser demonstrada por testes com valores esperados |
-| Regressão estável de LPIPS, PSNR e SSIM multiângulo | ❓ | Requer referência de câmeras, máscara, renderizador e parâmetros |
+| Testes de métricas geométricas de pontos | ✅ | [`tests/test_geometry.py`](../../../tests/test_geometry.py) testa nuvens idênticas, Chamfer, Hausdorff e RMSE para deslocamento simples |
+| Transformações de bbox, MSE e subsampling | ✅ | [`tests/test_common.py`](../../../tests/test_common.py); não comprova ICP end-to-end |
+| Helpers perceptuais (PSNR, máscaras, estatísticas) | ✅ | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py) |
+| Device e parâmetros de interface | ✅ | [`tests/test_device.py`](../../../tests/test_device.py) usa simulações; [`tests/test_gui_config.py`](../../../tests/test_gui_config.py) verifica comandos/configuração, **não uma janela real** |
+| Cenários completos de malhas deformadas, incompletas e densidades distintas | 🟡 | [Plano de validação](../../implementation/step-by-step/10-limitacoes-evolucao.md) registra as lacunas |
+| Regressão do fluxo multivista LPIPS/PSNR/SSIM | ❓ | Testes integrados com renderização e modelos reais ainda precisam ser demonstrados |
 
 ### Casos que devem ser acrescentados neste projeto
 
-- Identidade GT = RM → distância aproximadamente zero (dentro de tolerância explícita).
-- Translação e escala → testar distâncias *antes* e *depois* do ICP, distinguindo transformações.
+- **Expandir a identidade já testada entre nuvens de pontos** para malhas reais GT = RM, distância aproximadamente zero e execução completa do pipeline.
+- **Expandir os testes existentes de deslocamento e bbox** para translação/escala em malhas e distância *antes* e *depois* do ICP.
 - Deformação localizada, buracos e densidades desiguais → verificar direção da comparação e efeito da amostragem.
 - LPIPS, PSNR e SSIM → fixar views, iluminação, máscara, resolução e parâmetros, documentando variações possíveis CPU/GPU.
 - Casos inválidos → erro explícito, sem sucesso silencioso; hashes e entradas preservados.

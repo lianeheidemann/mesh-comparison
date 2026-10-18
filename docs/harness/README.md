@@ -27,20 +27,20 @@ Neste projeto, a finalidade proposta não é substituir o pipeline científico p
 | --- | :---: | --- | --- |
 | Documentação técnica estruturada | ✅ | Contexto e mapa do repositório | [README principal](../../README.md) e [documentação](../README.md) |
 | Guias de implementação passo a passo | ✅ | Decomposição de tarefas e transferência de conhecimento | [Guias existentes](../implementation/step-by-step/) |
-| Ambiente Conda reproduzível | ✅ | Execução consistente de tarefas e testes | [environment.yml](../../environments/environment.yml); lock registrado em Windows |
-| Dependências com versões registradas | ✅ | Facilita a reprodução | [environment-lock.yml](../../environments/environment-lock.yml); não presume lock multi-OS |
-| Testes com pytest | 🟡 | Permitem verificar alterações | Comando no [CI](../../.github/workflows/ci.yml); **cobertura de casos geométricos sistemáticos ainda pendente** |
+| Ambiente Conda reproduzível | ✅ | Execução consistente de tarefas e testes | [environment.yml](../../environments/environment.yml) inclui GUI; validação limpa da branch atual ainda precisa ser registrada |
+| Dependências com versões registradas | 🟡 | Facilita a reprodução | [environment-lock.yml](../../environments/environment-lock.yml) é snapshot Windows **anterior à GUI**, sem versões fixadas de PySide6/PyVista/PyVistaQt |
+| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes unitários](../../tests/) para métricas de pontos, CPU/CUDA simulado, PSNR/máscaras e configuração Qt-free da GUI; **regressões end-to-end ainda pendentes** |
 | Lint com Ruff | ✅ | Verifica padrões de código | Etapa `ruff check .` no [CI](../../.github/workflows/ci.yml) |
 | GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes e `--help` dos pipelines |
 | Pipelines de processamento | ✅ | Permitem execução repetível | [Geometria](../../src/meshcomparison/geometry/pipeline.py) e [avaliação perceptual](../../src/meshcomparison/perceptual/pipeline.py) |
 | Instruções específicas para agentes | ❌ | Definem regras de atuação, comandos e limites | `AGENTS.md` e `CLAUDE.md` ausentes na raiz da `main` auditada |
 | Ciclo autônomo de correção e validação | ❓ | Permite ao agente testar, diagnosticar, corrigir e revalidar | Não demonstrado por arquivos auditados; CI **não** equivale a agente autônomo |
-| Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/step-by-step/10-limitacoes-evolucao.md) indica trabalho pendente |
+| Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/step-by-step/10-limitacoes-evolucao.md) separa casos unitários existentes dos cenários de malhas e renderização ainda pendentes |
 | Proteção de branch e revisões obrigatórias | ❓ | Impede merge sem critérios e aprovação | Configuração remota do GitHub não auditada |
 | Rastro de tarefas/execuções de agente | ❓ | Documenta decisões, evidências e falhas | Não demonstrado no escopo verificado |
-| Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [GUI](../../src/meshcomparison/gui/main_window.py); integração aos workflows de agente continua separada |
+| Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [Código](../../src/meshcomparison/gui/main_window.py) e [guia de uso](../gui/README.md); teste gráfico real ainda não documentado |
 
-> Os ícones registram **evidência**, não porcentagens de conclusão. Em particular, `pytest` existir não assegura que todos os cenários científicos estejam testados; a execução e o resultado de cada workflow também devem ser conferidos no GitHub Actions.
+> Os ícones registram **evidência de arquivos/configuração**, não porcentagens de conclusão. Há testes unitários reais no diretório `tests/`, mas eles não asseguram que todos os cenários científicos estejam testados; a execução e o resultado de cada workflow também devem ser conferidos no GitHub Actions.
 
 ## 3. Fluxo desejável
 
@@ -110,7 +110,7 @@ Todas as referências técnicas utilizadas neste plano foram organizadas no cat�
 
 **[Referências sobre Agent Harness — docs/harness/REFERENCIAS.md](REFERENCIAS.md)**
 
-O arquivo reúne materiais da **Anthropic**, **OpenAI**, **VS Code / Microsoft**, **Claude Code** e **GitHub**, incluindo o artigo da OpenAI em português e a nova pesquisa da Anthropic sobre *long-running application development*.
+O arquivo reúne materiais da **Anthropic**, **OpenAI**, **VS Code / Microsoft**, **Claude Code** e **GitHub**, incluindo o artigo da OpenAI em português e o material da Anthropic sobre *long-running application development*.
 
 O **CanIRun.ai** está separado como recurso **complementar para IA local**: suas estimativas de hardware podem ser úteis se forem estudados agentes locais, mas não são evidência de implementação de um harness.
 

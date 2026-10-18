@@ -1,107 +1,94 @@
-# 01 — Preparar o projeto e instalar as dependências
+# 01 — Preparar o ambiente e instalar o pacote Python
 
-> **Status: concluída para execução em CPU.** Ambiente local criado, dependências importadas sem erro e os pipelines geométrico e perceptual executados com os arquivos de exemplo. O snapshot `environment-lock.yml` registra as versões instaladas. O PyTorch deste ambiente é CPU-only; CUDA não está disponível.
-
-Este passo prepara o ambiente para executar e validar os pipelines que já existem no repositório.
+> **Situação:** a documentação registra uma execução anterior dos pipelines no Windows com PyTorch CPU-only. A branch atual usa um **pacote `src/meshcomparison/` e uma GUI opcional**; a execução completa da nova estrutura não é comprovada apenas pelo registro antigo.
 
 ![Esquema da etapa](../images/pipeline.svg)
 
-## Passo 1 — Preparar o ambiente do projeto existente
+## Passo 1 — Requisitos e organização
 
-No Windows 64 bits, use o Miniconda3 e abra o **Anaconda Prompt** na raiz da cópia local do repositório. O ambiente registrado usa Conda **25.11.1**; essa é a versão observada, não um requisito obrigatório.
+Instale Conda/Miniconda, abra um terminal na **raiz do repositório** (onde fica `pyproject.toml`) e confirme que você está na branch de trabalho correta. Python **3.12** é a versão indicada em `environments/environment.yml`; a versão observada no snapshot Windows de 17/10/2026 foi **3.12.15**, não requisito de toda instalação.
 
-Execute cada bloco separadamente. Copie somente os comandos, sem URLs, textos explicativos ou o prefixo do terminal.
+Arquivos relevantes:
+
+- [`environments/environment.yml`](../../../environments/environment.yml): ambiente geral para os pipelines, GUI e ferramentas de desenvolvimento.
+- [`environments/environment-lock.yml`](../../../environments/environment-lock.yml): snapshot Windows mais antigo; **não fixa as novas dependências da GUI**.
+- [`pyproject.toml`](../../../pyproject.toml): pacote Python, pontos de entrada e extras.
+
+## Passo 2 — Criar e ativar o ambiente
+
+Escolha **uma** opção. Para a branch atual, prefira a configuração geral:
 
 ```bat
-conda create -n meshEval python=3.12.15
-```
-
-Quando aparecer `Proceed ([y]/n)?`, digite apenas `y` e pressione Enter. Aguarde a instalação terminar e o prompt retornar antes de executar:
-
-```bat
+conda env create -f environments/environment.yml
 conda activate meshEval
 python --version
 ```
 
-O início da linha deve mostrar `(meshEval)`. A versão confirmada neste ambiente foi **Python 3.12.15**. Se o ambiente já existe, basta ativá-lo; não é necessário criá-lo novamente.
+Caso o ambiente `meshEval` já exista, **não** repita a criação; ative-o. Se quiser restaurar o registro histórico em um Windows compatível, pode utilizar `conda env create -f environments/environment-lock.yml` em um **novo ambiente** após ajustar o nome ou remover com segurança uma instalação antiga. Essa alternativa reproduz versões da época, não valida automaticamente o projeto refatorado, não é portátil para Linux/macOS e não traz PySide6/PyVista/PyVistaQt.
 
-## Passo 2 — Instalar as dependências
+## Passo 3 — Instalar o próprio projeto (obrigatório)
 
-Com o ambiente ativo:
-
-```bat
-python -m pip install numpy pandas trimesh pyrender open3d matplotlib imageio scipy scikit-image torch torchvision lpips
-```
-
-### Versões registradas em 17/10/2026
-
-| Tecnologia | Versão instalada informada |
-| --- | --- |
-| Python | 3.12.15 |
-| Conda | 25.11.1 |
-| NumPy | 2.5.4 |
-| pandas | 3.0.6 |
-| Trimesh | 5.1.1 |
-| pyrender | 0.1.45 |
-| Open3D | 0.20.0 |
-| Matplotlib | 3.11.2 |
-| imageio | 2.38.1 |
-| SciPy | 1.18.1 |
-| scikit-image | 0.26.0 |
-| PyTorch (torch) | 2.14.1+cpu |
-| torchvision | 0.29.1 |
-| LPIPS | 0.1.4 |
-| PyOpenGL | 3.1.0 |
-| pyglet | 2.1.19 |
-| Pillow | 13.0.0 |
-| pytest | 9.1.1 |
-| Ruff | 0.17.1 |
-
-O pip informou `Successfully installed`. Os dois pipelines foram executados neste ambiente, confirmando que suas dependências carregaram e que a renderização funcionou nesta máquina. Isso não confirma aceleração CUDA. As versões acima não identificam o ambiente que gerou os resultados já existentes no repositório. O comando acima não fixa versões e poderá instalar versões diferentes no futuro.
-
-Para recriar o ambiente Windows com as versões observadas, use o snapshot exportado:
+Com `meshEval` ativo e na raiz:
 
 ```bat
-conda env create -f environment-lock.yml
+python -m pip install -e . --no-deps
 ```
 
-`environment.yml` continua como uma lista geral de dependências; `environment-lock.yml` fixa as versões Conda e pip observadas neste ambiente Windows em 17/10/2026. O snapshot não inclui o caminho local do ambiente.
+O modo editável disponibiliza os módulos `meshcomparison.*` e os comandos `mesh-eval`, `percept-eval` e `mesh-gui`. **Instalar só bibliotecas NumPy/Trimesh/Open3D via pip não instala o pacote local.** `--no-deps` pressupõe que as dependências necessárias já vieram do arquivo de ambiente.
 
-## Passo 3 — Conferir o ambiente e executar os scripts
-
-Primeiro, confira as importações:
+Se você usou o snapshot Windows e pretende abrir a interface, instale separadamente:
 
 ```bat
-python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: bibliotecas carregadas')"
+python -m pip install PySide6 pyvista pyvistaqt
 ```
 
-Se o teste terminar sem erro, execute a avaliação geométrica:
+Na configuração geral essas três bibliotecas já estão declaradas. Sua disponibilidade e a abertura da janela ainda precisam ser testadas no computador.
+
+## Passo 4 — Verificar importações e interfaces de linha de comando
 
 ```bat
-python mesh_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
+python -c "import meshcomparison, trimesh, open3d, pyrender, numpy, pandas; print('Pacote e dependências principais importados')"
+python -m meshcomparison.geometry --help
+python -m meshcomparison.perceptual --help
+ruff check .
+pytest -q
 ```
 
-Após verificar esse resultado, execute a avaliação perceptual:
+O último comando requer a suíte de testes do repositório. Se houver falha, anote o traceback e o ambiente; **não marque como concluído apenas porque o comando está documentado**.
+
+## Passo 5 — Executar uma avaliação pequena
+
+Com `data/samples/gt.stl` e `data/samples/mod.stl`, gere saídas em pastas isoladas:
 
 ```bat
-python percept_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
+python -m meshcomparison.geometry --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/geometry-check
+python -m meshcomparison.perceptual --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/perceptual-check --num-views 3 --save-views 1 2 3
 ```
 
-O repositório já contém `gt.stl` e `mod.stl` para execução de exemplo. Os comandos podem substituir arquivos existentes em `output/`. Para modelos FBX, converta antes para um formato aceito pelo Trimesh. O renderizador offscreen pode exigir configuração gráfica específica do sistema.
+A avaliação perceptual pode demorar, baixar pesos do modelo LPIPS (quando ainda não estiverem em cache) e exigir suporte à renderização OpenGL offscreen. Uma execução com três vistas é **smoke test**, não reproduz os resultados históricos de 100 vistas. Os diretórios em `output/` são locais e descartáveis; os exemplos versionados ficam em [`examples/output/`](../../../examples/output/).
 
-### Validação
+## Passo 6 — Verificar a GUI e o dispositivo
 
-- [x] Ambiente Conda criado e ativado, conforme terminal informado.
-- [x] Python 3.12.15 confirmado.
-- [x] Instalação das dependências concluída, conforme saída do pip.
-- [x] Importações necessárias carregadas durante a execução dos pipelines.
-- [x] Pipeline geométrico executado; resultados salvos em `output/`.
-- [x] Pipeline perceptual executado; métricas e renders salvos em `output/`.
-- [x] CUDA verificada: indisponível neste ambiente; PyTorch instalado sem suporte CUDA.
-- [x] Dependências gerais registradas em [`environment.yml`](../../../environment.yml) e versões observadas fixadas em [`environment-lock.yml`](../../../environment-lock.yml).
+```bat
+python -m meshcomparison.gui
+```
 
-## Passo 4 — Próxima etapa
+Isso requer sessão gráfica e PySide6, PyVista e PyVistaQt instalados. Para conferir **CUDA apenas para LPIPS**, rode:
 
-Continue para [02 — Conferir os programas e a interface de linha de comando](02-arquitetura-implementacao.md).
+```bat
+python -c "import torch; print('torch:', torch.__version__, 'CUDA build:', torch.version.cuda, 'disponível:', torch.cuda.is_available())"
+```
 
-**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). Os scripts já existem; esta etapa registra a preparação e a validação do ambiente local.
+Se CUDA estiver indisponível, LPIPS pode rodar em CPU. Para instalar uma build de PyTorch compatível, selecione comando atualizado no [site oficial](https://pytorch.org/get-started/locally/), de acordo com sistema, Python e driver; não assuma que `pip install torch` sempre instala versão CPU-only. Consulte o [guia da GUI](../../gui/README.md).
+
+## Estado e checklist de verificação
+
+- [x] Arquivos de ambiente e `pyproject.toml` disponíveis no repositório.
+- [x] CLIs modularizadas e testes configurados no CI.
+- [x] Resultado histórico de execução CPU documentado em [resultados](../../results/README.md).
+- [ ] Registrar execução limpa da **branch atual** com `pip install -e . --no-deps` e resultados de Ruff/pytest.
+- [ ] Validar abertura e interação da GUI com modelos reais.
+- [ ] Verificar execução perceptual em CUDA, se for objetivo, sem presumir suporte por haver GPU NVIDIA.
+- [ ] Registrar informações de SO, commit e versões instaladas; atualizar o snapshot apenas depois de testes.
+
+**Próximo passo:** [02 — Arquitetura e CLI](02-arquitetura-implementacao.md). Também consulte o [guia de Harness](../../harness/README.md) para critérios de revisão e integração.

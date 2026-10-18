@@ -11,18 +11,21 @@ Confira `load_mesh(path)`, implementada usando `trimesh.load(path, force='scene'
 ## Passo 2 — Trecho da implementação atual
 
 ```python
-# Normaliza as duas malhas usando a mesma escala derivada da referência
+# Demonstra a normalização compartilhada usando as malhas de exemplo do repositório
 import numpy as np
+from meshcomparison.common.io import load_mesh
 
-gt = load_mesh(gt_path)
-rm = load_mesh(rm_path)
+gt = load_mesh('data/samples/gt.stl')
+rm = load_mesh('data/samples/mod.stl')
 diagonal_gt = np.linalg.norm(gt.bounds[1] - gt.bounds[0])
 if diagonal_gt < 1e-12:
     raise ValueError('Malha GT degenerada')
-scale = 1.0 / diagonal_gt
-gt.apply_scale(scale)
-rm.apply_scale(scale)
+internal_scale = 1.0 / diagonal_gt
+gt.apply_scale(internal_scale)
+rm.apply_scale(internal_scale)
 ```
+
+O trecho acima ilustra a lógica do [pipeline real](../../../src/meshcomparison/geometry/pipeline.py). Ele pressupõe que o pacote foi instalado (`python -m pip install -e . --no-deps`) e que o terminal está na raiz do repositório. A exportação da malha alinhada recupera posteriormente a escala original da GT.
 
 ## Passo 3 — Validar o comportamento
 
@@ -32,4 +35,4 @@ Valide com duas cópias idênticas de um STL: após normalizar, as coordenadas d
 
 Continue para [04 — Conferir a correspondência e o ICP](04-alinhamento-icp.md).
 
-**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

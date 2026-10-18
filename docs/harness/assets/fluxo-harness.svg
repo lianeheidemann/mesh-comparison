@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1050" viewBox="0 0 1100 1050" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxo desejável de desenvolvimento assistido por agentes</title>
+  <desc id="desc">Solicitação de implementação, agente, contexto do repositório, implementação e validação, GitHub Actions, revisão humana e integração. Falhas retornam à implementação.</desc>
+  <defs>
+    <style>
+      .heading{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:700;fill:#25384c}
+      .subtitle{font-family:Arial,Helvetica,sans-serif;font-size:16px;fill:#647489}
+      .title{font-family:Arial,Helvetica,sans-serif;font-size:21px;font-weight:700;fill:#26384c}
+      .details{font-family:Arial,Helvetica,sans-serif;font-size:15px;fill:#53667a}
+      .connector{stroke:#7490a7;stroke-width:3;stroke-linecap:round;fill:none}
+      .arrow{fill:#7490a7}
+      .card{fill:#f7f9fb;stroke:#cad6e0;stroke-width:1.7}
+      .primary{fill:#eaf1f6;stroke:#9eb5c8;stroke-width:1.7}
+      .accept{fill:#e6f2ed;stroke:#89b09a;stroke-width:1.7}
+    </style>
+  </defs>
+  <rect width="1100" height="1050" rx="24" fill="#fff"/>
+  <text x="550" y="55" text-anchor="middle" class="heading">Fluxo desejável · Agent Harness</text>
+  <text x="550" y="87" text-anchor="middle" class="subtitle">Proposta de arquitetura — não representa automação já implementada</text>
+  <g>
+    <rect x="185" y="117" width="730" height="100" rx="13" class="card"/>
+    <text x="550" y="156" text-anchor="middle" class="title">1 · Solicitação de implementação</text>
+    <text x="550" y="187" text-anchor="middle" class="details">Issue / especificação técnica e critérios de aceitação</text>
+    <path class="connector" d="M550 217v26"/><path class="arrow" d="M542 239l8 12 8-12z"/>
+    <rect x="185" y="251" width="730" height="100" rx="13" class="primary"/>
+    <text x="550" y="290" text-anchor="middle" class="title">2 · Agente de desenvolvimento</text>
+    <text x="550" y="321" text-anchor="middle" class="details">Codex, Claude Code ou equivalente · permissões limitadas</text>
+    <path class="connector" d="M550 351v26"/><path class="arrow" d="M542 373l8 12 8-12z"/>
+    <rect x="185" y="385" width="730" height="100" rx="13" class="card"/>
+    <text x="550" y="424" text-anchor="middle" class="title">3 · Contexto persistente</text>
+    <text x="550" y="455" text-anchor="middle" class="details">AGENTS.md + documentação + ADRs + critérios de teste</text>
+    <path class="connector" d="M550 485v26"/><path class="arrow" d="M542 507l8 12 8-12z"/>
+    <rect x="185" y="519" width="730" height="100" rx="13" class="primary"/>
+    <text x="550" y="558" text-anchor="middle" class="title">4 · Implementação e validação local</text>
+    <text x="550" y="589" text-anchor="middle" class="details">Branch de trabalho + alteração + Ruff + pytest + regressões</text>
+    <path class="connector" d="M550 619v26"/><path class="arrow" d="M542 641l8 12 8-12z"/>
+    <rect x="185" y="653" width="730" height="100" rx="13" class="card"/>
+    <text x="550" y="692" text-anchor="middle" class="title">5 · GitHub Actions</text>
+    <text x="550" y="723" text-anchor="middle" class="details">Checks de CI executados no pull request</text>
+    <path class="connector" d="M550 753v26"/><path class="arrow" d="M542 775l8 12 8-12z"/>
+    <rect x="185" y="787" width="730" height="100" rx="13" class="card"/>
+    <text x="550" y="826" text-anchor="middle" class="title">6 · Revisão humana</text>
+    <text x="550" y="857" text-anchor="middle" class="details">Confirmação das evidências e autorização de merge</text>
+    <path class="connector" d="M550 887v26"/><path class="arrow" d="M542 909l8 12 8-12z"/>
+    <rect x="185" y="921" width="730" height="95" rx="13" class="accept"/>
+    <text x="550" y="959" text-anchor="middle" class="title">7 · Integração autorizada</text>
+    <text x="550" y="990" text-anchor="middle" class="details">Merge na branch protegida · rastreabilidade</text>
+  </g>
+  <path d="M185 705H102V569H185" stroke="#bd9078" stroke-width="2.6" fill="none" stroke-dasharray="7 6"/>
+  <path d="M175 560l12 9-12 9z" fill="#bd9078"/>
+  <text x="93" y="634" text-anchor="middle" transform="rotate(-90 93 634)" style="font:14px Arial,sans-serif;fill:#976c55">Falha: corrigir e revalidar</text>
+</svg>

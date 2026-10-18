@@ -20,13 +20,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1 libglu1-mesa libosmesa6
       - uses: conda-incubator/setup-miniconda@v3
         with:
-          environment-file: environment.yml
+          environment-file: environments/environment.yml
           activate-environment: meshEval
+      - name: Install package
+        run: pip install -e . --no-deps
       - name: Lint
         run: ruff check .
       - name: Tests
         run: pytest -q
       - name: CLI smoke test
         run: |
-          python mesh_eval_pipeline.py --help
-          python percept_eval_pipeline.py --help
+          python -m meshcomparison.geometry --help
+          python -m meshcomparison.perceptual --help

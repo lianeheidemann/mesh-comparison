@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/mesh-comparison-logo.svg" width="180" alt="Mesh Comparison logo">
+  <img src="../assets/mesh-comparison-logo.svg" width="180" alt="Mesh Comparison logo">
 </p>
 
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
@@ -26,7 +26,7 @@ This workspace compares a ground-truth mesh with a reconstructed mesh. Convert F
 
 ---
 
-<img width="100%" src="assets/how-the-code-works.svg">
+<img width="100%" src="../assets/how-the-code-works.svg">
 
 ## Technologies
 
@@ -47,7 +47,7 @@ This workspace compares a ground-truth mesh with a reconstructed mesh. Convert F
 | scikit-image | 0.26.0 | Structural Similarity Index (SSIM) calculation. |
 | pandas | 3.0.6 | Tabular metrics, summaries, and CSV exports. |
 
-These versions were reported from the local Windows `meshEval` environment on 2026-10-17. Imports and both example pipelines were confirmed in that environment. PyTorch reports `2.14.1+cpu`; CUDA is unavailable, so perceptual evaluation runs on CPU. [`environment-lock.yml`](environment-lock.yml) records the installed Conda and pip package versions for recreating this Windows environment. [`environment.yml`](environment.yml) remains the general, unpinned dependency list. These observed versions do not identify the environment that produced older outputs already in the repository. The installer’s base Python version is independent of the project environment.
+These versions were reported from the local Windows `meshEval` environment on 2026-10-17. Imports and both example pipelines were confirmed in that environment. PyTorch reports `2.14.1+cpu`; CUDA is unavailable, so perceptual evaluation runs on CPU. [`environment-lock.yml`](../../environments/environment-lock.yml) records the installed Conda and pip package versions for recreating this Windows environment. [`environment.yml`](../../environments/environment.yml) remains the general, unpinned dependency list. These observed versions do not identify the environment that produced older outputs already in the repository. The installer’s base Python version is independent of the project environment.
 
 ## Workspace layout
 
@@ -90,7 +90,7 @@ The general environment file creates `meshEval` with Python 3.12 and installs th
 conda env create -f environment-lock.yml
 ```
 
-If `meshEval` already exists, activate it instead of creating it again. The [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) records the validation details. Verify imports before running the pipelines:
+If `meshEval` already exists, activate it instead of creating it again. The [environment preparation guide](../implementation/step-by-step/01-preparacao-ambiente.md) records the validation details. Verify imports before running the pipelines:
 
 ```bat
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
@@ -149,28 +149,28 @@ The images below are sample outputs from the geometric and perceptual pipelines.
   <tr>
     <td width="50%" align="center">
       <strong>Ground-truth mesh (GT)</strong><br>
-      <img src="output/renders/gt_ortho.png" width="100%" alt="Orthographic render of the ground-truth mesh">
+      <img src="../../examples/output/renders/gt_ortho.png" width="100%" alt="Orthographic render of the ground-truth mesh">
     </td>
     <td width="50%" align="center">
       <strong>Aligned reconstructed mesh (RM)</strong><br>
-      <img src="output/renders/rm_aligned_ortho.png" width="100%" alt="Orthographic render of the aligned reconstructed mesh">
+      <img src="../../examples/output/renders/rm_aligned_ortho.png" width="100%" alt="Orthographic render of the aligned reconstructed mesh">
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <strong>Geometric distance heatmap</strong><br>
-      <img src="output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
+      <img src="../../examples/output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <strong>Perceptual comparison — view 1</strong><br>
-      <img src="output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
+      <img src="../../examples/output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
     </td>
   </tr>
 </table>
 
-See the [full example report](docs/results/README.md) for the metrics and additional views.
+See the [full example report](../results/README.md) for the metrics and additional views.
 
 ## Options
 
@@ -191,6 +191,6 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests, and the `--hel
 
 ## License and credits
 
-This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](LICENSE). Code derived from the original project remains the property of its author.
+This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](../../LICENSE). Code derived from the original project remains the property of its author.
 
-See the [current example results](docs/results/README.md) for the recorded geometric and perceptual metrics and their output images.
+See the [current example results](../results/README.md) for the recorded geometric and perceptual metrics and their output images.

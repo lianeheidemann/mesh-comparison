@@ -11,21 +11,19 @@ A partir de `nn_distances`, já implementada na etapa 04, o código obtém dist�
 ## Passo 2 — Trecho da implementação atual
 
 ```python
-# Mede erro quadrático simétrico e sua raiz usando distâncias entre vértices
+# Calcula MSE simétrico e RMSE usando as funções reais do pacote
 import numpy as np
+from meshcomparison.common.distances import symmetric_mse
+from meshcomparison.geometry.metrics import compute_metrics
 
-def symmetric_vertex_errors(gt_vertices, rm_vertices):
-    a, _ = nn_distances(gt_vertices, rm_vertices)
-    b, _ = nn_distances(rm_vertices, gt_vertices)
-    return a, b
-
-def symmetric_mse(gt_vertices, rm_vertices):
-    a, b = symmetric_vertex_errors(gt_vertices, rm_vertices)
-    return 0.5 * (np.mean(a ** 2) + np.mean(b ** 2))
-
-def symmetric_rmse(gt_vertices, rm_vertices):
-    return np.sqrt(symmetric_mse(gt_vertices, rm_vertices))
+gt_vertices = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]])
+rm_vertices = gt_vertices.copy()
+mse = symmetric_mse(gt_vertices, rm_vertices)
+rmse = compute_metrics(gt_vertices, rm_vertices)['rmse']
+assert np.isclose(mse, 0.0) and np.isclose(rmse, 0.0)
 ```
+
+O MSE é implementado em [`common/distances.py`](../../../src/meshcomparison/common/distances.py), enquanto o RMSE da saída geométrica é calculado em [`geometry/metrics.py`](../../../src/meshcomparison/geometry/metrics.py). **Não existe uma função pública `symmetric_rmse` separada na branch atual**; o exemplo antigo que a declarava era apenas ilustrativo.
 
 ## Passo 3 — Interpretar e validar
 
@@ -35,4 +33,4 @@ A fórmula é `MSE = (média(d_GT→RM²) + média(d_RM→GT²))/2` e `RMSE = �
 
 Continue para [06 — Conferir Chamfer e Hausdorff](06-chamfer-hausdorff.md).
 
-**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

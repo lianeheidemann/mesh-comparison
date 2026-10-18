@@ -1,12 +1,14 @@
-# 07 — Criar câmera compartilhada, renders e heatmap
+# 07 — Conferir câmera compartilhada, renders e heatmap
+
+> **Status: concluída.** A câmera compartilhada, os renders e a exportação do heatmap já estão implementados no pipeline geométrico.
 
 ![Esquema da etapa](../images/distancias.svg)
 
-## Passo 1 — O que criar
+## Passo 1 — Conferir a câmera compartilhada
 
-Implemente `look_at`, `bounds_corners` e `build_shared_camera`: calcule uma única câmera ortográfica a partir da caixa envolvente conjunta GT+RM. Use `pyrender.Scene`, `OrthographicCamera` e `OffscreenRenderer` para salvar as duas vistas com enquadramento igual.
+As funções `look_at`, `bounds_corners` e `build_shared_camera` já estão implementadas. Confira como elas: calcule uma única câmera ortográfica a partir da caixa envolvente conjunta GT+RM. Use `pyrender.Scene`, `OrthographicCamera` e `OffscreenRenderer` para salvar as duas vistas com enquadramento igual.
 
-## Passo 2 — Implementação inicial
+## Passo 2 — Trecho da implementação atual
 
 ```python
 # Associa a cada vértice GT uma cor proporcional à distância até a RM
@@ -23,12 +25,12 @@ def colorize_gt_heatmap(gt_mesh, d_gt2rm):
     return colored, norm, cmap
 ```
 
-## Passo 3 — Completar, executar e validar
+## Passo 3 — Conferir os arquivos gerados
 
-Renderize `gt_ortho.png`, `rm_aligned_ortho.png` e a malha colorida; acrescente uma barra de cores com Matplotlib para produzir `gt_heatmap_ortho.png`. Exporte também `gt_heatmap_colored.ply`. Observe que as cores representam somente GT→RM, não a distância simétrica.
+O pipeline já gera `gt_ortho.png`, `rm_aligned_ortho.png`, `gt_heatmap_ortho.png` e `gt_heatmap_colored.ply`, incluindo a barra de cores. Observe que as cores representam somente GT→RM, não a distância simétrica.
 
 ## Passo 4 — Próxima etapa
 
-Continue para [08 — Construir as vistas e calcular LPIPS, PSNR e SSIM](08-metricas-perceptuais.md).
+Continue para [08 — Conferir as vistas e métricas perceptuais](08-metricas-perceptuais.md).
 
 **Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

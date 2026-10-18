@@ -117,4 +117,4 @@ Checklist de validação:
 - [ ] Erros de entrada e de renderização são reportados sem sucesso falso.
 - [ ] O status da GPU/CPU observado bate com `torch.cuda.is_available()`.
 
-Consulte a [instalação](../implementation/step-by-step/01-preparacao-ambiente.md), os [testes pendentes](../implementation/step-by-step/10-limitacoes-evolucao.md) e o [README do projeto](../../README.md).
+Consulte a [instalação](../implementation/step-by-step/01-preparacao-ambiente.md), o [roteiro completo de validação no Windows](../../README.md#validate-on-windows) (incluindo CUDA e comparação com os CSVs de exemplo), os [testes pendentes](../implementation/step-by-step/10-limitacoes-evolucao.md) e o [README do projeto](../../README.md).

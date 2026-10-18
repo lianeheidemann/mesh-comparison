@@ -1,6 +1,6 @@
 # Documentação — Mesh Comparison
 
-Esta é a navegação da documentação para a **branch `ccr-98be27a8-o344ln`**, cujo código está organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro anterior; mudanças recentes na estrutura do projeto não equivalem a uma nova execução validada.
+Esta é a navegação da documentação para a **branch `harness-documentation-and-new-interface`**, cujo código está organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro anterior; mudanças recentes na estrutura do projeto não equivalem a uma nova execução validada.
 
 | Área | Conteúdo | Quando consultar |
 | --- | --- | --- |
@@ -31,3 +31,5 @@ python -m meshcomparison.gui
 O terceiro comando inicia uma **janela desktop** (requer PySide6/PyVista/PyVistaQt e ambiente com interface gráfica). Veja a [instalação detalhada](implementation/step-by-step/01-preparacao-ambiente.md). O CI atual executa `ruff check .`, `pytest -q` e os dois `--help`; ele não testa a janela interativa nem executa os pipelines completos com renderização.
 
 **Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
+
+**Para validar no Windows:** siga a seção [Validate on Windows](../README.md#validate-on-windows) do README inicial para CUDA/PyTorch, `mesh-gui` e comparação dos CSVs dos dois pipelines. Utilize diretórios separados para as saídas de cada pipeline.

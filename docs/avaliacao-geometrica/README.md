@@ -54,7 +54,7 @@ Ele complementa as métricas: duas malhas podem ter valores médios semelhantes 
   <img src="images/mapa-de-calor-desvio-geometrico-v2.png" width="70%" alt="Mapa de calor do desvio geométrico: o corpo da xícara apresenta baixo erro e a região deformada da alça concentra os maiores desvios" />
 </p>
 
-Na escala, azul indica menor desvio e vermelho indica maior desvio. O ponto de maior erro aparece sobre a região deformada da alça reconstruída.
+Na **ilustração conceitual acima**, o azul indica menor desvio e o vermelho indica maior desvio. Já no **heatmap gerado pelo código**, a função [`colorize_gt_heatmap`](../../src/meshcomparison/geometry/heatmap.py) utiliza a paleta `RdYlGn_r`: verde para desvios menores, amarelo para intermediários e vermelho para maiores. A escala de cores é normalizada até o **percentil 95** das distâncias GT→RM; valores maiores podem saturar na cor máxima. As cores são aplicadas aos **vértices da GT**, com distâncias até a RM alinhada, e não diretamente à superfície da RM. Não confunda a imagem ilustrativa com a legenda e as cores reais das saídas do pipeline.
 
 ## 5. Avaliação perceptual: os modelos parecem iguais?
 

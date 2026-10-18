@@ -141,6 +141,37 @@ Main outputs:
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh in the ground-truth input scale.
 - `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.
 
+## Example results
+
+The images below are sample outputs from the geometric and perceptual pipelines.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <strong>Ground-truth mesh (GT)</strong><br>
+      <img src="output/renders/gt_ortho.png" width="100%" alt="Orthographic render of the ground-truth mesh">
+    </td>
+    <td width="50%" align="center">
+      <strong>Aligned reconstructed mesh (RM)</strong><br>
+      <img src="output/renders/rm_aligned_ortho.png" width="100%" alt="Orthographic render of the aligned reconstructed mesh">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <strong>Geometric distance heatmap</strong><br>
+      <img src="output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <strong>Perceptual comparison — view 1</strong><br>
+      <img src="output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
+    </td>
+  </tr>
+</table>
+
+See the [full example report](docs/results/README.md) for the metrics and additional views.
+
 ## Options
 
 Both scripts accept `--mse-threshold` (default `1e-4`), which controls whether alignment is run, plus `--width` and `--height` (defaults `1600` and `1200`). Use `--help` after the script name to see all options.

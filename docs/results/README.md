@@ -35,59 +35,82 @@ Os valores perceptuais descrevem as renderizações geradas pelo pipeline e depe
 
 ## Visualizações geradas
 
-**Render ortográfico da referência (GT):**
+As imagens estão organizadas em duas colunas para facilitar a comparação e reduzir o espaço vertical ocupado no relatório.
 
-![Render ortográfico da GT](../../output/renders/gt_ortho.png)
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <strong>Render ortográfico da referência (GT)</strong><br>
+      <img src="../../output/renders/gt_ortho.png" width="100%" alt="Render ortográfico da GT">
+    </td>
+    <td width="50%" align="center">
+      <strong>Render ortográfico da malha avaliada (RM)</strong><br>
+      <img src="../../output/renders/rm_aligned_ortho.png" width="100%" alt="Render ortográfico da RM">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <strong>Heatmap geométrico</strong><br>
+      <img src="../../output/heatmaps/gt_heatmap_ortho.png" width="50%" alt="Heatmap geométrico">
+    </td>
+  </tr>
+</table>
 
-**Render ortográfico da malha avaliada após o processamento:**
+### Renders multivista da GT e da RM
 
-![Render ortográfico da RM](../../output/renders/rm_aligned_ortho.png)
+As renderizações da mesma vista aparecem lado a lado para comparar a GT e a RM.
 
-**Heatmap geométrico:**
-
-![Heatmap geométrico](../../output/heatmaps/gt_heatmap_ortho.png)
-
-### Renders multivista da GT
-
-**Vista 1**
-
-![Render da GT na vista 1](../../output/renders/gt/gt_view001.png)
-
-**Vista 33**
-
-![Render da GT na vista 33](../../output/renders/gt/gt_view033.png)
-
-**Vista 66**
-
-![Render da GT na vista 66](../../output/renders/gt/gt_view066.png)
-
-### Renders multivista da RM
-
-**Vista 1**
-
-![Render da RM na vista 1](../../output/renders/rm/rm_view001.png)
-
-**Vista 33**
-
-![Render da RM na vista 33](../../output/renders/rm/rm_view033.png)
-
-**Vista 66**
-
-![Render da RM na vista 66](../../output/renders/rm/rm_view066.png)
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <strong>Vista 1 — GT</strong><br>
+      <img src="../../output/renders/gt/gt_view001.png" width="100%" alt="Render da GT na vista 1">
+    </td>
+    <td width="50%" align="center">
+      <strong>Vista 1 — RM</strong><br>
+      <img src="../../output/renders/rm/rm_view001.png" width="100%" alt="Render da RM na vista 1">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <strong>Vista 33 — GT</strong><br>
+      <img src="../../output/renders/gt/gt_view033.png" width="100%" alt="Render da GT na vista 33">
+    </td>
+    <td width="50%" align="center">
+      <strong>Vista 33 — RM</strong><br>
+      <img src="../../output/renders/rm/rm_view033.png" width="100%" alt="Render da RM na vista 33">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <strong>Vista 66 — GT</strong><br>
+      <img src="../../output/renders/gt/gt_view066.png" width="100%" alt="Render da GT na vista 66">
+    </td>
+    <td width="50%" align="center">
+      <strong>Vista 66 — RM</strong><br>
+      <img src="../../output/renders/rm/rm_view066.png" width="100%" alt="Render da RM na vista 66">
+    </td>
+  </tr>
+</table>
 
 ### Comparações perceptuais
 
-**Vista 1**
+Cada imagem já mostra GT e RM lado a lado.
 
-![Comparação perceptual da vista 1](../../output/renders/pairs/pair_view001.png)
+<p align="center">
+  <strong>Vista 1</strong><br>
+  <img src="../../output/renders/pairs/pair_view001.png" width="100%" alt="Comparação perceptual da vista 1">
+</p>
 
-**Vista 33**
+<p align="center">
+  <strong>Vista 33</strong><br>
+  <img src="../../output/renders/pairs/pair_view033.png" width="100%" alt="Comparação perceptual da vista 33">
+</p>
 
-![Comparação perceptual da vista 33](../../output/renders/pairs/pair_view033.png)
-
-**Vista 66**
-
-![Comparação perceptual da vista 66](../../output/renders/pairs/pair_view066.png)
+<p align="center">
+  <strong>Vista 66</strong><br>
+  <img src="../../output/renders/pairs/pair_view066.png" width="100%" alt="Comparação perceptual da vista 66">
+</p>
 
 ## Arquivos de saída
 

@@ -2,7 +2,7 @@
 
 > **Objetivo:** manual reutilizável para criar **novos projetos já preparados para desenvolvimento com agentes LLM**, com exemplos reais do **Mesh Comparison**. O mesmo roteiro serve para atualizar projetos existentes **sem reimplementar o que já funciona**.
 >
-> **Inventário Mesh Comparison:** auditoria inicial da `main` e adequação aos arquivos da branch `ccr-98be27a8-o344ln` em 18/10/2026. Os status refletem **arquivos/configuração observados**, não execução atual comprovada, cobertura completa nem garantia de segurança.
+> **Inventário Mesh Comparison:** auditoria inicial da `main` e adequação aos arquivos da branch `harness-documentation-and-new-interface` em 18/10/2026. Os status refletem **arquivos/configuração observados**, não execução atual comprovada, cobertura completa nem garantia de segurança.
 
 ## Como usar
 

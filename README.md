@@ -24,7 +24,7 @@
 
 This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Convert FBX models to STL (or another supported `trimesh` format) before running the evaluation scripts; they do not load FBX directly.
 
-**Quick links:** [Example results](#example-results) · [Installation](#installation) · [Run the pipelines](#run) · [Desktop interface](#desktop-interface) · [Technical documentation](docs/README.md) · [Agent Harness guide](docs/harness/README.md) · [Limitations](#scope-and-limitations)
+**Quick links:** [Example results](#example-results) · [Installation](#installation) · [Run the pipelines](#run) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/README.md) · [Agent Harness guide](docs/harness/README.md) · [Limitations](#scope-and-limitations)
 
 ### Table of contents
 
@@ -35,6 +35,7 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
 - [Installation](#installation)
 - [Run](#run)
 - [Desktop interface](#desktop-interface)
+- [Validate on Windows](#validate-on-windows)
 - [Pipelines](#pipelines)
 - [Options](#options)
 - [Scope and limitations](#scope-and-limitations)
@@ -214,6 +215,74 @@ mesh-gui
 ```
 
 (`python -m meshcomparison.gui` is equivalent.) The packages above are already declared by the **general** `environments/environment.yml`, but they are **not** in the older Windows lock snapshot. Each pipeline runs in a child process and the GUI provides cancellation, progress and logs; this separation avoids sharing the offscreen renderer context with the viewer in the same process. The side panel reports the LPIPS device and any CUDA warning. See the [desktop GUI guide](docs/gui/README.md) for controls, supported files, output handling and troubleshooting.
+
+## Validate on Windows
+
+Use the **Anaconda Prompt** in the repository root, with the current branch checked out and the `meshEval` environment activated. This procedure checks the local PyTorch/CUDA installation, the desktop interface and the two sample pipelines; it **does not claim that a GPU or GUI test has already been run on your machine**.
+
+### 1. Activate the environment and check CUDA
+
+```bat
+conda activate meshEval
+python -m pip install -e . --no-deps
+python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
+```
+
+- `True` followed by a CUDA version means PyTorch can currently use CUDA. The version is the CUDA build used by PyTorch, not a benchmark result.
+- `False None` generally means a **CPU-only PyTorch build** is installed in this environment. If your computer has a compatible NVIDIA GPU, install a CUDA-enabled build.
+- `False` with a CUDA version usually means the build includes CUDA but it cannot use a GPU; investigate drivers, GPU compatibility and the current environment rather than assuming a CPU-only installation.
+
+**Example CUDA 12.8 wheel installation for a compatible Windows/NVIDIA setup** (replace this command with the one recommended by the [official PyTorch installation selector](https://pytorch.org/get-started/locally/) for your driver and supported version):
+
+```bat
+python -m pip uninstall -y torch torchvision
+python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
+```
+
+The installation example is **not universal** and may not suit every driver, model or release. If CUDA cannot be enabled, use `--device cpu` to run LPIPS on the CPU; the geometric pipeline does not require CUDA.
+
+### 2. Check the desktop interface
+
+```bat
+mesh-gui
+```
+
+Alternatively run `python -m meshcomparison.gui`. In the side panel under **Compute device (LPIPS)**, check that the detected device is displayed as **CUDA (your NVIDIA GPU name)** when CUDA is available. `Auto — prefer CUDA` should be selected to use it automatically. A CPU label or a warning means GPU acceleration for LPIPS has **not** been confirmed. Select `data/samples/gt.stl` and `data/samples/mod.stl` to preview the meshes in the 3D view.
+
+### 3. Run both pipelines on the sample meshes
+
+Close the GUI if desired, then use the same activated environment from the repository root. To avoid overwriting the same `rm_aligned.ply` from separate pipelines, save each run in its **own output directory**:
+
+```bat
+python -m meshcomparison.geometry --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/windows-validation/geometry
+python -m meshcomparison.perceptual --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/windows-validation/perceptual --num-views 100 --save-views 1 33 66 --device auto
+```
+
+The perceptual command evaluates **100 views**, matching the recorded example. With `--device auto`, LPIPS uses CUDA if available and otherwise falls back to CPU. The first LPIPS run may need model weights or a network connection, and rendering may require a working OpenGL environment.
+
+### 4. Compare with the versioned example CSVs
+
+Compare the newly produced files against `examples/output/metrics/*.csv`:
+
+| Metric family | Recorded example | New Windows run |
+| --- | --- | --- |
+| Geometry | [`metrics_geometry.csv`](examples/output/metrics/metrics_geometry.csv) | `output/windows-validation/geometry/metrics/metrics_geometry.csv` |
+| Perceptual summary | [`metrics_perceptual.csv`](examples/output/metrics/metrics_perceptual.csv) | `output/windows-validation/perceptual/metrics/metrics_perceptual.csv` |
+| Per-view metrics | [`per_view_metrics.csv`](examples/output/metrics/per_view_metrics.csv) | `output/windows-validation/perceptual/metrics/per_view_metrics.csv` |
+
+Optional commands for a quick side-by-side comparison of the principal values:
+
+```bat
+python -c "import pandas as pd; a=pd.read_csv('examples/output/metrics/metrics_geometry.csv'); b=pd.read_csv('output/windows-validation/geometry/metrics/metrics_geometry.csv'); cols=['mean_chamfer_gt_units','symmetric_hausdorff_gt_units','symmetric_rmse_gt_units']; print('Example:\n',a[cols].to_string(index=False)); print('Windows:\n',b[cols].to_string(index=False))"
+python -c "import pandas as pd; a=pd.read_csv('examples/output/metrics/metrics_perceptual.csv'); b=pd.read_csv('output/windows-validation/perceptual/metrics/metrics_perceptual.csv'); print('Example:\n',a[['metric','median']].to_string(index=False)); print('Windows:\n',b[['metric','median']].to_string(index=False))"
+```
+
+The recorded geometry values (in GT mesh units) are approximately **Chamfer 0.00706686**, **Hausdorff 0.308021**, **RMSE 0.0322591**. Recorded perceptual medians are **LPIPS 0.112826**, **PSNR 11.1308 dB** and **SSIM 0.930943**.
+
+**Interpretation:** small LPIPS differences between CPU and GPU can occur. Renderer, library versions, camera parameters and floating-point differences can affect other metrics too. Compare values with appropriate numerical tolerances, not exact CSV-byte equality. A large difference, missing file or runtime error deserves investigation; it does not automatically prove either implementation is correct. The example CSVs are a **historical baseline**, not a validated acceptance threshold for every machine.
+
+For more detail, see the [GUI guide](docs/gui/README.md), [environment guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) and [validation plan](docs/implementation/step-by-step/10-limitacoes-evolucao.md).
 
 ## Pipelines
 

@@ -1,6 +1,6 @@
 # Interface desktop — PySide6 + PyVistaQt
 
-> **Estado:** interface **implementada no código** da branch `ccr-98be27a8-o344ln`. Este documento foi conferido contra os módulos `src/meshcomparison/gui/`; **não** representa um teste executado da janela num computador local.
+> **Estado:** interface **implementada no código** da branch `harness-documentation-and-new-interface`. Este documento foi conferido contra os módulos `src/meshcomparison/gui/`; **não** representa um teste executado da janela num computador local.
 
 A GUI permite escolher a **malha de referência (GT)** e a **malha reconstruída (RM)**, configurar parâmetros dos pipelines, visualizar modelos 3D e consultar os resultados CSV/PNG. Usa **PySide6** para a aplicação desktop, **PyVista + PyVistaQt (VTK)** para o viewer e executa os scripts científicos em **processos Python separados**, via `QProcess`.
 

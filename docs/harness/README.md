@@ -2,7 +2,7 @@
 
 > **Estado:** documentação e plano de evolução; **não** significa que um harness autônomo completo esteja implementado.
 >
-> **Escopo:** inventário inicial realizado na `main` em **18/10/2026**, adaptado à branch `ccr-98be27a8-o344ln` (pacote `src/meshcomparison/`, CLIs por módulo e GUI PySide6/PyVista). Os status refletem arquivos e configurações; execução de testes e proteção remota precisam ser comprovadas.
+> **Escopo:** inventário inicial realizado na `main` em **18/10/2026**, adaptado à branch `harness-documentation-and-new-interface` (pacote `src/meshcomparison/`, CLIs por módulo e GUI PySide6/PyVista). Os status refletem arquivos e configurações; execução de testes e proteção remota precisam ser comprovadas.
 
 ## 1. O que é *harness*?
 

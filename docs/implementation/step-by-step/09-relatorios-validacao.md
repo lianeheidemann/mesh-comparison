@@ -1,4 +1,4 @@
-# 09 — Exportar resultados e verificar a execução
+# 09 — Conferir os resultados exportados
 
 > **Status: concluída.** Os scripts já exportam métricas, metadados, renders e a malha alinhada.
 

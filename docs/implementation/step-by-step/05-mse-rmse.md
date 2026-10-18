@@ -35,4 +35,4 @@ A fórmula é `MSE = (média(d_GT→RM²) + média(d_RM→GT²))/2` e `RMSE = �
 
 Continue para [06 — Conferir Chamfer e Hausdorff](06-chamfer-hausdorff.md).
 
-**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

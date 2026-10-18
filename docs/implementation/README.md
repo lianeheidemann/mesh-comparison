@@ -1,6 +1,6 @@
 # Mesh Comparison — implementar e evoluir o projeto existente
 
-Este guia parte do estado atual do repositório. Os pipelines geométrico e perceptual já estão implementados em [`mesh_eval_pipeline.py`](../../mesh_eval_pipeline.py) e [`percept_eval_pipeline.py`](../../percept_eval_pipeline.py). Use as etapas para entender a implementação, executá-la, validar seu comportamento e então desenvolver melhorias sem recriar o que já existe.
+Este guia parte do estado atual do repositório. Os pipelines geométrico e perceptual já estão implementados em [`src/meshcomparison/geometry/pipeline.py`](../../src/meshcomparison/geometry/pipeline.py) e [`src/meshcomparison/perceptual/pipeline.py`](../../src/meshcomparison/perceptual/pipeline.py). Use as etapas para entender a implementação, executá-la, validar seu comportamento e então desenvolver melhorias sem recriar o que já existe.
 
 ![Visão geral](images/pipeline.svg)
 

@@ -62,10 +62,10 @@ O pip informou `Successfully installed`. Os dois pipelines foram executados nest
 Para recriar o ambiente Windows com as versões observadas, use o snapshot exportado:
 
 ```bat
-conda env create -f environment-lock.yml
+conda env create -f environments/environment-lock.yml
 ```
 
-`environment.yml` continua como uma lista geral de dependências; `environment-lock.yml` fixa as versões Conda e pip observadas neste ambiente Windows em 17/10/2026. O snapshot não inclui o caminho local do ambiente.
+`environments/environment.yml` continua como uma lista geral de dependências; `environments/environment-lock.yml` fixa as versões Conda e pip observadas neste ambiente Windows em 17/10/2026. O snapshot não inclui o caminho local do ambiente.
 
 ## Passo 3 — Conferir o ambiente e executar os scripts
 
@@ -78,16 +78,16 @@ python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio,
 Se o teste terminar sem erro, execute a avaliação geométrica:
 
 ```bat
-python mesh_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
+python -m meshcomparison.geometry --gt data/samples/gt.stl --rm data/samples/mod.stl --out output
 ```
 
 Após verificar esse resultado, execute a avaliação perceptual:
 
 ```bat
-python percept_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
+python -m meshcomparison.perceptual --gt data/samples/gt.stl --rm data/samples/mod.stl --out output
 ```
 
-O repositório já contém `gt.stl` e `mod.stl` para execução de exemplo. Os comandos podem substituir arquivos existentes em `output/`. Para modelos FBX, converta antes para um formato aceito pelo Trimesh. O renderizador offscreen pode exigir configuração gráfica específica do sistema.
+O repositório já contém `data/samples/gt.stl` e `data/samples/mod.stl` para execução de exemplo. Os comandos podem substituir arquivos existentes em `output/` (ou no diretório passado em `--out`). Para modelos FBX, converta antes para um formato aceito pelo Trimesh. O renderizador offscreen pode exigir configuração gráfica específica do sistema.
 
 ### Validação
 
@@ -95,13 +95,13 @@ O repositório já contém `gt.stl` e `mod.stl` para execução de exemplo. Os c
 - [x] Python 3.12.15 confirmado.
 - [x] Instalação das dependências concluída, conforme saída do pip.
 - [x] Importações necessárias carregadas durante a execução dos pipelines.
-- [x] Pipeline geométrico executado; resultados salvos em `output/`.
-- [x] Pipeline perceptual executado; métricas e renders salvos em `output/`.
+- [x] Pipeline geométrico executado; resultados salvos em `examples/output/`.
+- [x] Pipeline perceptual executado; métricas e renders salvos em `examples/output/`.
 - [x] CUDA verificada: indisponível neste ambiente; PyTorch instalado sem suporte CUDA.
-- [x] Dependências gerais registradas em [`environment.yml`](../../../environment.yml) e versões observadas fixadas em [`environment-lock.yml`](../../../environment-lock.yml).
+- [x] Dependências gerais registradas em [`environment.yml`](../../../environments/environment.yml) e versões observadas fixadas em [`environment-lock.yml`](../../../environments/environment-lock.yml).
 
 ## Passo 4 — Próxima etapa
 
 Continue para [02 — Conferir os programas e a interface de linha de comando](02-arquitetura-implementacao.md).
 
-**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). Os scripts já existem; esta etapa registra a preparação e a validação do ambiente local.
+**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). Os scripts já existem; esta etapa registra a preparação e a validação do ambiente local.

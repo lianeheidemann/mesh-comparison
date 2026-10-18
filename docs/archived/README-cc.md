@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/mesh-comparison-logo.svg" width="180" alt="Mesh Comparison logo">
+  <img src="../assets/mesh-comparison-logo.svg" width="180" alt="Mesh Comparison logo">
 </p>
 
 <h1 align="center">Mesh Comparison</h1>
@@ -28,7 +28,7 @@ Mesh Comparison measures how close a **reconstructed 3D mesh** is to a **ground-
 - **Geometric** — distances between the surfaces (Chamfer, Hausdorff, RMSE) plus a deviation heatmap.
 - **Perceptual** — how similar the meshes *look* across many camera angles (LPIPS, PSNR, SSIM).
 
-> The documentation in [`docs/`](docs/README.md) is written in Portuguese. This README is in English.
+> The documentation in [`docs/`](../README.md) is written in Portuguese. This README is in English.
 
 ## Contents
 
@@ -78,7 +78,7 @@ Both scripts load meshes with `trimesh`. They **do not read FBX directly**: conv
 | PSNR | Perceptual | Pixel-level fidelity between rendered views, in dB. | Higher |
 | SSIM | Perceptual | Structural similarity of rendered views (0–1). | Higher |
 
-Geometric distances are reported both **normalized** (by the ground-truth bounding-box diagonal) and in the **original ground-truth units**. For a plain-language explanation of each metric and its limits, see [Understanding mesh evaluation](docs/avaliacao-geometrica/README.md).
+Geometric distances are reported both **normalized** (by the ground-truth bounding-box diagonal) and in the **original ground-truth units**. For a plain-language explanation of each metric and its limits, see [Understanding mesh evaluation](../avaliacao-geometrica/README.md).
 
 ## Pipelines and outputs
 
@@ -122,28 +122,28 @@ Sample values from the bundled `gt.stl` / `mod.stl` run (alignment was not trigg
   <tr>
     <td width="50%" align="center">
       <strong>Ground-truth mesh (GT)</strong><br>
-      <img src="output/renders/gt_ortho.png" width="100%" alt="Orthographic render of the ground-truth mesh">
+      <img src="../../examples/output/renders/gt_ortho.png" width="100%" alt="Orthographic render of the ground-truth mesh">
     </td>
     <td width="50%" align="center">
       <strong>Aligned reconstructed mesh (RM)</strong><br>
-      <img src="output/renders/rm_aligned_ortho.png" width="100%" alt="Orthographic render of the aligned reconstructed mesh">
+      <img src="../../examples/output/renders/rm_aligned_ortho.png" width="100%" alt="Orthographic render of the aligned reconstructed mesh">
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <strong>Geometric distance heatmap</strong><br>
-      <img src="output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
+      <img src="../../examples/output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <strong>Perceptual comparison — view 1</strong><br>
-      <img src="output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
+      <img src="../../examples/output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
     </td>
   </tr>
 </table>
 
-More metrics and views are in the [full example report](docs/results/README.md).
+More metrics and views are in the [full example report](../results/README.md).
 
 ## Options
 
@@ -166,10 +166,10 @@ Run `python <script> --help` for the full list.
 
 All documentation is in Portuguese; read the conceptual guide before the tutorial.
 
-- [Documentation index](docs/README.md)
-- [Understanding mesh evaluation](docs/avaliacao-geometrica/README.md) — criteria, geometric and perceptual metrics, limitations.
-- [Implementation tutorial](docs/implementation/README.md) — step-by-step guide to building the pipelines.
-- [Current results](docs/results/README.md) — recorded metrics and visualizations.
+- [Documentation index](../README.md)
+- [Understanding mesh evaluation](../avaliacao-geometrica/README.md) — criteria, geometric and perceptual metrics, limitations.
+- [Implementation tutorial](../implementation/README.md) — step-by-step guide to building the pipelines.
+- [Current results](../results/README.md) — recorded metrics and visualizations.
 
 ## Installation details and technologies
 
@@ -185,7 +185,7 @@ If `meshEval` already exists, activate it instead. Verify the imports before run
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
 ```
 
-The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build matching your CUDA version from the official PyTorch instructions. See the [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) for validation details.
+The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build matching your CUDA version from the official PyTorch instructions. See the [environment preparation guide](../implementation/step-by-step/01-preparacao-ambiente.md) for validation details.
 
 <details>
 <summary>Technologies</summary>
@@ -202,7 +202,7 @@ The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, inst
 | PyTorch, torchvision, LPIPS | Learned perceptual similarity (CUDA optional). |
 | scikit-image | SSIM calculation. |
 
-Exact versions are recorded in [`environment-lock.yml`](environment-lock.yml).
+Exact versions are recorded in [`environment-lock.yml`](../../environments/environment-lock.yml).
 
 </details>
 
@@ -221,7 +221,7 @@ mesh-comparison/
 ├── ruff.toml                   # Lint configuration
 ├── tests/                      # pytest suite
 ├── docs/                       # Concepts, tutorial and results (Portuguese)
-├── assets/                     # Logos and diagrams
+├── ../assets/                     # Logos and diagrams
 ├── .github/workflows/ci.yml    # Continuous integration
 └── output/
     ├── aligned/                # Aligned reconstructed mesh
@@ -239,7 +239,7 @@ ruff check .
 pytest
 ```
 
-GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)) runs lint, the tests and `--help` for both scripts. It does not run the rendering or CUDA parts of the pipelines.
+GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, the tests and `--help` for both scripts. It does not run the rendering or CUDA parts of the pipelines.
 
 ## Troubleshooting
 
@@ -249,4 +249,4 @@ GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)) runs lint, the tests and `
 
 ## License and credits
 
-This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](LICENSE). Code derived from the original project remains the property of its author.
+This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](../../LICENSE). Code derived from the original project remains the property of its author.

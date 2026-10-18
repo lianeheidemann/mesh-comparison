@@ -6,7 +6,7 @@
 
 ## Passo 1 — Conferir a arquitetura existente
 
-Os arquivos `mesh_eval_pipeline.py` e `percept_eval_pipeline.py` já existem na raiz. Confira neles a leitura de argumentos, a criação das pastas e a função `run_pipeline`.
+Os pacotes `src/meshcomparison/geometry/` e `src/meshcomparison/perceptual/` já existem (módulos `cli.py` e `pipeline.py`, com utilitários compartilhados em `src/meshcomparison/common/`). Confira neles a leitura de argumentos, a criação das pastas e a função `run_pipeline`.
 
 ## Passo 2 — Trecho da implementação atual
 
@@ -31,10 +31,10 @@ paths = ensure_dirs(args.out)
 
 ## Passo 3 — Executar e conferir
 
-Execute `python mesh_eval_pipeline.py --gt gt.stl --rm mod.stl --out output` e confira os arquivos gerados. A função `run_pipeline(...)`, as opções de alinhamento e câmera e as pastas específicas do fluxo perceptual já estão implementadas; não é necessário adicioná-las novamente.
+Execute `python -m meshcomparison.geometry --gt data/samples/gt.stl --rm data/samples/mod.stl --out output` e confira os arquivos gerados. A função `run_pipeline(...)`, as opções de alinhamento e câmera e as pastas específicas do fluxo perceptual já estão implementadas; não é necessário adicioná-las novamente.
 
 ## Passo 4 — Próxima etapa
 
 Continue para [03 — Conferir o carregamento e a normalização das malhas](03-malhas-normalizacao.md).
 
-**Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.
+**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

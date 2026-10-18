@@ -1,6 +1,6 @@
 # Resultados atuais
 
-Este relatório registra a execução de exemplo dos pipelines geométrico e perceptual com `gt.stl` como referência (GT) e `mod.stl` como malha avaliada (RM). Os resultados foram gerados localmente e estão disponíveis na pasta [`output/`](../../output/).
+Este relatório registra a execução de exemplo dos pipelines geométrico e perceptual com `data/samples/gt.stl` como referência (GT) e `data/samples/mod.stl` como malha avaliada (RM). Os resultados foram gerados localmente e estão disponíveis na pasta [`examples/output/`](../../examples/output/).
 
 Os dois pipelines concluíram essa execução sem erros. Este resultado confirma o fluxo com as malhas de exemplo, mas não substitui os testes sistemáticos com malhas controladas descritos na [etapa 10](../implementation/step-by-step/10-limitacoes-evolucao.md).
 
@@ -43,17 +43,17 @@ As imagens estão organizadas em duas colunas para facilitar a comparação e re
   <tr>
     <td width="50%" align="center">
       <strong>Render ortográfico da referência (GT)</strong><br>
-      <img src="../../output/renders/gt_ortho.png" width="100%" alt="Render ortográfico da GT">
+      <img src="../../examples/output/renders/gt_ortho.png" width="100%" alt="Render ortográfico da GT">
     </td>
     <td width="50%" align="center">
       <strong>Render ortográfico da malha avaliada (RM)</strong><br>
-      <img src="../../output/renders/rm_aligned_ortho.png" width="100%" alt="Render ortográfico da RM">
+      <img src="../../examples/output/renders/rm_aligned_ortho.png" width="100%" alt="Render ortográfico da RM">
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <strong>Heatmap geométrico</strong><br>
-      <img src="../../output/heatmaps/gt_heatmap_ortho.png" width="50%" alt="Heatmap geométrico">
+      <img src="../../examples/output/heatmaps/gt_heatmap_ortho.png" width="50%" alt="Heatmap geométrico">
     </td>
   </tr>
 </table>
@@ -66,31 +66,31 @@ As renderizações da mesma vista aparecem lado a lado para comparar a GT e a RM
   <tr>
     <td width="50%" align="center">
       <strong>Vista 1 — GT</strong><br>
-      <img src="../../output/renders/gt/gt_view001.png" width="100%" alt="Render da GT na vista 1">
+      <img src="../../examples/output/renders/gt/gt_view001.png" width="100%" alt="Render da GT na vista 1">
     </td>
     <td width="50%" align="center">
       <strong>Vista 1 — RM</strong><br>
-      <img src="../../output/renders/rm/rm_view001.png" width="100%" alt="Render da RM na vista 1">
+      <img src="../../examples/output/renders/rm/rm_view001.png" width="100%" alt="Render da RM na vista 1">
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <strong>Vista 33 — GT</strong><br>
-      <img src="../../output/renders/gt/gt_view033.png" width="100%" alt="Render da GT na vista 33">
+      <img src="../../examples/output/renders/gt/gt_view033.png" width="100%" alt="Render da GT na vista 33">
     </td>
     <td width="50%" align="center">
       <strong>Vista 33 — RM</strong><br>
-      <img src="../../output/renders/rm/rm_view033.png" width="100%" alt="Render da RM na vista 33">
+      <img src="../../examples/output/renders/rm/rm_view033.png" width="100%" alt="Render da RM na vista 33">
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <strong>Vista 66 — GT</strong><br>
-      <img src="../../output/renders/gt/gt_view066.png" width="100%" alt="Render da GT na vista 66">
+      <img src="../../examples/output/renders/gt/gt_view066.png" width="100%" alt="Render da GT na vista 66">
     </td>
     <td width="50%" align="center">
       <strong>Vista 66 — RM</strong><br>
-      <img src="../../output/renders/rm/rm_view066.png" width="100%" alt="Render da RM na vista 66">
+      <img src="../../examples/output/renders/rm/rm_view066.png" width="100%" alt="Render da RM na vista 66">
     </td>
   </tr>
 </table>
@@ -101,26 +101,26 @@ Cada imagem já mostra GT e RM lado a lado.
 
 <p align="center">
   <strong>Vista 1</strong><br>
-  <img src="../../output/renders/pairs/pair_view001.png" width="100%" alt="Comparação perceptual da vista 1">
+  <img src="../../examples/output/renders/pairs/pair_view001.png" width="100%" alt="Comparação perceptual da vista 1">
 </p>
 
 <p align="center">
   <strong>Vista 33</strong><br>
-  <img src="../../output/renders/pairs/pair_view033.png" width="100%" alt="Comparação perceptual da vista 33">
+  <img src="../../examples/output/renders/pairs/pair_view033.png" width="100%" alt="Comparação perceptual da vista 33">
 </p>
 
 <p align="center">
   <strong>Vista 66</strong><br>
-  <img src="../../output/renders/pairs/pair_view066.png" width="100%" alt="Comparação perceptual da vista 66">
+  <img src="../../examples/output/renders/pairs/pair_view066.png" width="100%" alt="Comparação perceptual da vista 66">
 </p>
 
 ## Arquivos de saída
 
-- [`metrics_geometry.csv`](../../output/metrics/metrics_geometry.csv): métricas geométricas agregadas.
-- [`metrics_perceptual.csv`](../../output/metrics/metrics_perceptual.csv): resumo estatístico das métricas por vista.
-- [`per_view_metrics.csv`](../../output/metrics/per_view_metrics.csv): valores de LPIPS, PSNR e SSIM para cada uma das 100 vistas.
-- [`run_metadata.csv`](../../output/metrics/run_metadata.csv): parâmetros e caminhos usados na execução perceptual.
-- [`aligned/rm_aligned.ply`](../../output/aligned/rm_aligned.ply): malha avaliada exportada pelo pipeline geométrico.
-- [`heatmaps/gt_heatmap_colored.ply`](../../output/heatmaps/gt_heatmap_colored.ply): malha com cores do heatmap.
+- [`metrics_geometry.csv`](../../examples/output/metrics/metrics_geometry.csv): métricas geométricas agregadas.
+- [`metrics_perceptual.csv`](../../examples/output/metrics/metrics_perceptual.csv): resumo estatístico das métricas por vista.
+- [`per_view_metrics.csv`](../../examples/output/metrics/per_view_metrics.csv): valores de LPIPS, PSNR e SSIM para cada uma das 100 vistas.
+- [`run_metadata.csv`](../../examples/output/metrics/run_metadata.csv): parâmetros e caminhos usados na execução perceptual.
+- [`aligned/rm_aligned.ply`](../../examples/output/aligned/rm_aligned.ply): malha avaliada exportada pelo pipeline geométrico.
+- [`heatmaps/gt_heatmap_colored.ply`](../../examples/output/heatmaps/gt_heatmap_colored.ply): malha com cores do heatmap.
 
-Os CSVs de execução registram caminhos locais das malhas; eles podem variar em outra máquina. [`environment.yml`](../../environment.yml) lista as dependências gerais, enquanto [`environment-lock.yml`](../../environment-lock.yml) fixa as versões exportadas do ambiente Windows `meshEval`. Esse ambiente usa PyTorch CPU-only, sem CUDA; portanto, a aceleração CUDA não foi testada. O pipeline perceptual executou em CPU. A execução de exemplo não valida comportamento para malhas idênticas, deslocadas, redimensionadas, com buracos ou densidades diferentes; esses casos continuam pendentes na [etapa 10](../implementation/step-by-step/10-limitacoes-evolucao.md). Mais detalhes da instalação e validação estão no [guia de preparação do ambiente](../implementation/step-by-step/01-preparacao-ambiente.md).
+Os CSVs de execução registram caminhos locais das malhas; eles podem variar em outra máquina. [`environment.yml`](../../environments/environment.yml) lista as dependências gerais, enquanto [`environment-lock.yml`](../../environments/environment-lock.yml) fixa as versões exportadas do ambiente Windows `meshEval`. Esse ambiente usa PyTorch CPU-only, sem CUDA; portanto, a aceleração CUDA não foi testada. O pipeline perceptual executou em CPU. A execução de exemplo não valida comportamento para malhas idênticas, deslocadas, redimensionadas, com buracos ou densidades diferentes; esses casos continuam pendentes na [etapa 10](../implementation/step-by-step/10-limitacoes-evolucao.md). Mais detalhes da instalação e validação estão no [guia de preparação do ambiente](../implementation/step-by-step/01-preparacao-ambiente.md).

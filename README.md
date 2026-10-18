@@ -23,23 +23,24 @@ This workspace compares a ground-truth mesh with a reconstructed mesh. Convert F
 
 ## Technologies
 
-| Technology | Version / installation target | Role in the project |
+| Technology | Installed version (reported 2026-10-17) | Role in the project |
 | --- | --- | --- |
-| Python | 3.12 | Main language for both evaluation pipelines. |
-| Conda | Current stable Miniconda3 (Windows x86_64); Conda version not pinned | Isolated Python environment and dependency management. |
-| NumPy | Not pinned | Numerical operations on coordinates, arrays, and distances. |
-| Trimesh | Not pinned | Loading, inspecting, transforming, and exporting 3D meshes. |
-| Open3D | Not pinned | Iterative Closest Point (ICP) mesh alignment. |
-| SciPy (cKDTree) | Not pinned | Efficient nearest-neighbor searches for geometric metrics. |
-| pyrender | Not pinned | Offscreen rendering of meshes for image-based comparison. |
-| Matplotlib | Not pinned | Geometric distance visualization and heatmap color mapping. |
-| imageio | Not pinned | Writing rendered images to disk. |
-| PyTorch | Not pinned | Neural-network execution for perceptual evaluation, with optional CUDA acceleration. |
-| LPIPS | Not pinned | Learned perceptual similarity between rendered views. |
-| scikit-image | Not pinned | Structural Similarity Index (SSIM) calculation. |
-| pandas | Not pinned | Tabular metrics, summaries, and CSV exports. |
+| Python | 3.12.15 | Main language for both evaluation pipelines. |
+| Conda | 25.11.1 (Windows win-64) | Isolated Python environment and dependency management. |
+| NumPy | 2.5.4 | Numerical operations on coordinates, arrays, and distances. |
+| Trimesh | 5.1.1 | Loading, inspecting, transforming, and exporting 3D meshes. |
+| Open3D | 0.20.0 | Iterative Closest Point (ICP) mesh alignment. |
+| SciPy (cKDTree) | 1.18.1 | Efficient nearest-neighbor searches for geometric metrics. |
+| pyrender | 0.1.45 | Offscreen rendering of meshes for image-based comparison. |
+| Matplotlib | 3.11.2 | Geometric distance visualization and heatmap color mapping. |
+| imageio | 2.38.1 | Writing rendered images to disk. |
+| PyTorch | 2.14.1 | Neural-network execution for perceptual evaluation, with optional CUDA acceleration. |
+| torchvision | 0.29.1 | Vision models and utilities used by LPIPS. |
+| LPIPS | 0.1.4 | Learned perceptual similarity between rendered views. |
+| scikit-image | 0.26.0 | Structural Similarity Index (SSIM) calculation. |
+| pandas | 3.0.6 | Tabular metrics, summaries, and CSV exports. |
 
-Python 3.12 is the environment version specified by this project. The Python version bundled with the Miniconda installer may differ; `conda create -n meshEval python=3.12` selects the project version independently. Library versions are not yet recorded in a requirements or lock file, so exact versions used to generate the existing results cannot be confirmed. “Not pinned” does not mean that every release is compatible; a tested dependency set still needs to be recorded.
+These versions were reported from the local Windows `meshEval` environment on 2026-10-17: Python version was checked and pip reported a successful installation. Import checks, rendering, pipeline execution, and CUDA availability have not yet been confirmed for this environment. These are observed installed versions, not validated compatibility requirements or the versions used for the existing repository outputs. Dependencies are not yet pinned in a requirements or lock file. The installer’s base Python version is independent of the project environment.
 
 ## Workspace layout
 
@@ -69,11 +70,32 @@ Use Python in a Conda environment named `meshEval` to run the supplied `.bat` fi
 
 ## Installation
 
-```bash
-conda create -n meshEval python=3.12
-conda activate meshEval
-pip install numpy pandas trimesh pyrender open3d matplotlib imageio scipy scikit-image torch lpips
+Run each step separately in Anaconda Prompt, from the repository root.
+
+```bat
+conda create -n meshEval python=3.12.15
 ```
+
+At `Proceed ([y]/n)?`, type only `y` and press Enter. Wait for installation to finish before running:
+
+```bat
+conda activate meshEval
+python --version
+```
+
+Once the prompt starts with `(meshEval)`, install the dependencies:
+
+```bat
+python -m pip install numpy pandas trimesh pyrender open3d matplotlib imageio scipy scikit-image torch torchvision lpips
+```
+
+This unpinned command may install different versions in the future. Verify imports before running the pipelines:
+
+```bat
+python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
+```
+
+See the [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) for the recorded installation and remaining validation.
 
 For GPU-accelerated LPIPS, install the PyTorch build that matches your CUDA version using the official PyTorch installation instructions before installing the remaining packages.
 

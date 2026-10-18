@@ -48,6 +48,8 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
 
 The images below are sample outputs from the geometric and perceptual pipelines. This recorded run used 100 camera views; the pre-alignment normalized MSE was below the configured threshold, so ICP alignment was skipped.
 
+**Execution status:** both pipelines completed without errors with the repository's example meshes. This confirms the example workflow in the recorded Windows environment; it is not a systematic test of varied mesh conditions. That environment uses CPU-only PyTorch, so CUDA acceleration was unavailable and was not tested.
+
 ### Metric snapshot
 
 **Geometric metrics** (reported in the original GT mesh units):
@@ -226,6 +228,7 @@ The geometric pipeline also accepts `--azimuth` (default `-135`) and `--elevatio
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
 - The GitHub Actions workflow checks linting, tests, and the command-line help output. It does not run offscreen rendering or validate CUDA execution.
 - LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.
+- Systematic validation of identical, translated, resized, incomplete, and differently sampled meshes is still pending; see the [validation plan](docs/implementation/step-by-step/10-limitacoes-evolucao.md).
 
 ## Development
 

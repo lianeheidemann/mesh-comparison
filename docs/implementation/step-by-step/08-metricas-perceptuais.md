@@ -42,6 +42,8 @@ Este é um **recorte do fluxo**, não um script independente: `gt_rgba` e `rm_rg
 
 O script já implementa PSNR como `10 log10(1/MSE_imagem)` para pixels em `[0,1]`, com tratamento de erro zero. Para reproduzir **exatamente** os resultados atuais, consulte `masked_psnr` do script: o denominador conta pixels mascarados, enquanto o numerador soma os três canais, diferente da média RGB convencional. SSIM e LPIPS atuais recebem recortes cujo fundo foi zerado, **não** uma máscara aplicada diretamente à função de SSIM/LPIPS. Por padrão, o script salva exemplos das vistas 1, 33 e 66 quando executa 100 vistas. A seleção de `--device auto/cpu/cuda` atua na inferência de LPIPS, não no renderizador. Para comparar com os CSVs históricos, use o [roteiro de validação no Windows](../../../README.md#validate-on-windows) e mantenha número de vistas, resolução, câmera e demais parâmetros consistentes.
 
+**Limitação conhecida do log atual:** em [`perceptual/pipeline.py`](../../../src/meshcomparison/perceptual/pipeline.py), a mensagem de progresso da etapa 6 contém o texto fixo `Rendering 100 views`, mesmo quando `--num-views` é diferente. O **total efetivamente processado** vem do argumento `--num-views` e pode ser conferido pelo número de linhas de `per_view_metrics.csv` e pelo contador `View i/N`. Trata-se de uma divergência da mensagem, **não de uma validação concluída para todas as quantidades de vistas**. A correção do texto do log fica para uma futura alteração de código.
+
 ## Passo 4 — Próxima etapa
 
 Continue para [09 — Conferir os resultados exportados](09-relatorios-validacao.md).

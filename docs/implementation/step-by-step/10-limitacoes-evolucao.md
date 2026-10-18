@@ -58,6 +58,10 @@ Isso verifica uma propriedade básica de **distâncias entre vértices**; não v
 
 Potenciais evoluções: amostragem uniforme de superfície, análise topológica, escolha de ICP com/sem escala, PSNR RGB convencional e validação de renderização. A **separação em módulos já foi implementada** em `src/meshcomparison/`, portanto não deve continuar como uma tarefa pendente genérica. Alterações nas definições científicas exigem testes de regressão e documentação (ADR) antes de comparar novos CSVs com o histórico.
 
+## 5. Divergência de mensagem identificada durante a auditoria
+
+O [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py) exibe uma mensagem fixa com **“Rendering 100 views”** na etapa 6, independentemente do valor de `--num-views`. O laço calcula a quantidade real definida pelo argumento. **Pendente:** ajustar o texto do log para usar a variável `num_views` e acrescentar um teste que confira a mensagem ao executar com uma quantidade diferente de 100. Enquanto isso, consultar `per_view_metrics.csv` e a contagem `View i/N` para confirmar o total processado.
+
 ## Critérios para concluir esta etapa
 
 - [ ] Casos geométricos controlados (identidade, transformação, deformação, incompletude e densidade) automatizados.

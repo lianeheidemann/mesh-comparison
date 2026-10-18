@@ -1,4 +1,4 @@
-# 02 — Criar os programas e a interface de linha de comando
+# 02 — Conferir os programas e a interface de linha de comando
 
 > **Status: concluída.** Os dois pipelines, suas interfaces de linha de comando e a criação das pastas de saída já estão implementados.
 

@@ -1,12 +1,14 @@
 # 03 — Importar e normalizar duas malhas
 
+> **Status: concluída.** O carregamento e a normalização compartilhada pela GT já estão implementados nos dois pipelines.
+
 ![Esquema da etapa](../images/pipeline.svg)
 
-## Passo 1 — O que criar
+## Passo 1 — Conferir o carregamento existente
 
-Implemente `load_mesh(path)` usando `trimesh.load(path, force='scene', process=False, maintain_order=True)`. Se o retorno for uma cena, percorra as instâncias e aplique as transformações do grafo antes de concatenar as geometrias. Remova vértices não referenciados e rejeite `.fbx` explicitamente.
+Confira `load_mesh(path)`, implementada usando `trimesh.load(path, force='scene', process=False, maintain_order=True)`. Se o retorno for uma cena, percorra as instâncias e aplique as transformações do grafo antes de concatenar as geometrias. Remova vértices não referenciados e rejeite `.fbx` explicitamente.
 
-## Passo 2 — Implementação inicial
+## Passo 2 — Trecho da implementação atual
 
 ```python
 # Normaliza as duas malhas usando a mesma escala derivada da referência
@@ -22,12 +24,12 @@ gt.apply_scale(scale)
 rm.apply_scale(scale)
 ```
 
-## Passo 3 — Completar, executar e validar
+## Passo 3 — Validar o comportamento
 
-Teste com duas cópias idênticas de um STL: após normalizar, as coordenadas devem continuar coincidentes. Não normalize cada malha por sua própria diagonal: isso apagaria diferenças de tamanho antes da avaliação.
+Valide com duas cópias idênticas de um STL: após normalizar, as coordenadas devem continuar coincidentes. Não normalize cada malha por sua própria diagonal: isso apagaria diferenças de tamanho antes da avaliação.
 
 ## Passo 4 — Próxima etapa
 
-Continue para [04 — Construir a correspondência e o ICP](04-alinhamento-icp.md).
+Continue para [04 — Conferir a correspondência e o ICP](04-alinhamento-icp.md).
 
 **Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

@@ -4,7 +4,11 @@
 
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/In%20Development-3B4A5A?style=flat-square"><img src="https://img.shields.io/badge/In%20Development-61778E?style=flat-square" alt="Project in development"></picture></p>
+<div align="center">
+
+[![CI](https://github.com/lianeheidemann/mesh-comparison/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/mesh-comparison/actions/workflows/ci.yml)
+
+</div>
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Python-3B4A5A?style=flat-square&logo=python&logoColor=white"><img src="https://img.shields.io/badge/Python-61778E?style=flat-square&logo=python&logoColor=white" alt="Python"></picture>

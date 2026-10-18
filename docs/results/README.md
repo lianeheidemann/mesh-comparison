@@ -95,28 +95,22 @@ As renderizações da mesma vista aparecem lado a lado para comparar a GT e a RM
 
 ### Comparações perceptuais
 
-Cada imagem já mostra GT e RM lado a lado. Por isso, elas aparecem em linhas separadas.
+Cada imagem já mostra GT e RM lado a lado.
 
-<table>
-  <tr>
-    <td align="center">
-      <strong>Vista 1</strong><br>
-      <img src="../../output/renders/pairs/pair_view001.png" width="80%" alt="Comparação perceptual da vista 1">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <strong>Vista 33</strong><br>
-      <img src="../../output/renders/pairs/pair_view033.png" width="80%" alt="Comparação perceptual da vista 33">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <strong>Vista 66</strong><br>
-      <img src="../../output/renders/pairs/pair_view066.png" width="80%" alt="Comparação perceptual da vista 66">
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <strong>Vista 1</strong><br>
+  <img src="../../output/renders/pairs/pair_view001.png" width="80%" alt="Comparação perceptual da vista 1">
+</p>
+
+<p align="center">
+  <strong>Vista 33</strong><br>
+  <img src="../../output/renders/pairs/pair_view033.png" width="80%" alt="Comparação perceptual da vista 33">
+</p>
+
+<p align="center">
+  <strong>Vista 66</strong><br>
+  <img src="../../output/renders/pairs/pair_view066.png" width="80%" alt="Comparação perceptual da vista 66">
+</p>
 
 ## Arquivos de saída
 

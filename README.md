@@ -4,11 +4,14 @@
 
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
 
-<div align="center">
-
-[![CI](https://github.com/lianeheidemann/mesh-comparison/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/mesh-comparison/actions/workflows/ci.yml)
-
-</div>
+<p align="center">
+  <a href="https://github.com/lianeheidemann/mesh-comparison/actions/workflows/ci.yml">
+    <img
+      src="https://img.shields.io/github/actions/workflow/status/lianeheidemann/mesh-comparison/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI%20%2F%20Build&labelColor=315f7d"
+      alt="CI Build Status"
+    />
+  </a>
+</p>
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Python-3B4A5A?style=flat-square&logo=python&logoColor=white"><img src="https://img.shields.io/badge/Python-61778E?style=flat-square&logo=python&logoColor=white" alt="Python"></picture>

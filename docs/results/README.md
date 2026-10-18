@@ -1,0 +1,101 @@
+# Resultados atuais
+
+Este relatório registra a execução de exemplo dos pipelines geométrico e perceptual com `gt.stl` como referência (GT) e `mod.stl` como malha avaliada (RM). Os resultados foram gerados localmente e estão disponíveis na pasta [`output/`](../../output/).
+
+## Resumo da execução
+
+- O pipeline geométrico e o pipeline perceptual foram executados com os arquivos de exemplo.
+- O MSE simétrico antes do alinhamento foi **0,0000730103** em coordenadas normalizadas, abaixo do limiar configurado de **0,0001**. O alinhamento foi, portanto, ignorado.
+- A diagonal da caixa delimitadora da GT foi **3,77537 unidades STL**. Como os arquivos STL não registram unidade física, os valores em unidades originais devem ser interpretados na unidade usada ao criar as malhas.
+- O pipeline perceptual avaliou **100 vistas** e salvou imagens de comparação das vistas **1, 33 e 66**.
+
+## Métricas geométricas
+
+| Métrica | Resultado normalizado | Resultado nas unidades originais da GT |
+| --- | ---: | ---: |
+| MSE simétrico antes do alinhamento | 0,0000730103 | 0,00104065 unidade² |
+| MSE simétrico após o alinhamento | 0,0000730103 | 0,00104065 unidade² |
+| Chamfer médio | 0,00187183 | 0,00706686 unidade |
+| Hausdorff simétrico | 0,0815869 | 0,308021 unidade |
+| RMSE simétrico | 0,00854461 | 0,0322591 unidade |
+
+O MSE pré-alinhamento ficou abaixo do limiar de 0,0001, por isso nenhuma transformação de alinhamento foi aplicada nesta execução.
+
+## Métricas perceptuais
+
+Resumo das 100 vistas calculadas:
+
+| Métrica | Mínimo | Mediana | Média | Máximo |
+| --- | ---: | ---: | ---: | ---: |
+| LPIPS | 0,0995203 | 0,112826 | 0,114771 | 0,138245 |
+| PSNR (dB) | 8,94537 | 11,1308 | 10,9587 | 12,6710 |
+| SSIM | 0,918553 | 0,930943 | 0,932160 | 0,944466 |
+
+Os valores perceptuais descrevem as renderizações geradas pelo pipeline e dependem da câmera, do enquadramento e das configurações registradas nos arquivos de métricas. Devem ser comparados usando as mesmas configurações.
+
+## Visualizações geradas
+
+**Render ortográfico da referência (GT):**
+
+![Render ortográfico da GT](../../output/renders/gt_ortho.png)
+
+**Render ortográfico da malha avaliada após o processamento:**
+
+![Render ortográfico da RM](../../output/renders/rm_aligned_ortho.png)
+
+**Heatmap geométrico:**
+
+![Heatmap geométrico](../../output/heatmaps/gt_heatmap_ortho.png)
+
+### Renders multivista da GT
+
+**Vista 1**
+
+![Render da GT na vista 1](../../output/renders/gt/gt_view001.png)
+
+**Vista 33**
+
+![Render da GT na vista 33](../../output/renders/gt/gt_view033.png)
+
+**Vista 66**
+
+![Render da GT na vista 66](../../output/renders/gt/gt_view066.png)
+
+### Renders multivista da RM
+
+**Vista 1**
+
+![Render da RM na vista 1](../../output/renders/rm/rm_view001.png)
+
+**Vista 33**
+
+![Render da RM na vista 33](../../output/renders/rm/rm_view033.png)
+
+**Vista 66**
+
+![Render da RM na vista 66](../../output/renders/rm/rm_view066.png)
+
+### Comparações perceptuais
+
+**Vista 1**
+
+![Comparação perceptual da vista 1](../../output/renders/pairs/pair_view001.png)
+
+**Vista 33**
+
+![Comparação perceptual da vista 33](../../output/renders/pairs/pair_view033.png)
+
+**Vista 66**
+
+![Comparação perceptual da vista 66](../../output/renders/pairs/pair_view066.png)
+
+## Arquivos de saída
+
+- [`metrics_geometry.csv`](../../output/metrics/metrics_geometry.csv): métricas geométricas agregadas.
+- [`metrics_perceptual.csv`](../../output/metrics/metrics_perceptual.csv): resumo estatístico das métricas por vista.
+- [`per_view_metrics.csv`](../../output/metrics/per_view_metrics.csv): valores de LPIPS, PSNR e SSIM para cada uma das 100 vistas.
+- [`run_metadata.csv`](../../output/metrics/run_metadata.csv): parâmetros e caminhos usados na execução perceptual.
+- [`aligned/rm_aligned.ply`](../../output/aligned/rm_aligned.ply): malha avaliada exportada pelo pipeline geométrico.
+- [`heatmaps/gt_heatmap_colored.ply`](../../output/heatmaps/gt_heatmap_colored.ply): malha com cores do heatmap.
+
+Os CSVs de execução registram caminhos locais das malhas; eles podem variar em outra máquina. [`environment.yml`](../../environment.yml) lista as dependências gerais, enquanto [`environment-lock.yml`](../../environment-lock.yml) fixa as versões exportadas do ambiente Windows `meshEval`. Esse ambiente usa PyTorch CPU-only, sem CUDA. Mais detalhes da instalação e validação estão no [guia de preparação do ambiente](../implementation/step-by-step/01-preparacao-ambiente.md).

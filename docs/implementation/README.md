@@ -6,7 +6,7 @@ Este guia parte do estado atual do repositório. Os pipelines geométrico e perc
 
 ## Status das etapas
 
-1. [~] [Preparar o ambiente](step-by-step/01-preparacao-ambiente.md) — instruções documentadas; falta registrar as dependências em um arquivo reproduzível.
+1. [x] [Preparar o ambiente](step-by-step/01-preparacao-ambiente.md) — pipelines executados, versões fixadas em `environment-lock.yml`; ambiente CPU-only, sem CUDA.
 2. [x] [Programas, CLI e diretórios](step-by-step/02-arquitetura-implementacao.md)
 3. [x] [Carregamento e normalização das malhas](step-by-step/03-malhas-normalizacao.md)
 4. [x] [Correspondência e alinhamento ICP](step-by-step/04-alinhamento-icp.md)

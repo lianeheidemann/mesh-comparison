@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pytest.importorskip("open3d")
 pytest.importorskip("pyrender")
 
-from mesh_eval_pipeline import (  # noqa: E402
+from mesh_eval_pipeline import (
     apply_transform_points,
     compute_metrics,
     initial_similarity_from_bboxes,

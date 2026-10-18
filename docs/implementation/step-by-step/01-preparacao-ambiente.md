@@ -1,6 +1,6 @@
 # 01 — Preparar o projeto e instalar as dependências
 
-> **Status: parcialmente concluída.** Ambiente local criado com Python 3.12.15 e instalação das dependências concluída, conforme saída do terminal informada em 17/10/2026. Ainda faltam validar as importações, executar os pipelines e registrar um ambiente reproduzível.
+> **Status: concluída para execução em CPU.** Ambiente local criado, dependências importadas sem erro e os pipelines geométrico e perceptual executados com os arquivos de exemplo. O snapshot `environment-lock.yml` registra as versões instaladas. O PyTorch deste ambiente é CPU-only; CUDA não está disponível.
 
 Este passo prepara o ambiente para executar e validar os pipelines que já existem no repositório.
 
@@ -48,14 +48,24 @@ python -m pip install numpy pandas trimesh pyrender open3d matplotlib imageio sc
 | imageio | 2.38.1 |
 | SciPy | 1.18.1 |
 | scikit-image | 0.26.0 |
-| PyTorch (torch) | 2.14.1 |
+| PyTorch (torch) | 2.14.1+cpu |
 | torchvision | 0.29.1 |
 | LPIPS | 0.1.4 |
 | PyOpenGL | 3.1.0 |
 | pyglet | 2.1.19 |
 | Pillow | 13.0.0 |
+| pytest | 9.1.1 |
+| Ruff | 0.17.1 |
 
-O pip informou `Successfully installed`. Isso confirma a instalação relatada, mas ainda não comprova compatibilidade em execução, renderização ou aceleração CUDA. Essas versões não identificam o ambiente que gerou os resultados já existentes no repositório. O comando acima não fixa versões e poderá instalar versões diferentes no futuro.
+O pip informou `Successfully installed`. Os dois pipelines foram executados neste ambiente, confirmando que suas dependências carregaram e que a renderização funcionou nesta máquina. Isso não confirma aceleração CUDA. As versões acima não identificam o ambiente que gerou os resultados já existentes no repositório. O comando acima não fixa versões e poderá instalar versões diferentes no futuro.
+
+Para recriar o ambiente Windows com as versões observadas, use o snapshot exportado:
+
+```bat
+conda env create -f environment-lock.yml
+```
+
+`environment.yml` continua como uma lista geral de dependências; `environment-lock.yml` fixa as versões Conda e pip observadas neste ambiente Windows em 17/10/2026. O snapshot não inclui o caminho local do ambiente.
 
 ## Passo 3 — Conferir o ambiente e executar os scripts
 
@@ -79,16 +89,16 @@ python percept_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
 
 O repositório já contém `gt.stl` e `mod.stl` para execução de exemplo. Os comandos podem substituir arquivos existentes em `output/`. Para modelos FBX, converta antes para um formato aceito pelo Trimesh. O renderizador offscreen pode exigir configuração gráfica específica do sistema.
 
-### Validação pendente
+### Validação
 
 - [x] Ambiente Conda criado e ativado, conforme terminal informado.
 - [x] Python 3.12.15 confirmado.
 - [x] Instalação das dependências concluída, conforme saída do pip.
-- [ ] Importações verificadas sem erro.
-- [ ] Pipeline geométrico executado e resultados conferidos neste ambiente.
-- [ ] Pipeline perceptual executado e resultados conferidos neste ambiente.
-- [ ] Disponibilidade de CUDA verificada, caso se pretenda usar GPU.
-- [ ] Dependências registradas em arquivo reproduzível após a validação.
+- [x] Importações necessárias carregadas durante a execução dos pipelines.
+- [x] Pipeline geométrico executado; resultados salvos em `output/`.
+- [x] Pipeline perceptual executado; métricas e renders salvos em `output/`.
+- [x] CUDA verificada: indisponível neste ambiente; PyTorch instalado sem suporte CUDA.
+- [x] Dependências gerais registradas em [`environment.yml`](../../../environment.yml) e versões observadas fixadas em [`environment-lock.yml`](../../../environment-lock.yml).
 
 ## Passo 4 — Próxima etapa
 

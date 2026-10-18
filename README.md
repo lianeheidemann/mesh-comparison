@@ -40,7 +40,7 @@ This workspace compares a ground-truth mesh with a reconstructed mesh. Convert F
 | scikit-image | 0.26.0 | Structural Similarity Index (SSIM) calculation. |
 | pandas | 3.0.6 | Tabular metrics, summaries, and CSV exports. |
 
-These versions were reported from the local Windows `meshEval` environment on 2026-10-17: Python version was checked and pip reported a successful installation. Import checks, rendering, pipeline execution, and CUDA availability have not yet been confirmed for this environment. These are observed installed versions, not validated compatibility requirements or the versions used for the existing repository outputs. Dependencies are not yet pinned in a requirements or lock file. The installer’s base Python version is independent of the project environment.
+These versions were reported from the local Windows `meshEval` environment on 2026-10-17. Imports and both example pipelines were confirmed in that environment. PyTorch reports `2.14.1+cpu`; CUDA is unavailable, so perceptual evaluation runs on CPU. [`environment-lock.yml`](environment-lock.yml) records the installed Conda and pip package versions for recreating this Windows environment. [`environment.yml`](environment.yml) remains the general, unpinned dependency list. These observed versions do not identify the environment that produced older outputs already in the repository. The installer’s base Python version is independent of the project environment.
 
 ## Workspace layout
 
@@ -73,31 +73,23 @@ Use Python in a Conda environment named `meshEval` to run the supplied `.bat` fi
 Run each step separately in Anaconda Prompt, from the repository root.
 
 ```bat
-conda create -n meshEval python=3.12.15
-```
-
-At `Proceed ([y]/n)?`, type only `y` and press Enter. Wait for installation to finish before running:
-
-```bat
+conda env create -f environment.yml
 conda activate meshEval
-python --version
 ```
 
-Once the prompt starts with `(meshEval)`, install the dependencies:
+The general environment file creates `meshEval` with Python 3.12 and installs the dependencies with pip. These unpinned dependencies may resolve to different versions over time. To recreate the recorded Windows environment with its package versions, use the snapshot instead:
 
 ```bat
-python -m pip install numpy pandas trimesh pyrender open3d matplotlib imageio scipy scikit-image torch torchvision lpips
+conda env create -f environment-lock.yml
 ```
 
-This unpinned command may install different versions in the future. Verify imports before running the pipelines:
+If `meshEval` already exists, activate it instead of creating it again. The [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) records the validation details. Verify imports before running the pipelines:
 
 ```bat
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
 ```
 
-See the [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) for the recorded installation and remaining validation.
-
-For GPU-accelerated LPIPS, install the PyTorch build that matches your CUDA version using the official PyTorch installation instructions before installing the remaining packages.
+The local validation used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build that matches your CUDA version using the official PyTorch installation instructions.
 
 ## Run
 
@@ -147,3 +139,20 @@ Main outputs:
 Both scripts accept `--mse-threshold` (default `1e-4`), which controls whether alignment is run, plus `--width` and `--height` (defaults `1600` and `1200`). Use `--help` after the script name to see all options.
 
 The geometric pipeline also accepts `--azimuth` (default `-135`) and `--elevation` (default `25.264`). The perceptual pipeline accepts `--elevation` (default `25.264`), `--num-views` (default `100`), `--save-views` (default `1 33 66`), `--camera-margin` (default `1.05`), and `--radius-factor` (default `1.45`).
+
+## Development
+
+`environment.yml` also installs `pytest` and `ruff`. From the activated environment:
+
+```bat
+ruff check .
+pytest
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests, and the `--help` of both scripts. It does not run the rendering or CUDA parts of the pipelines.
+
+## License and credits
+
+This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](LICENSE). Code derived from the original project remains the property of its author.
+
+See the [current example results](docs/results/README.md) for the recorded geometric and perceptual metrics and their output images.

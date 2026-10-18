@@ -1,12 +1,14 @@
-# 08 — Construir as vistas e calcular LPIPS, PSNR e SSIM
+# 08 — Conferir as vistas e métricas LPIPS, PSNR e SSIM
+
+> **Status: concluída.** O pipeline perceptual já renderiza múltiplas vistas e calcula LPIPS, PSNR e SSIM.
 
 ![Esquema da etapa](../images/multiview.svg)
 
-## Passo 1 — O que criar
+## Passo 1 — Conferir o fluxo multivista existente
 
-No `percept_eval_pipeline.py`, reutilize as etapas 03 e 04. Para cada azimute, crie uma câmera ortográfica comum, renderize GT e RM em RGBA, forme máscaras pelo canal alfa e recorte a união das silhuetas. Por padrão, percorra 100 vistas.
+O `percept_eval_pipeline.py` já reutiliza o carregamento, a normalização e o alinhamento das etapas 03 e 04. Para cada azimute, crie uma câmera ortográfica comum, renderize GT e RM em RGBA, forme máscaras pelo canal alfa e recorte a união das silhuetas. Por padrão, percorra 100 vistas.
 
-## Passo 2 — Implementação inicial
+## Passo 2 — Trecho da implementação atual
 
 ```python
 # Calcula as métricas perceptuais sobre imagens recortadas e mascaradas
@@ -23,12 +25,12 @@ with torch.no_grad():
     lpips_value = float(model(a, b).item())
 ```
 
-## Passo 3 — Completar, executar e validar
+## Passo 3 — Entender as métricas e validar
 
-Implemente também PSNR como `10 log10(1/MSE_imagem)` para pixels em `[0,1]`, com tratamento de erro zero. Para reproduzir **exatamente** os resultados atuais, consulte `masked_psnr` do script: o denominador conta pixels mascarados, enquanto o numerador soma os três canais, diferente da média RGB convencional. SSIM e LPIPS atuais recebem o fundo zerado, não uma máscara ponderada. Salve exemplos das vistas 1, 33 e 66.
+O script já implementa PSNR como `10 log10(1/MSE_imagem)` para pixels em `[0,1]`, com tratamento de erro zero. Para reproduzir **exatamente** os resultados atuais, consulte `masked_psnr` do script: o denominador conta pixels mascarados, enquanto o numerador soma os três canais, diferente da média RGB convencional. SSIM e LPIPS atuais recebem o fundo zerado, não uma máscara ponderada. Por padrão, o script salva exemplos das vistas 1, 33 e 66.
 
 ## Passo 4 — Próxima etapa
 
-Continue para [09 — Exportar resultados e verificar a execução](09-relatorios-validacao.md).
+Continue para [09 — Conferir os resultados exportados](09-relatorios-validacao.md).
 
 **Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

@@ -1,7 +1,5 @@
 # 08 — Construir as vistas e calcular LPIPS, PSNR e SSIM
 
-> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
-
 ![Esquema da etapa](../images/multiview.svg)
 
 ## Passo 1 — O que criar

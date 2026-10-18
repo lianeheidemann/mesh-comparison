@@ -157,11 +157,13 @@ The images below are sample outputs from the geometric and perceptual pipelines.
     </td>
   </tr>
   <tr>
-    <td width="50%" align="center">
+    <td colspan="2" align="center">
       <strong>Geometric distance heatmap</strong><br>
-      <img src="output/heatmaps/gt_heatmap_ortho.png" width="100%" alt="Geometric distance heatmap on the ground-truth mesh">
+      <img src="output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
     </td>
-    <td width="50%" align="center">
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
       <strong>Perceptual comparison — view 1</strong><br>
       <img src="output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
     </td>

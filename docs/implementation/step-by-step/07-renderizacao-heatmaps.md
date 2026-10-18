@@ -6,7 +6,7 @@
 
 ## Passo 1 — Conferir a câmera compartilhada
 
-As funções `look_at`, `bounds_corners` e `build_shared_camera` já estão implementadas. Confira como elas: calcule uma única câmera ortográfica a partir da caixa envolvente conjunta GT+RM. Use `pyrender.Scene`, `OrthographicCamera` e `OffscreenRenderer` para salvar as duas vistas com enquadramento igual.
+As funções `look_at`, `bounds_corners` e `build_shared_camera` já estão implementadas. Elas calculam uma câmera ortográfica a partir da caixa envolvente conjunta GT+RM; o pipeline usa `pyrender.Scene`, `OrthographicCamera` e `OffscreenRenderer` para salvar as duas vistas com o mesmo enquadramento.
 
 ## Passo 2 — Trecho da implementação atual
 

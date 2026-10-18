@@ -99,17 +99,17 @@ Cada imagem já mostra GT e RM lado a lado.
 
 <p align="center">
   <strong>Vista 1</strong><br>
-  <img src="../../output/renders/pairs/pair_view001.png" width="90%" alt="Comparação perceptual da vista 1">
+  <img src="../../output/renders/pairs/pair_view001.png" width="100%" alt="Comparação perceptual da vista 1">
 </p>
 
 <p align="center">
   <strong>Vista 33</strong><br>
-  <img src="../../output/renders/pairs/pair_view033.png" width="90%" alt="Comparação perceptual da vista 33">
+  <img src="../../output/renders/pairs/pair_view033.png" width="100%" alt="Comparação perceptual da vista 33">
 </p>
 
 <p align="center">
   <strong>Vista 66</strong><br>
-  <img src="../../output/renders/pairs/pair_view066.png" width="90%" alt="Comparação perceptual da vista 66">
+  <img src="../../output/renders/pairs/pair_view066.png" width="100%" alt="Comparação perceptual da vista 66">
 </p>
 
 ## Arquivos de saída

@@ -126,6 +126,7 @@ mesh-comparison/
 ├── src/meshcomparison/            # Python package
 │   ├── common/                    # Shared: mesh I/O, transforms, distances, ICP alignment, rendering
 │   ├── geometry/                  # Geometric evaluation (pipeline, metrics, heatmap, CLI)
+│   ├── gui/                       # Desktop interface (PySide6 + PyVista 3D viewer)
 │   └── perceptual/                # Multi-view perceptual evaluation (cameras, PSNR/SSIM/LPIPS, CLI)
 ├── scripts/                       # Launchers (.bat for Windows, .sh for Linux/macOS)
 ├── data/samples/                  # gt.stl (ground truth) and mod.stl (reconstructed mesh)
@@ -174,7 +175,15 @@ If `meshEval` already exists, activate it instead of creating it again. The [env
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
 ```
 
-The recorded local validation used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build that matches your CUDA version using the official PyTorch installation instructions.
+The recorded local validation used CPU-only PyTorch. On Windows, `pip install torch` installs a **CPU-only** build even when the machine has an NVIDIA GPU, so LPIPS silently runs on the CPU. To use the GPU, replace it with a CUDA build that matches your driver (see the [PyTorch installation selector](https://pytorch.org/get-started/locally/)), for example:
+
+```bat
+pip uninstall -y torch torchvision
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
+```
+
+The second command must print `True` and a CUDA version. The perceptual pipeline always prefers CUDA when it is available (`--device auto`, the default); `--device cpu` forces the CPU and `--device cuda` fails with an explanation if CUDA cannot be used. When an NVIDIA GPU is detected but PyTorch cannot use it, the pipeline and the GUI print a warning with the fix. The geometric pipeline does not use the GPU.
 
 ## Run
 
@@ -193,6 +202,18 @@ python -m meshcomparison.perceptual --gt data/samples/gt.stl --rm data/samples/m
 ```
 
 Both commands require `--gt` and `--rm`; `--out` defaults to `output`.
+
+### Desktop interface
+
+An optional Qt window runs both pipelines, shows the metrics and renders, and displays the GT, the aligned RM and the deviation heatmap in an interactive 3D viewer (rotate, zoom, pan, opacity, edges, save image). Install the extra dependencies and start it:
+
+```bat
+pip install PySide6 pyvista pyvistaqt    # already included when the environment is created from environment.yml
+pip install -e . --no-deps               # registers the mesh-gui command
+mesh-gui
+```
+
+(`python -m meshcomparison.gui` is equivalent.) The pipelines run in a separate process, so a run can be cancelled and the offscreen renderer never conflicts with the viewer. The side panel shows which device LPIPS will use and warns when a GPU is present but PyTorch is a CPU-only build.
 
 ## Pipelines
 

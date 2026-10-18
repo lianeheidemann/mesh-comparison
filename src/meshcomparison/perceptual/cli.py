@@ -1,5 +1,6 @@
 import argparse
 
+from ..common.device import DEVICE_CHOICES
 from .pipeline import run_pipeline
 
 
@@ -23,6 +24,8 @@ def parse_args(argv=None):
                         help="Margin for orthographic framing; smaller values make object larger")
     parser.add_argument("--radius-factor", type=float, default=1.45,
                         help="Camera distance as a multiple of bbox diagonal")
+    parser.add_argument("--device", choices=DEVICE_CHOICES, default="auto",
+                        help="Device for LPIPS: 'auto' prefers CUDA when available, otherwise CPU")
 
     return parser.parse_args(argv)
 
@@ -40,7 +43,8 @@ def main(argv=None):
         num_views=args.num_views,
         save_views=args.save_views,
         camera_margin=args.camera_margin,
-        radius_factor=args.radius_factor
+        radius_factor=args.radius_factor,
+        device=args.device
     )
 
 

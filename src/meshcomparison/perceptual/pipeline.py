@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from ..common.alignment import similarity_icp_align
+from ..common.device import get_device_info
 from ..common.distances import symmetric_mse
 from ..common.io import ensure_dirs, load_mesh
 from .cameras import build_tight_ortho_camera, camera_pose_for_view, render_mesh_rgba
@@ -35,7 +36,8 @@ def run_pipeline(gt_path, rm_path, out_dir,
                  num_views=100,
                  save_views=(1, 33, 66),
                  camera_margin=1.05,
-                 radius_factor=1.45):
+                 radius_factor=1.45,
+                 device="auto"):
 
     paths = ensure_dirs(out_dir, OUTPUT_SUBDIRS)
 
@@ -81,9 +83,11 @@ def run_pipeline(gt_path, rm_path, out_dir,
 
     print("[5/8] Preparing LPIPS model...")
     import lpips
-    import torch
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device_info = get_device_info(device)
+    device = device_info.device
+    if device_info.warning:
+        print(f"    WARNING: {device_info.warning}")
     try:
         lpips_model = lpips.LPIPS(net="alex").to(device).eval()
     except Exception as e:
@@ -92,7 +96,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
             "pip install lpips torch torchvision\n"
             f"Original error: {e}"
         )
-    print(f"    LPIPS device: {device}")
+    print(f"    LPIPS device: {device_info.describe()}")
 
     print("[6/8] Rendering 100 views and computing metrics...")
     per_view_rows = []
@@ -229,6 +233,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
         "saved_views": ",".join(map(str, sorted(save_views))),
         "camera_margin": camera_margin,
         "radius_factor": radius_factor,
+        "lpips_device": device_info.describe(),
         "final_transform_00": final_transform[0, 0],
         "final_transform_01": final_transform[0, 1],
         "final_transform_02": final_transform[0, 2],

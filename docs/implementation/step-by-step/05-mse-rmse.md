@@ -1,7 +1,5 @@
 # 05 — Implementar MSE e RMSE simétricos
 
-> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
-
 ![Esquema da etapa](../images/distancias.svg)
 
 ## Passo 1 — O que criar

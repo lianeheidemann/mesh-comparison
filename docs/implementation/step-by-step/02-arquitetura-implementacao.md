@@ -1,7 +1,5 @@
 # 02 — Criar os programas e a interface de linha de comando
 
-> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
-
 ![Esquema da etapa](../images/pipeline.svg)
 
 ## Passo 1 — O que criar

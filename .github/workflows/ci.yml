@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      PYOPENGL_PLATFORM: egl
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: environment.yml
+          activate-environment: meshEval
+      - name: Lint
+        run: ruff check .
+      - name: Tests
+        run: pytest -q
+      - name: CLI smoke test
+        run: |
+          python mesh_eval_pipeline.py --help
+          python percept_eval_pipeline.py --help

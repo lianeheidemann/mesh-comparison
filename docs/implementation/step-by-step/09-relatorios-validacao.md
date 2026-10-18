@@ -1,7 +1,5 @@
 # 09 — Exportar resultados e verificar a execução
 
-> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
-
 ![Esquema da etapa](../images/pipeline.svg)
 
 ## Passo 1 — O que criar

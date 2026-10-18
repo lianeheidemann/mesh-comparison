@@ -1,12 +1,14 @@
 # 09 — Exportar resultados e verificar a execução
 
+> **Status: concluída.** Os scripts já exportam métricas, metadados, renders e a malha alinhada.
+
 ![Esquema da etapa](../images/pipeline.svg)
 
-## Passo 1 — O que criar
+## Passo 1 — Conferir os resultados exportados
 
-Depois de calcular as métricas, monte uma linha de resultados geométricos e grave `output/metrics/metrics_geometry.csv`. Para o fluxo perceptual, grave uma linha por vista em `per_view_metrics.csv` e estatísticas de mínimo, máximo, percentis 25/75, mediana e média em `metrics_perceptual.csv`. Salve também `run_metadata.csv`.
+Depois de calcular as métricas, o pipeline geométrico já grava `output/metrics/metrics_geometry.csv`. O fluxo perceptual já grava uma linha por vista em `per_view_metrics.csv` e estatísticas de mínimo, máximo, percentis 25/75, mediana e média em `metrics_perceptual.csv`. Ele também gera `run_metadata.csv`.
 
-## Passo 2 — Implementação inicial
+## Passo 2 — Exemplo de estrutura dos resultados
 
 ```python
 # Exporta métricas e devolve a malha alinhada à unidade de entrada
@@ -22,12 +24,12 @@ rm_export.apply_scale(diagonal_gt)
 rm_export.export('output/aligned/rm_aligned.ply')
 ```
 
-## Passo 3 — Completar, executar e validar
+## Passo 3 — Executar e conferir
 
-No código final, crie previamente os diretórios, inclua os demais campos e multiplique distâncias normalizadas por `diagonal_gt` para recuperar unidades GT; MSE deve ser multiplicado por `diagonal_gt²`. Execute os dois scripts separadamente e confira os CSVs e PNGs. Atenção: ambos gravam `rm_aligned.ply` no mesmo caminho e podem sobrescrevê-lo.
+Os scripts já criam os diretórios, incluem os campos de métricas e convertem distâncias normalizadas para as unidades da GT; MSE é convertido com `diagonal_gt²`. Execute os dois scripts e confira os CSVs, PNGs e PLYs. Atenção: ambos gravam `rm_aligned.ply` no mesmo caminho e podem sobrescrevê-lo.
 
 ## Passo 4 — Próxima etapa
 
-Continue para [10 — Validar os limites antes de ampliar o projeto](10-limitacoes-evolucao.md).
+Continue para [10 — Planejar a validação e a evolução](10-limitacoes-evolucao.md).
 
 **Código de referência:** [pipeline geométrico](../../../mesh_eval_pipeline.py) e [pipeline perceptual](../../../percept_eval_pipeline.py). As amostras acima mostram etapas de construção; consulte as funções completas nos scripts quando houver utilitários auxiliares.

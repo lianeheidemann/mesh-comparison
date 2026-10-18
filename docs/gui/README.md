@@ -47,18 +47,20 @@ Os arquivos de demonstração são [`data/samples/gt.stl`](../../data/samples/gt
 | --- | --- |
 | **Geometric** | Chamfer, Hausdorff, RMSE, renderizações e heatmap |
 | **Perceptual** | LPIPS, PSNR e SSIM em várias vistas |
-| **MSE threshold (ICP)** | Limiar normalizado que decide se o alinhamento ICP é acionado |
-| **Azimuth / Elevation** | Orientação de câmera (azimute para o pipeline geométrico; elevação) |
-| **Render width / height** | Resolução das imagens geradas |
-| **Views (perceptual)** | Número de perspectivas avaliadas |
-| **Camera margin / radius factor** | Enquadramento da câmera perceptual |
+| **MSE threshold (ICP)** | Limiar normalizado que decide se o alinhamento ICP é acionado (fixo: 1e-4) |
+| **Azimuth / Elevation** | Orientação de câmera (azimute para o pipeline geométrico; elevação) (fixos: -135° / 25,264°) |
+| **Render width / height** | Resolução das imagens geradas (fixos: 1600 × 1200) |
+| **Views (perceptual)** | Número de perspectivas avaliadas (fixo: 100) |
+| **Camera margin / radius factor** | Enquadramento da câmera perceptual (fixos: 1,05 / 1,45) |
 | **Compute device (LPIPS)** | `auto` prefere CUDA se PyTorch disponibilizar, `cuda` exige CUDA, `cpu` força CPU |
 
-Clique em **Run evaluation**. A aba *Log* mostra a saída dos processos e a interface apresenta a estimativa de progresso. **Cancel** encerra a execução em andamento; podem permanecer arquivos parciais na pasta de saída. Selecionar ambos os pipelines significa duas execuções sequenciais, não avaliação distribuída/paralela.
+Os parâmetros acima são **somente leitura** na interface e usam os mesmos valores padrão do repositório original ([`RunConfig`](../../src/meshcomparison/gui/config.py)), para que as análises sejam comparáveis. Para usar outros valores, chame as CLIs com as opções correspondentes (veja o [README](../../README.md#options)).
+
+Clique em **Run evaluation**. A aba *Log* mostra a saída dos processos e a interface apresenta a estimativa de progresso. Ao terminar com sucesso, a interface abre a aba **3D view** com o resultado (heatmap de desvio e RM alinhada); tabelas e imagens ficam na aba **Results**. **Cancel** encerra a execução em andamento; podem permanecer arquivos parciais na pasta de saída. Selecionar ambos os pipelines significa duas execuções sequenciais, não avaliação distribuída/paralela.
 
 ### GPU e CUDA
 
-Somente a parte de inferência de **LPIPS** escolhe CPU/CUDA. A GPU **não** acelera automaticamente o pipeline geométrico nem transforma o renderer OpenGL em um pipeline CUDA. A interface detecta a configuração de PyTorch e exibe avisos, mas testes com *mock* de GPU não comprovam execução CUDA num notebook real.
+Somente a parte de inferência de **LPIPS** escolhe CPU/CUDA. A GPU **não** acelera automaticamente o pipeline geométrico nem transforma o renderer OpenGL em um pipeline CUDA. A interface detecta a configuração de PyTorch ao abrir e exibe avisos; se houver GPU NVIDIA com PyTorch só de CPU, aparece o botão **Copy CUDA install command**, que copia os comandos de reinstalação. Testes com *mock* de GPU não comprovam execução CUDA num notebook real.
 
 Para conferir a instalação:
 
@@ -73,12 +75,12 @@ Consulte o [seletor oficial do PyTorch](https://pytorch.org/get-started/locally/
 Na aba **3D view**, o [`MeshViewer`](../../src/meshcomparison/gui/viewer3d.py) disponibiliza:
 
 - Camadas independentes para **GT**, **RM alinhada** e **heatmap de desvio** (quando disponível).
-- Rotação, pan e zoom da câmera, com opção **Reset view**.
+- Rotação, pan e zoom da câmera, com opção **Reset view**. A vista inicial usa a mesma direção dos renders da avaliação (eixo Z para cima, azimute -135°, elevação 25,264°).
 - Controle da opacidade da RM e alternância de linhas das arestas (**Edges**).
 - **Save image…** para salvar uma captura PNG do viewer.
 - Sobreposição de camadas no mesmo viewer. **Não há, no código atual, três viewports independentes com câmeras sincronizadas**; não confundir com visualização lado a lado.
 
-A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs. A aba **Log** mostra a execução. O menu **View → Dark theme** alterna o tema da aplicação Qt. *Esse controle de tema não é a mesma coisa que as duas imagens claro/escuro no README do GitHub.*
+A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs, com o botão **Open output folder** no canto superior direito para abrir a pasta de saída. A aba **Log** mostra a execução. O menu **View → Dark theme** alterna o tema da aplicação Qt. *Esse controle de tema não é a mesma coisa que as duas imagens claro/escuro no README do GitHub.*
 
 ### Saídas esperadas
 
@@ -91,6 +93,7 @@ output/
 ├── metrics/metrics_perceptual.csv
 ├── metrics/per_view_metrics.csv
 ├── metrics/run_metadata.csv
+├── metrics/run_metadata_geometry.csv
 └── renders/
     ├── gt_ortho.png
     ├── rm_aligned_ortho.png

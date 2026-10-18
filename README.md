@@ -133,7 +133,7 @@ mesh-comparison/
 │   └── perceptual/                # Multi-view perceptual evaluation (cameras, PSNR/SSIM/LPIPS, CLI)
 ├── scripts/                       # Launchers (.bat for Windows, .sh for Linux/macOS)
 ├── data/samples/                  # gt.stl (ground truth) and mod.stl (reconstructed mesh)
-├── environments/                  # environment.yml (general) and environment-lock.yml (Windows snapshot)
+├── environments/                  # environment.yml (general), environment-lock.yml (Windows snapshot) and requirements-windows-cu128.txt (pip snapshot, CUDA 12.8)
 ├── examples/output/               # Committed results of the sample run
 │   ├── aligned/                   # Aligned reconstructed mesh exports
 │   ├── heatmaps/                  # Geometric distance heatmap assets
@@ -168,6 +168,15 @@ If Conda reports `prefix already exists`, the environment is already there. Skip
 
 ```bat
 python -m pip install PySide6 pyvista pyvistaqt
+```
+
+**Without Conda, or to reproduce the exact working setup** (Windows, Python 3.12, NVIDIA GPU with PyTorch CUDA 12.8), create a virtual environment with Python 3.12 and install the pinned snapshot, which already points to the `cu128` PyTorch wheels:
+
+```bat
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r environments/requirements-windows-cu128.txt
+python -m pip install -e . --no-deps
 ```
 
 The [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) has additional setup notes. To verify the pipeline dependencies, run:
@@ -301,7 +310,8 @@ Main outputs:
 
 - `output/metrics/per_view_metrics.csv`: one row per view with LPIPS, PSNR, SSIM, camera angle, and framing values.
 - `output/metrics/metrics_perceptual.csv`: min, max, 25th/75th percentiles, median, and mean for each perceptual metric.
-- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, and the final transform.
+- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, the final transform, and the environment (project, Python and PyTorch/CUDA versions, device, UTC timestamp).
+- `output/metrics/run_metadata_geometry.csv`: the same kind of record for the geometric pipeline (inputs, camera and render settings, environment).
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh in the ground-truth input scale.
 - `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.
 
@@ -310,7 +320,7 @@ Main outputs:
 
 Both commands accept `--mse-threshold` (default `1e-4`), which controls whether alignment is run, plus `--width` and `--height` (defaults `1600` and `1200`). Use `--help` after the module name to see all options.
 
-The geometric pipeline also accepts `--azimuth` (default `-135`) and `--elevation` (default `25.264`). The perceptual pipeline accepts `--elevation` (default `25.264`), `--num-views` (default `100`), `--save-views` (default `1 33 66`), `--camera-margin` (default `1.05`), and `--radius-factor` (default `1.45`).
+The geometric pipeline also accepts `--azimuth` (default `-135`) and `--elevation` (default `25.264`). The perceptual pipeline accepts `--elevation` (default `25.264`), `--num-views` (default `100`), `--save-views` (default `1 33 66`; if the run has fewer views than requested, up to three spread-out views are saved instead and a warning is printed), `--camera-margin` (default `1.05`), and `--radius-factor` (default `1.45`).
 
 ## Scope and limitations
 

@@ -47,11 +47,7 @@ Neste projeto, a finalidade proposta não é substituir o pipeline científico p
 O diagrama abaixo representa um **fluxo-alvo**, não uma funcionalidade que já está rodando automaticamente.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/fluxo-escuro.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/fluxo-claro.png">
-    <img src="assets/fluxo-claro.png" width="100%" alt="Fluxo desejável do Agent Harness: solicitação de implementação, agente de desenvolvimento, contexto persistente, validação local, GitHub Actions, revisão humana e integração autorizada.">
-  </picture>
+  <img src="assets/fluxo-harness.svg" width="75%" alt="Fluxo desejável do Agent Harness: solicitação, agente, contexto do repositório, implementação e validação, CI, revisão humana e integração autorizada. O fluxo retorna à implementação quando há falhas.">
 </p>
 
 Fluxo recomendado: **solicitação com critérios de aceitação → agente com permissões limitadas → leitura do contexto do repositório → alteração em branch isolada → validação local → CI no pull request → revisão humana → merge autorizado**. Quando os testes falharem, registrar a falha e iterar sem ocultar resultados; quando houver ambiguidade científica, pedir decisão humana.

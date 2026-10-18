@@ -4,19 +4,18 @@ import sys
 
 import pandas as pd
 from PySide6.QtCore import QProcess, QSettings, Qt, QUrl
-from PySide6.QtGui import QAction, QDesktopServices
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
     QLabel, QLineEdit, QMainWindow, QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
-    QSpinBox, QSplitter, QTabWidget, QVBoxLayout, QWidget,
+    QGridLayout, QSpinBox, QSplitter, QTabWidget, QVBoxLayout, QWidget,
 )
 
-from ..common.device import DeviceInfo
+from ..common.device import CUDA_INSTALL_COMMAND, DeviceInfo
 from ..common.io import load_mesh
 from .config import MESH_FILE_FILTER, RunConfig, validate
 from .results_view import ResultsView
 from .runner import PipelineRunner
-from .theme import apply_theme
 from .viewer3d import MeshViewer
 
 
@@ -102,7 +101,6 @@ class MainWindow(QMainWindow):
         splitter.setChildrenCollapsible(False)
         self.setCentralWidget(splitter)
 
-        self._build_menu()
         self.statusBar().showMessage("Ready")
         self._detect_device()
 
@@ -110,10 +108,23 @@ class MainWindow(QMainWindow):
 
     def _build_side_panel(self):
         panel = QWidget()
+        panel.setObjectName("sidePanel")
         layout = QVBoxLayout(panel)
+        layout.setContentsMargins(16, 14, 16, 16)
+        layout.setSpacing(12)
+
+        heading = QLabel("Evaluate meshes")
+        heading.setObjectName("panelHeading")
+        subtitle = QLabel("Compare geometry and visual similarity")
+        subtitle.setObjectName("panelSubtitle")
+        layout.addWidget(heading)
+        layout.addWidget(subtitle)
 
         files = QGroupBox("Meshes")
+        files.setObjectName("card")
         form = QFormLayout(files)
+        form.setHorizontalSpacing(8)
+        form.setVerticalSpacing(6)
         self.gt_field = FileField("Select ground-truth mesh")
         self.rm_field = FileField("Select reconstructed mesh")
         self.out_field = FileField("Select output folder", directory=True)
@@ -130,7 +141,9 @@ class MainWindow(QMainWindow):
         self.rm_field.edit.editingFinished.connect(lambda: self._preview("rm"))
 
         pipelines = QGroupBox("Pipelines")
+        pipelines.setObjectName("card")
         pl = QVBoxLayout(pipelines)
+        pl.setSpacing(7)
         self.geometry_check = QCheckBox("Geometric (Chamfer, Hausdorff, RMSE, heatmap)")
         self.perceptual_check = QCheckBox("Perceptual (LPIPS, PSNR, SSIM over multiple views)")
         self.geometry_check.setChecked(True)
@@ -141,7 +154,11 @@ class MainWindow(QMainWindow):
 
         defaults = RunConfig()
         params = QGroupBox("Parameters")
-        pf = QFormLayout(params)
+        params.setObjectName("card")
+        pf = QGridLayout(params)
+        pf.setContentsMargins(10, 8, 10, 8)
+        pf.setHorizontalSpacing(8)
+        pf.setVerticalSpacing(6)
         self.mse = QLineEdit(repr(defaults.mse_threshold))
         self.mse.setToolTip("Normalized symmetric MSE above which similarity ICP alignment runs")
         self.azimuth = _spin(-360, 360, defaults.azimuth, decimals=3, suffix=" °")
@@ -151,18 +168,45 @@ class MainWindow(QMainWindow):
         self.num_views = _spin(1, 1000, defaults.num_views)
         self.margin = _spin(0.5, 3.0, defaults.camera_margin, decimals=3, step=0.01)
         self.radius = _spin(0.5, 10.0, defaults.radius_factor, decimals=3, step=0.05)
-        pf.addRow("MSE threshold (ICP)", self.mse)
-        pf.addRow("Azimuth (geometric)", self.azimuth)
-        pf.addRow("Elevation", self.elevation)
-        pf.addRow("Render width", self.width)
-        pf.addRow("Render height", self.height)
-        pf.addRow("Views (perceptual)", self.num_views)
-        pf.addRow("Camera margin", self.margin)
-        pf.addRow("Camera radius factor", self.radius)
+        # Fixed for now so runs stay comparable; values come from RunConfig defaults.
+        self.mse.setReadOnly(True)
+        for box in (self.azimuth, self.elevation, self.width, self.height,
+                    self.num_views, self.margin, self.radius):
+            box.setReadOnly(True)
+            box.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)
+            box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            box.setToolTip("Fixed value (not editable)")
+        parameters = (
+            ("ICP threshold", self.mse, "MSE threshold used to decide whether ICP alignment runs."),
+            ("Azimuth", self.azimuth, "Geometric render camera azimuth."),
+            ("Elevation", self.elevation, "Geometric render camera elevation."),
+            ("Views", self.num_views, "Number of views used for perceptual evaluation."),
+            ("Width", self.width, "Perceptual render width."),
+            ("Height", self.height, "Perceptual render height."),
+            ("Camera margin", self.margin, "Camera framing margin."),
+            ("Radius factor", self.radius, "Camera radius factor."),
+        )
+        for index, (caption, control, tooltip) in enumerate(parameters):
+            row, pair = divmod(index, 2)
+            label = QLabel(caption)
+            label.setObjectName("parameterLabel")
+            label.setToolTip(tooltip)
+            control.setToolTip(tooltip)
+            pf.addWidget(label, row, pair * 2)
+            value = QLabel(control.text())
+            value.setObjectName("parameterValue")
+            value.setToolTip(tooltip)
+            control.hide()
+            pf.addWidget(control, row, pair * 2 + 1)
+            pf.addWidget(value, row, pair * 2 + 1)
+        pf.setColumnStretch(1, 1)
+        pf.setColumnStretch(3, 1)
         layout.addWidget(params)
 
         device = QGroupBox("Compute device (LPIPS)")
+        device.setObjectName("card")
         dl = QVBoxLayout(device)
+        dl.setSpacing(6)
         self.device_combo = QComboBox()
         self.device_combo.addItem("Auto — prefer CUDA", "auto")
         self.device_combo.addItem("CUDA only", "cuda")
@@ -174,9 +218,13 @@ class MainWindow(QMainWindow):
         self.device_warning.setWordWrap(True)
         self.device_warning.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.device_warning.hide()
+        self.copy_install_button = QPushButton("Copy CUDA install command")
+        self.copy_install_button.clicked.connect(self._copy_install_command)
+        self.copy_install_button.hide()
         dl.addWidget(self.device_combo)
         dl.addWidget(self.device_label)
         dl.addWidget(self.device_warning)
+        dl.addWidget(self.copy_install_button)
         layout.addWidget(device)
 
         self.run_button = QPushButton("Run evaluation")
@@ -209,20 +257,6 @@ class MainWindow(QMainWindow):
         scroll.setMinimumWidth(380)
         return scroll
 
-    def _build_menu(self):
-        view = self.menuBar().addMenu("&View")
-        self.dark_action = QAction("Dark theme", self, checkable=True)
-        self.dark_action.setChecked(QSettings().value("dark", True, type=bool))
-        self.dark_action.toggled.connect(self._set_dark)
-        view.addAction(self.dark_action)
-
-        help_menu = self.menuBar().addMenu("&Help")
-        about = QAction("About", self)
-        about.triggered.connect(lambda: QMessageBox.about(
-            self, "Mesh Comparison",
-            "Geometric and perceptual evaluation of a reconstructed mesh against a ground-truth mesh."))
-        help_menu.addAction(about)
-
     # ---- device detection --------------------------------------------
 
     def _detect_device(self):
@@ -247,12 +281,14 @@ class MainWindow(QMainWindow):
             self.device_warning.show()
         else:
             self.device_warning.hide()
+        cpu_only_torch = info.nvidia_gpu_detected and info.torch_version and info.torch_cuda_version is None
+        self.copy_install_button.setVisible(bool(cpu_only_torch))
+
+    def _copy_install_command(self):
+        QApplication.clipboard().setText(CUDA_INSTALL_COMMAND)
+        self.statusBar().showMessage("CUDA install command copied to the clipboard.", 5000)
 
     # ---- actions ------------------------------------------------------
-
-    def _set_dark(self, dark):
-        QSettings().setValue("dark", dark)
-        apply_theme(QApplication.instance(), dark)
 
     def _config(self):
         try:
@@ -322,7 +358,7 @@ class MainWindow(QMainWindow):
         cfg = self._last_cfg
         self.results.load(cfg.out)
         self._show_result_3d(cfg)
-        self.tabs.setCurrentWidget(self.results)
+        self.tabs.setCurrentWidget(self.viewer)
 
     def _show_result_3d(self, cfg):
         try:

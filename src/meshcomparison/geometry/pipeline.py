@@ -6,6 +6,7 @@ import pandas as pd
 from ..common.alignment import similarity_icp_align
 from ..common.distances import symmetric_mse
 from ..common.io import ensure_dirs, load_mesh
+from ..common.provenance import collect_provenance
 from .heatmap import colorize_gt_heatmap, save_heatmap_figure
 from .metrics import compute_metrics
 from .rendering import build_shared_camera, render_mesh
@@ -156,6 +157,18 @@ def run_pipeline(gt_path, rm_path, out_dir,
 
     csv_path = os.path.join(paths["metrics"], "metrics_geometry.csv")
     df.to_csv(csv_path, index=False)
+
+    meta_csv = os.path.join(paths["metrics"], "run_metadata_geometry.csv")
+    pd.DataFrame([{
+        "gt_file": os.path.abspath(gt_path),
+        "rm_file": os.path.abspath(rm_path),
+        "mse_threshold_normalized": mse_threshold_normalized,
+        "camera_azimuth_deg": azimuth_deg,
+        "camera_elevation_deg": elevation_deg,
+        "render_width": width,
+        "render_height": height,
+        **collect_provenance(),
+    }]).to_csv(meta_csv, index=False)
 
     print("\nDone.")
     print(f"GT render:        {gt_render_path}")

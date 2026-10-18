@@ -35,6 +35,39 @@ def test_build_commands_order_and_device(tmp_path):
     assert commands[1].args[commands[1].args.index("--device") + 1] == "cuda"
 
 
+def test_run_config_defaults_match_original_pipeline():
+    cfg = RunConfig()
+    assert (cfg.azimuth, cfg.elevation) == (-135.0, 25.264)
+    assert (cfg.width, cfg.height) == (1600, 1200)
+    assert cfg.num_views == 100
+    assert (cfg.camera_margin, cfg.radius_factor) == (1.05, 1.45)
+    assert cfg.mse_threshold == 1e-4
+
+
+def test_build_commands_pass_default_parameters(tmp_path):
+    _, commands = build_commands(_cfg(tmp_path), python="py")
+    geometry, perceptual = (c.args for c in commands)
+
+    def value(args, flag):
+        return args[args.index(flag) + 1]
+
+    assert value(geometry, "--azimuth") == "-135.0"
+    assert value(perceptual, "--num-views") == "100"
+    assert value(perceptual, "--camera-margin") == "1.05"
+    assert value(perceptual, "--radius-factor") == "1.45"
+    for args in (geometry, perceptual):
+        assert value(args, "--elevation") == "25.264"
+        assert (value(args, "--width"), value(args, "--height")) == ("1600", "1200")
+
+
+def test_progress_tracker_follows_custom_view_count():
+    t = ProgressTracker(1)
+    t.start_command(0)
+    t.feed("[6/8] Rendering 9 views and computing metrics...")
+    t.feed("    View 003/009 | az=120.00 | LPIPS=0.1")
+    assert abs(t.fraction - (5 + 3 / 9) / 8) < 1e-9
+
+
 def test_progress_tracker_two_commands():
     t = ProgressTracker(2)
     t.start_command(0)

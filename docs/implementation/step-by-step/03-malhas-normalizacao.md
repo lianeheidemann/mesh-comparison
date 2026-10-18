@@ -1,7 +1,5 @@
 # 03 — Importar e normalizar duas malhas
 
-> **Objetivo:** implementar esta parte desde o zero, mesmo que ela já exista nos scripts de referência.
-
 ![Esquema da etapa](../images/pipeline.svg)
 
 ## Passo 1 — O que criar

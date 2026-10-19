@@ -52,7 +52,7 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 - [Parameters](#parameters)
 - [Scope and limitations](#scope-and-limitations)
 - [Development](#development)
-  - [Agent instructions and scientific contracts](#agent-instructions-and-scientific-contracts)
+  - [Agent Harness for Scientific Integrity](#agent-harness-for-scientific-integrity)
 - [Troubleshooting](#troubleshooting)
 - [License and credits](#license-and-credits)
 
@@ -322,9 +322,15 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 
 Implementation details are in the [technical guide](docs/implementation/README.md); the [desktop guide](docs/gui/README.md) covers the Qt/PyVista viewer; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
 
-### Agent instructions and scientific contracts
+### Agent Harness for Scientific Integrity
 
-Coding agents must follow the repository-wide [AGENTS.md](AGENTS.md) instructions. [CLAUDE.md](CLAUDE.md) provides the Claude Code entry point and refers to the same rules. The [scientific contracts (CC-01–CC-13)](docs/harness/CONTRATOS-CIENTIFICOS.md) are the mandatory methodological reference for changes affecting mesh processing, ICP, geometric or perceptual metrics, rendering and outputs. See the [Agent Harness guide](docs/harness/README.md) for implementation status and next steps. These documents do not, by themselves, establish scientific regression-test parity.
+This project adopts an **Agent Harness** to guide AI-assisted development while safeguarding scientific integrity, methodological consistency, and reproducibility.
+
+Codex and Claude Code follow repository-level instructions defined in [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md), with the [Scientific Contracts (CC-01–CC-13)](docs/harness/CONTRATOS-CIENTIFICOS.md) serving as the mandatory methodological reference.
+
+The harness establishes safeguards against unintended changes to geometric and perceptual metrics, alignment procedures, rendering parameters, and evaluation outputs. Methodological changes require explicit review and scientific validation. These safeguards support scientific validity but do not independently establish it; numerical equivalence and regression testing remain necessary.
+
+For implementation details, see the [Agent Harness documentation](docs/harness/README.md).
 
 `environments/environment.yml` also installs `pytest` and `ruff`. From the activated environment (with `pip install -e . --no-deps` done):
 

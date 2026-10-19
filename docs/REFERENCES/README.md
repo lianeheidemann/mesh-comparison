@@ -5,7 +5,6 @@ Este diretório guarda documentos de pesquisa consultados como material de apoio
 ## Referência bibliográfica
 
 [1] R. Fan, U. Ozgunalp, B. Hosking, M. Liu, and I. Pitas, “Pothole Detection Based on Disparity Transformation and Road Surface Modeling,” *IEEE Transactions on Image Processing*, vol. 29, pp. 897–908, 2020, doi: 10.1109/TIP.2019.2933750.
-
 Arquivo: [PDF](Pothole%20Detection%20Based%20on%20Disparity.pdf).
 
 [2] J. McEwen, “A Brief Introduction to Geometric Deep Learning,” *Towards Data Science*, Medium, Jul. 25, 2022. [Online]. Available: [https://medium.com/data-science/a-brief-introduction-to-geometric-deep-learning-dae114923ddb](https://medium.com/data-science/a-brief-introduction-to-geometric-deep-learning-dae114923ddb). Accessed: Oct. 19, 2026.

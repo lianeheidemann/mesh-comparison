@@ -25,10 +25,6 @@ perceptual = ["scikit-image", "torch", "torchvision", "lpips"]
 gui = ["PySide6", "pyvista", "pyvistaqt"]
 dev = ["pytest", "ruff"]
 
-[project.scripts]
-mesh-eval = "meshcomparison.geometry.cli:main"
-percept-eval = "meshcomparison.perceptual.cli:main"
-
 [project.gui-scripts]
 mesh-gui = "meshcomparison.gui.app:main"
 

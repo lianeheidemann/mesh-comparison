@@ -2,7 +2,7 @@
 
 > **Estado:** documentação e plano de evolução; **não** significa que um harness autônomo completo esteja implementado.
 >
-> **Escopo:** inventário inicial realizado na `main` em **18/10/2026**, adaptado à branch `harness-documentation-and-new-interface` (pacote `src/meshcomparison/`, CLIs por módulo e GUI PySide6/PyVista). Os status refletem arquivos e configurações; execução de testes e proteção remota precisam ser comprovadas.
+> **Escopo:** inventário inicial realizado na `main` em **18/10/2026**, adaptado à branch `harness-documentation-and-new-interface` (pacote `src/meshcomparison/`, pipelines por módulo executados pela GUI PySide6/PyVista). Os status refletem arquivos e configurações; execução de testes e proteção remota precisam ser comprovadas.
 
 ## 1. O que é *harness*?
 
@@ -27,11 +27,11 @@ Neste projeto, a finalidade proposta não é substituir o pipeline científico p
 | --- | :---: | --- | --- |
 | Documentação técnica estruturada | ✅ | Contexto e mapa do repositório | [README principal](../../README.md) e [documentação](../README.md) |
 | Guias de implementação passo a passo | ✅ | Decomposição de tarefas e transferência de conhecimento | [Guias existentes](../implementation/step-by-step/) |
-| Ambiente Conda reproduzível | ✅ | Execução consistente de tarefas e testes | [environment.yml](../../environments/environment.yml) inclui GUI; validação limpa da branch atual ainda precisa ser registrada |
-| Dependências com versões registradas | 🟡 | Facilita a reprodução | [environment-lock.yml](../../environments/environment-lock.yml) é snapshot Windows **anterior à GUI**, sem versões fixadas de PySide6/PyVista/PyVistaQt |
+| Ambiente Conda declarado | ✅ | Instalação do projeto e execução de tarefas/testes | [environment.yml](../../environments/environment.yml) inclui GUI, mas deixa dependências sem pin; a validação limpa da branch atual ainda precisa ser registrada |
+| Dependências com versões registradas | 🟡 | Ajuda a reproduzir snapshots específicos | [environment-lock.yml](../../environments/environment-lock.yml) é um snapshot Windows CPU anterior à GUI; [requirements-windows-cu128.txt](../../environments/requirements-windows-cu128.txt) registra outro snapshot pip com GUI e PyTorch CUDA 12.8 |
 | Testes com pytest | 🟡 | Permitem verificar alterações | [Testes unitários](../../tests/) para métricas de pontos, CPU/CUDA simulado, PSNR/máscaras e configuração Qt-free da GUI; **regressões end-to-end ainda pendentes** |
 | Lint com Ruff | ✅ | Verifica padrões de código | Etapa `ruff check .` no [CI](../../.github/workflows/ci.yml) |
-| GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes e `--help` dos pipelines |
+| GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes e verificação de importação dos pipelines |
 | Pipelines de processamento | ✅ | Permitem execução repetível | [Geometria](../../src/meshcomparison/geometry/pipeline.py) e [avaliação perceptual](../../src/meshcomparison/perceptual/pipeline.py) |
 | Instruções específicas para agentes | ❌ | Definem regras de atuação, comandos e limites | `AGENTS.md` e `CLAUDE.md` ausentes na raiz da `main` auditada |
 | Ciclo autônomo de correção e validação | ❓ | Permite ao agente testar, diagnosticar, corrigir e revalidar | Não demonstrado por arquivos auditados; CI **não** equivale a agente autônomo |
@@ -71,7 +71,7 @@ Não existe uma certificação universal de “harness completo”. Neste projet
 | --- | --- | --- |
 | Motor de execução do agente | Codex ou Claude Code | Decidir chamadas de ferramentas **sob permissões definidas**; não é parte do pipeline científico |
 | Orientação | `AGENTS.md`, documentação e ADRs | Instruções curtas e fonte de verdade |
-| Execução | Conda, scripts Python e CLI | Rodar ferramentas locais e produzir artefatos |
+| Execução | Conda, interface gráfica e API Python | Rodar o aplicativo e produzir artefatos |
 | Verificação | Ruff, pytest, cenários de malhas e validações de saída | Detectar erros e regressões |
 | Integração | Git, PR, GitHub Actions, regras de branch | Impedir integração de mudanças não verificadas |
 | Evidências | Resultados de testes, logs sem segredos e relatório de PR | Sustentar aprovação ou correção |

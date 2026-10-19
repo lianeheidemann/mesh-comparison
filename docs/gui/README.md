@@ -1,8 +1,8 @@
 # Interface desktop — PySide6 + PyVistaQt
 
-> **Estado:** interface **implementada no código** da branch `harness-documentation-and-new-interface`. Este documento foi conferido contra os módulos `src/meshcomparison/gui/`; **não** representa um teste executado da janela num computador local.
+> **Estado:** interface implementada nos módulos `src/meshcomparison/gui/`. Este guia descreve o código disponível; **não** representa um teste executado da janela num computador local.
 
-A GUI permite escolher a **malha de referência (GT)** e a **malha reconstruída (RM)**, configurar parâmetros dos pipelines, visualizar modelos 3D e consultar os resultados CSV/PNG. Usa **PySide6** para a aplicação desktop, **PyVista + PyVistaQt (VTK)** para o viewer e executa os scripts científicos em **processos Python separados**, via `QProcess`.
+A GUI permite escolher a **malha de referência (GT)** e a **malha reconstruída (RM)**, selecionar os pipelines, visualizar modelos 3D e consultar os resultados CSV/PNG. Os parâmetros de análise são exibidos como valores fixos; para alterá-los, use as funções Python `run_pipeline`. A aplicação usa **PySide6**, **PyVista + PyVistaQt (VTK)** e executa cada pipeline em um processo filho separado por `QProcess`; se ambos forem selecionados, eles rodam sequencialmente. A janela inicia maximizada, mantendo visíveis a barra de título do Windows e a barra de tarefas.
 
 ## 1. Instalar e abrir
 
@@ -54,9 +54,9 @@ Os arquivos de demonstração são [`data/samples/gt.stl`](../../data/samples/gt
 | **Camera margin / radius factor** | Enquadramento da câmera perceptual (fixos: 1,05 / 1,45) |
 | **Compute device (LPIPS)** | `auto` prefere CUDA se PyTorch disponibilizar, `cuda` exige CUDA, `cpu` força CPU |
 
-Os parâmetros acima são **somente leitura** na interface e usam os mesmos valores padrão do repositório original ([`RunConfig`](../../src/meshcomparison/gui/config.py)), para que as análises sejam comparáveis. Para usar outros valores, chame as CLIs com as opções correspondentes (veja o [README](../../README.md#options)).
+Os parâmetros acima são **somente leitura** na interface e usam os valores configurados em [`RunConfig`](../../src/meshcomparison/gui/config.py). Para usar outros valores, chame `run_pipeline` dos módulos `geometry` e `perceptual` em código Python (veja o [README](../../README.md#parameters)).
 
-Clique em **Run evaluation**. A aba *Log* mostra a saída dos processos e a interface apresenta a estimativa de progresso. Ao terminar com sucesso, a interface abre a aba **3D view** com o resultado (heatmap de desvio e RM alinhada); tabelas e imagens ficam na aba **Results**. **Cancel** encerra a execução em andamento; podem permanecer arquivos parciais na pasta de saída. Selecionar ambos os pipelines significa duas execuções sequenciais, não avaliação distribuída/paralela.
+Clique em **Run evaluation**. A aba *Log* mostra a saída dos processos e a interface apresenta a estimativa de progresso. Ao terminar com sucesso, a interface abre a aba **3D view** com o heatmap selecionado quando disponível; use os controles de camadas para alternar GT e RM alinhada. Tabelas e imagens ficam na aba **Results**. **Cancel** encerra a execução em andamento; podem permanecer arquivos parciais na pasta de saída. Selecionar ambos os pipelines significa duas execuções sequenciais, não avaliação distribuída/paralela.
 
 ### GPU e CUDA
 
@@ -74,15 +74,16 @@ Consulte o [seletor oficial do PyTorch](https://pytorch.org/get-started/locally/
 
 Na aba **3D view**, o [`MeshViewer`](../../src/meshcomparison/gui/viewer3d.py) disponibiliza:
 
+- Um cubo maciço de referência, pequeno e centralizado sobre o plano, enquanto GT e RM ainda não foram carregadas.
 - Camadas independentes para **GT**, **RM alinhada** e **heatmap de desvio** (quando disponível).
-- Rotação, pan e zoom da câmera, com opção **Reset view**. A vista inicial usa a mesma direção dos renders da avaliação (eixo Z para cima, azimute -135°, elevação 25,264°).
+- Rotação, pan e zoom da câmera, com opção **Reset view**. A vista inicial usa a mesma direção dos renders da avaliação (eixo Z para cima, azimute -135°, elevação 25,264°); a elevação interativa fica limitada a 8°–78° para manter o plano abaixo do objeto e evitar que a câmera vire.
 - **Legenda de distância** à direita quando o heatmap está visível: escala de 0 até o percentil 95 das distâncias GT→RM, em unidades da malha GT (valor lido de `heatmap_vmax_gt_units` em `run_metadata_geometry.csv`; saídas antigas sem essa coluna não mostram a legenda). Distâncias acima desse valor aparecem no vermelho máximo.
 - Heatmap com o mesmo aspecto do PNG do pipeline (cores mais claras, tons rosa/ciano causados pela iluminação forte do renderizador). Como esses tons **não** existem na paleta `RdYlGn_r` da legenda, a caixa **Exact palette** mostra as cores fiéis à legenda.
 - Controle da opacidade da RM e alternância de linhas das arestas (**Edges**).
 - **Save image…** para salvar uma captura PNG do viewer.
 - Sobreposição de camadas no mesmo viewer. **Não há, no código atual, três viewports independentes com câmeras sincronizadas**; não confundir com visualização lado a lado.
 
-A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs. Na aba **Images** as imagens aparecem **em pares**, GT à esquerda e RM alinhada à direita, fotografadas no mesmo ângulo: a vista geométrica, o heatmap (imagem única) e cada vista perceptual salva. O seletor tem a opção **All**, padrão, que mostra todos os pares um abaixo do outro (com rolagem); escolher uma entrada mostra só aquele par. Há também o botão **Open output folder** no canto superior direito para abrir a pasta de saída. A aba **Log** mostra a execução. O menu **View → Dark theme** alterna o tema da aplicação Qt. *Esse controle de tema não é a mesma coisa que as duas imagens claro/escuro no README do GitHub.*
+A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs. Na aba **Images** as imagens aparecem **em pares**, GT à esquerda e RM alinhada à direita, fotografadas no mesmo ângulo: a vista geométrica, o heatmap (imagem única) e cada vista perceptual salva. O seletor **All**, padrão, mostra todos os pares um abaixo do outro (com rolagem); escolher uma entrada mostra só aquele par. O botão **Open output folder** abre a pasta de saída. A aba **Log** mostra a execução. O tema é restaurado das configurações do aplicativo e usa o escuro por padrão; a interface atual não tem um menu para alterná-lo.
 
 ### Saídas esperadas
 
@@ -108,7 +109,7 @@ Algumas pastas só aparecem quando o respectivo pipeline é executado. Ambos os 
 
 ## 5. Limites e testes
 
-O projeto já tem [testes de lógica Qt-free](../../tests/test_gui_config.py) para validação, construção de comandos e progresso, mas **ainda é necessário comprovar manualmente ou automatizar** a inicialização da janela, interação 3D, cancelamento, carregamento real de arquivos e alternância de tema em sistemas suportados.
+O projeto já tem [testes de lógica Qt-free](../../tests/test_gui_config.py) para validação, construção de comandos e progresso, mas **ainda é necessário comprovar manualmente ou automatizar** a inicialização da janela, interação 3D, cancelamento, carregamento real de arquivos e aplicação do tema escuro padrão em sistemas suportados.
 
 Checklist de validação:
 

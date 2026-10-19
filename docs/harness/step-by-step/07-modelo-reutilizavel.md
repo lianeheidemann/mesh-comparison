@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | **Antes do código** | Definir escopo, invariantes, riscos, permissões e critérios de aceite | Especificação curta e revisável |
 | **Primeiro commit** | README, documentação de arquitetura, AGENTS.md, dependências/lock e projeto mínimo | Agente consegue localizar os comandos e explicar os limites |
-| **Primeira funcionalidade** | Teste unitário + integração/CLI mínima + resultado de referência | Execução local determinística |
+| **Primeira funcionalidade** | Teste unitário + integração e um ponto de entrada mínimo (CLI, GUI ou API) + resultado de referência | Execução local determinística |
 | **Primeiro PR** | CI, lint, testes, template de PR e revisão humana | Check obrigatório detecta falha introduzida |
 | **Primeira tarefa de agente** | Branch isolada, limites reais, plano, diff, testes e handoff | PR com evidências e aprovação |
 | **Primeiro marco** | Suite de avaliação de tarefas e relatórios de regressão | Indicadores e pendências rastreáveis |

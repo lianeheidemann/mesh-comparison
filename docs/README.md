@@ -1,6 +1,6 @@
 # Documentação — Mesh Comparison
 
-Esta é a navegação da documentação para a **branch `harness-documentation-and-new-interface`**, cujo código está organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro anterior; mudanças recentes na estrutura do projeto não equivalem a uma nova execução validada.
+Esta é a navegação da documentação para a versão atual do projeto, organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro anterior; mudanças na estrutura do projeto não equivalem a uma nova execução validada.
 
 | Área | Conteúdo | Quando consultar |
 | --- | --- | --- |
@@ -15,20 +15,18 @@ Esta é a navegação da documentação para a **branch `harness-documentation-a
 
 O pacote em `src/meshcomparison/` está dividido em:
 
-- **`common/`** — carregamento de malhas, normalização/transformações, distâncias, ICP, renderização e escolha do dispositivo para LPIPS.
+- **`common/`** — carregamento de malhas, preparo compartilhado em `prepare.py` (normalização, MSE, ICP e exportação), transformações, distâncias, renderização, proveniência e escolha do dispositivo para LPIPS.
 - **`geometry/`** — métricas geométricas, heatmap e pipeline.
 - **`perceptual/`** — câmeras, imagens, LPIPS/PSNR/SSIM e pipeline multivista.
-- **`gui/`** — interface Qt com visualizador PyVistaQt, painel de configuração, relatórios e execução em subprocessos.
+- **`gui/`** — interface Qt com módulos separados para janela, painéis, configuração, supervisão (`runner.py`), processo filho (`worker.py`), carregamento das saídas e visualizador PyVistaQt.
 
-Depois de preparar `meshEval` e instalar o pacote em modo editável, os comandos são:
+Depois de preparar `meshEval` e instalar o pacote em modo editável, abra a interface para executar as avaliações:
 
 ```bash
-python -m meshcomparison.geometry --help
-python -m meshcomparison.perceptual --help
 python -m meshcomparison.gui
 ```
 
-O terceiro comando inicia uma **janela desktop** (requer PySide6/PyVista/PyVistaQt e ambiente com interface gráfica). Veja a [instalação detalhada](implementation/step-by-step/01-preparacao-ambiente.md). O CI atual executa `ruff check .`, `pytest -q` e os dois `--help`; ele não testa a janela interativa nem executa os pipelines completos com renderização.
+O comando inicia uma **janela desktop** (requer PySide6/PyVista/PyVistaQt e ambiente com interface gráfica). Cada pipeline roda em um processo filho (`meshcomparison.gui.worker`), o que isola a renderização da janela e permite cancelar uma execução. As funções `run_pipeline` de `geometry` e `perceptual` continuam importáveis em Python. Veja a [instalação detalhada](implementation/step-by-step/01-preparacao-ambiente.md). O CI atual executa `ruff check .`, `pytest -q` e uma verificação de importação dos pipelines e do worker; ele não testa a janela interativa nem executa os pipelines completos com renderização.
 
 **Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
 

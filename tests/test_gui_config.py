@@ -1,4 +1,6 @@
+from meshcomparison.gui import worker
 from meshcomparison.gui.config import ProgressTracker, RunConfig, build_commands, validate
+from meshcomparison.gui.worker import config_from_json
 
 
 def _cfg(tmp_path, **kw):
@@ -30,9 +32,9 @@ def test_build_commands_order_and_device(tmp_path):
     python, commands = build_commands(_cfg(tmp_path, device="cuda"), python="py")
     assert python == "py"
     assert [c.name for c in commands] == ["Geometric", "Perceptual"]
-    assert "meshcomparison.geometry" in commands[0].args
-    assert "--azimuth" in commands[0].args and "--device" not in commands[0].args
-    assert commands[1].args[commands[1].args.index("--device") + 1] == "cuda"
+    assert all("meshcomparison.gui.worker" in c.args for c in commands)
+    assert [c.args[-1] for c in commands] == ["geometry", "perceptual"]
+    assert config_from_json(commands[1].stdin).device == "cuda"
 
 
 def test_run_config_defaults_match_original_pipeline():
@@ -45,19 +47,25 @@ def test_run_config_defaults_match_original_pipeline():
 
 
 def test_build_commands_pass_default_parameters(tmp_path):
-    _, commands = build_commands(_cfg(tmp_path), python="py")
-    geometry, perceptual = (c.args for c in commands)
+    cfg = _cfg(tmp_path)
+    _, commands = build_commands(cfg, python="py")
+    for command in commands:
+        sent = config_from_json(command.stdin)
+        assert sent == cfg
+        assert (sent.azimuth, sent.elevation) == (-135.0, 25.264)
+        assert (sent.width, sent.height) == (1600, 1200)
+        assert (sent.num_views, sent.save_views) == (100, (1, 33, 66))
+        assert (sent.camera_margin, sent.radius_factor) == (1.05, 1.45)
 
-    def value(args, flag):
-        return args[args.index(flag) + 1]
 
-    assert value(geometry, "--azimuth") == "-135.0"
-    assert value(perceptual, "--num-views") == "100"
-    assert value(perceptual, "--camera-margin") == "1.05"
-    assert value(perceptual, "--radius-factor") == "1.45"
-    for args in (geometry, perceptual):
-        assert value(args, "--elevation") == "25.264"
-        assert (value(args, "--width"), value(args, "--height")) == ("1600", "1200")
+def test_config_from_json_ignores_unknown_keys_and_restores_tuples():
+    cfg = config_from_json('{"num_views": 9, "save_views": [1, 3], "removed_option": true}')
+    assert cfg.num_views == 9 and cfg.save_views == (1, 3)
+
+
+def test_worker_rejects_unknown_pipeline(capsys):
+    assert worker.main(["bogus", "{}"]) == 2
+    assert "usage" in capsys.readouterr().err
 
 
 def test_progress_tracker_follows_custom_view_count():

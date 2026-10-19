@@ -1,8 +1,9 @@
 """Qt-free logic of the GUI: run configuration, validation, command lines and progress parsing."""
+import json
 import os
 import re
 import sys
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 
 from ..common.device import DEVICE_CHOICES
 
@@ -27,6 +28,7 @@ class RunConfig:
     width: int = 1600
     height: int = 1200
     num_views: int = 100
+    save_views: tuple = (1, 33, 66)
     camera_margin: float = 1.05
     radius_factor: float = 1.45
     device: str = "auto"
@@ -36,6 +38,7 @@ class RunConfig:
 class Command:
     name: str
     args: list = field(default_factory=list)
+    stdin: str = ""  # run configuration (JSON) written to the child's standard input
 
 
 def validate(cfg):
@@ -61,24 +64,19 @@ def validate(cfg):
     return errors
 
 
+def config_to_json(cfg):
+    return json.dumps(asdict(cfg))
+
+
 def build_commands(cfg, python=None):
-    """Command lines (as module invocations of the existing CLIs) for the selected pipelines, in run order."""
+    """Child-process command lines (``meshcomparison.gui.worker``) for the selected pipelines, in run order."""
     python = python or sys.executable
-    common = ["--gt", cfg.gt, "--rm", cfg.rm, "--out", cfg.out,
-              "--mse-threshold", repr(cfg.mse_threshold),
-              "--elevation", repr(cfg.elevation),
-              "--width", str(cfg.width), "--height", str(cfg.height)]
+    payload = config_to_json(cfg)
     commands = []
     if cfg.run_geometry:
-        commands.append(Command("Geometric", [
-            "-u", "-m", "meshcomparison.geometry", *common, "--azimuth", repr(cfg.azimuth)]))
+        commands.append(Command("Geometric", ["-u", "-m", "meshcomparison.gui.worker", "geometry"], payload))
     if cfg.run_perceptual:
-        commands.append(Command("Perceptual", [
-            "-u", "-m", "meshcomparison.perceptual", *common,
-            "--num-views", str(cfg.num_views),
-            "--camera-margin", repr(cfg.camera_margin),
-            "--radius-factor", repr(cfg.radius_factor),
-            "--device", cfg.device]))
+        commands.append(Command("Perceptual", ["-u", "-m", "meshcomparison.gui.worker", "perceptual"], payload))
     return python, commands
 
 

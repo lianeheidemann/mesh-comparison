@@ -50,7 +50,7 @@ A instalação `.[dev]` só funciona se o projeto tiver pacote Python e extras d
 | Workflow em `.github/workflows/ci.yml` | ✅ | [Arquivo existente](../../../.github/workflows/ci.yml) |
 | Execução de Ruff | ✅ | Etapa `ruff check .` |
 | Execução de pytest | ✅ | Etapa `pytest -q` da CI (configurada; checar um run para comprovar êxito) |
-| Smoke dos dois CLIs | ✅ | `--help` geométrico e perceptual |
+| Smoke de importação | ✅ | Pipelines geométrico e perceptual e `meshcomparison.gui.worker` |
 | Teste completo com renderização no CI | ❌ | Workflow auditado **não** executa esses pipelines integralmente |
 | Proteção obrigatória de PR/revisão | ❓ | É configuração remota, não comprovada pela presença de YAML |
 

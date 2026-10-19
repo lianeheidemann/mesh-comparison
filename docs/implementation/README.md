@@ -1,15 +1,15 @@
 # Mesh Comparison — implementar, entender e evoluir o projeto
 
-Este guia trata da arquitetura **já existente** em `src/meshcomparison/`. Não é um roteiro para recriar os pipelines. O fluxo geométrico usa [`geometry/pipeline.py`](../../src/meshcomparison/geometry/pipeline.py), o perceptual usa [`perceptual/pipeline.py`](../../src/meshcomparison/perceptual/pipeline.py), e ambos compartilham funções em [`common/`](../../src/meshcomparison/common/). As CLIs estão em `geometry/cli.py` e `perceptual/cli.py`; a interface desktop fica em [`gui/`](../../src/meshcomparison/gui/).
+Este guia descreve a arquitetura atual em `src/meshcomparison/`. O fluxo geométrico está em [`geometry/pipeline.py`](../../src/meshcomparison/geometry/pipeline.py) e o perceptual em [`perceptual/pipeline.py`](../../src/meshcomparison/perceptual/pipeline.py). Ambos reutilizam o preparo compartilhado em [`common/prepare.py`](../../src/meshcomparison/common/prepare.py). A interface desktop fica em [`gui/`](../../src/meshcomparison/gui/); ela inicia cada pipeline em um processo filho por meio de `gui/runner.py` e `gui/worker.py`.
 
-![Visão geral](images/pipeline.svg)
+![Arquitetura modular](images/architecture.svg)
 
 ## Estado das etapas
 
 O marcador **[x]** significa que o componente de código/documentação existe — **não** que os testes estejam completos ou que todos os ambientes tenham sido validados.
 
 1. [x] [Preparação do ambiente e instalação do pacote](step-by-step/01-preparacao-ambiente.md) — comandos documentados; execução histórica CPU registrada, versão atual requer confirmação no seu ambiente.
-2. [x] [Arquitetura modular, CLI e diretórios](step-by-step/02-arquitetura-implementacao.md) — pacotes `common/`, `geometry/`, `perceptual/` e `gui/`.
+2. [x] [Arquitetura modular, interface e diretórios](step-by-step/02-arquitetura-implementacao.md) — pacotes `common/`, `geometry/`, `perceptual/` e `gui/`.
 3. [x] [Carregamento e normalização das malhas](step-by-step/03-malhas-normalizacao.md).
 4. [x] [Correspondência e ICP condicional](step-by-step/04-alinhamento-icp.md).
 5. [x] [MSE e RMSE](step-by-step/05-mse-rmse.md).
@@ -22,7 +22,7 @@ O marcador **[x]** significa que o componente de código/documentação existe �
 ## Componentes adicionais da branch atual
 
 - **[GUI PySide6/PyVistaQt](../gui/README.md):** visualização 3D, controles de camadas, tabelas de métricas, galeria, dispositivos CPU/CUDA para LPIPS e execução/cancelamento dos pipelines em processos separados. A existência no código não implica testes de interface gráfica completos.
-- **[Empacotamento e CLIs](../../pyproject.toml):** `mesh-eval`, `percept-eval`, `mesh-gui` ou os equivalentes `python -m meshcomparison.geometry`, `python -m meshcomparison.perceptual` e `python -m meshcomparison.gui`.
+- **[Empacotamento](../../pyproject.toml):** o comando `mesh-gui` (ou `python -m meshcomparison.gui`) abre a interface, que executa os pipelines em processos filhos (`meshcomparison.gui.worker`).
 - **[Harness](../harness/README.md):** orientações para construir novos projetos já preparados para agentes e para evoluir este sem substituir implementações existentes.
 
 ## Prática recomendada

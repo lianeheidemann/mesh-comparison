@@ -17,11 +17,11 @@
 | Etapa | O que implantar desde o início | O que o Mesh Comparison já possui | Lacunas atuais |
 | --- | --- | --- | --- |
 | [00 — Planejamento e arquitetura](00-planejamento-e-arquitetura.md) | Escopo, critérios, invariantes, permissões, decisões e fluxo de PR | ✅ Objetivo, pipelines e documentação de domínio | 🟡 Contratos de regressão; ❓ ADRs e políticas de agente |
-| [01 — Ambiente e baseline](01-auditoria-e-linha-de-base.md) | Git, dependências/lock, comandos e primeira saída conhecida | ✅ Ambiente Conda, CLIs modulares e resultados exemplares · 🟡 lock Windows anterior à GUI | 🟡 Baseline sistemática; ❓ reprodução multiplataforma |
+| [01 — Ambiente e baseline](01-auditoria-e-linha-de-base.md) | Git, dependências/lock, comandos e primeira saída conhecida | ✅ Ambiente Conda declarado, pipelines modulares e resultados exemplares · 🟡 snapshots Windows distintos (lock CPU pré-GUI e pins pip CUDA 12.8 com GUI) | 🟡 Baseline sistemática; ❓ reprodução multiplataforma |
 | [02 — Instruções e contexto](02-instrucoes-e-contexto.md) | `AGENTS.md`, arquitetura, ADRs, templates e regras no primeiro dia | ✅ READMEs e documentação técnica | ❌ `AGENTS.md`/`CLAUDE.md` na raiz auditada; ❓ ADRs |
-| [03 — Testes e regressões](03-testes-e-regressoes.md) | Testes unitários, integração, smoke e regressão desde a primeira feature | ✅ pytest/ruff e testes unitários de métricas, device e configuração da GUI · `--help` no CI | 🟡 Casos científicos sistemáticos pendentes |
+| [03 — Testes e regressões](03-testes-e-regressoes.md) | Testes unitários, integração, smoke e regressão desde a primeira feature | ✅ pytest/ruff e testes unitários de métricas, device e configuração da GUI · verificação de importação no CI | 🟡 Casos científicos sistemáticos pendentes |
 | [04 — CI e proteção](04-ci-e-protecao.md) | Workflow em PR, checks obrigatórios e aprovação humana | ✅ GitHub Actions com Ruff, pytest e smoke tests | ❌ Pipeline completo não roda na CI; ❓ proteção da `main` |
-| [05 — Ciclo de agente](05-ciclo-assistido-e-seguranca.md) | Runtime supervisionado, escopo, ferramentas, feedback e handoff | ✅ CLIs, documentação e CI podem servir como ferramentas/feedback | ❓ Loop de agente, permissões e checkpoints demonstrados |
+| [05 — Ciclo de agente](05-ciclo-assistido-e-seguranca.md) | Runtime supervisionado, escopo, ferramentas, feedback e handoff | ✅ Pipelines, documentação e CI podem servir como ferramentas/feedback | ❓ Loop de agente, permissões e checkpoints demonstrados |
 | [06 — Avaliação e manutenção](06-evidencias-e-aceite.md) | Evidências de PR, avaliações de tarefas e manutenção do processo | ✅ Documentação e métricas de exemplo já registradas | ❓ Evals do agente, integração supervisionada comprovada |
 | [07 — Modelo reutilizável](07-modelo-reutilizavel.md) | Estrutura de repositório, contrato de tarefa e checklist para novos projetos | ✅ Este documento pode ser reutilizado | Não é uma funcionalidade implantada automaticamente |
 
@@ -32,12 +32,12 @@ Este checklist registra **a existência de componentes** no Mesh Comparison. Ele
 - [x] README principal com propósito, instalação, comandos e saídas ([fonte](../../../README.md)).
 - [x] Guias de implementação preexistentes ([docs/implementation/step-by-step](../../implementation/step-by-step/)).
 - [x] Ambiente Conda e dependências declaradas ([environment.yml](../../../environments/environment.yml)).
-- [x] Snapshot de dependências do ambiente Windows **anterior à GUI** ([environment-lock.yml](../../../environments/environment-lock.yml)); as novas dependências Qt/PyVista não estão fixadas ali.
+- [x] Snapshot do ambiente Windows anterior à GUI ([environment-lock.yml](../../../environments/environment-lock.yml)) e snapshot pip separado com PySide6/PyVista/PyVistaQt e PyTorch CUDA 12.8 ([requirements-windows-cu128.txt](../../../environments/requirements-windows-cu128.txt)).
 - [x] Dois pipelines executáveis de domínio ([geométrico](../../../src/meshcomparison/geometry/pipeline.py), [perceptual](../../../src/meshcomparison/perceptual/pipeline.py)).
-- [x] CLI empacotada como `meshcomparison.geometry` / `meshcomparison.perceptual` e GUI PySide6/PyVistaQt ([pyproject.toml](../../../pyproject.toml)).
+- [x] Pipelines `meshcomparison.geometry` / `meshcomparison.perceptual` executados pela GUI PySide6/PyVistaQt (processos filhos via `meshcomparison.gui.worker`) ([pyproject.toml](../../../pyproject.toml)).
 - [x] Configuração de `ruff check .` no [GitHub Actions](../../../.github/workflows/ci.yml).
 - [x] Configuração de `pytest -q` no [GitHub Actions](../../../.github/workflows/ci.yml) e testes existentes em [`tests/`](../../../tests/), sem validação end-to-end completa.
-- [x] Configuração de smoke tests `--help` no CI para ambos os pipelines.
+- [x] Configuração de smoke test de importação (pipelines e worker) no CI.
 - [x] Resultados de exemplo e métricas registrados no [README](../../../README.md), como execução histórica.
 - [x] GUI PySide6/PyVistaQt com [documentação de uso](../../gui/README.md) — execução gráfica em ambiente real ainda não comprovada nesta auditoria.
 - [x] Documentação de Agent Harness e [bibliografia](../REFERENCIAS.md), com diagrama de fluxo ([visão geral](../README.md)).

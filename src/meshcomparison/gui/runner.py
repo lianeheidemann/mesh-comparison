@@ -60,6 +60,9 @@ class PipelineRunner(QObject):
         self.log.emit(f"\n=== {command.name} pipeline ===")
         self.progress.emit(int(self._tracker.fraction * 100), f"{command.name}: starting")
         process.start(self._python, command.args)
+        if command.stdin:
+            process.write(command.stdin.encode("utf-8"))
+        process.closeWriteChannel()
 
     def _on_output(self):
         data = bytes(self._process.readAllStandardOutput()).decode("utf-8", errors="replace")

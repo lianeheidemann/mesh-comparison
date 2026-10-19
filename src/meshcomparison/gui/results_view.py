@@ -1,14 +1,15 @@
 """Metric tables and image gallery for the outputs of a run."""
-import glob
 import os
 
 import pandas as pd
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QPixmap
+from PySide6.QtCore import QSize, Qt, QTimer, QUrl
+from PySide6.QtGui import QDesktopServices, QImageReader, QPixmap
 from PySide6.QtWidgets import (
-    QAbstractItemView, QComboBox, QHeaderView, QLabel, QPushButton, QScrollArea, QTableWidget,
-    QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
+    QAbstractItemView, QComboBox, QHBoxLayout, QHeaderView, QLabel, QPushButton, QScrollArea,
+    QTableWidget, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
+
+from .gallery import collect_image_entries
 
 
 def _fmt(value):
@@ -38,54 +39,113 @@ def _make_table(df, transpose=False):
 
 
 class ImageGallery(QWidget):
+    """GT/RM image pairs shown side by side; the default "All" mode stacks every pair vertically."""
+
+    ALL_LABEL = "All"
+    MARGIN = 12
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._paths = []
-        self._pixmap = None
+        self._entries = []
+        self._cells = []  # (QLabel, image path) of the images currently on screen
 
         self.selector = QComboBox()
-        self.selector.currentIndexChanged.connect(self._show)
-        self.label = QLabel("No images yet.")
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.selector.currentIndexChanged.connect(self._render)
+        self.content = QWidget()
+        self.content_layout = QVBoxLayout(self.content)
+        self.content_layout.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
+        self.content_layout.setSpacing(10)
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.scroll.setWidget(self.label)
+        self.scroll.setWidget(self.content)
+
+        self._resize_timer = QTimer(self)
+        self._resize_timer.setSingleShot(True)
+        self._resize_timer.setInterval(120)
+        self._resize_timer.timeout.connect(self._fit)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.selector)
         layout.addWidget(self.scroll, 1)
 
-    def set_images(self, paths):
-        self._paths = list(paths)
+    def set_entries(self, entries):
+        """``entries``: ``[(title, [(caption, path), ...]), ...]`` as built by ``collect_image_entries``."""
+        self._entries = list(entries)
         self.selector.blockSignals(True)
         self.selector.clear()
-        for p in self._paths:
-            self.selector.addItem(p[0], p[1])
+        self.selector.addItem(self.ALL_LABEL, None)
+        for title, _images in self._entries:
+            self.selector.addItem(title, title)
+        self.selector.setCurrentIndex(0)
         self.selector.blockSignals(False)
-        if self._paths:
-            self._show(0)
-        else:
-            self._pixmap = None
-            self.label.setPixmap(QPixmap())
-            self.label.setText("No images yet.")
+        self._render()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self._fit()
+        self._resize_timer.start()
 
-    def _show(self, index):
-        if index < 0 or index >= len(self._paths):
+    def _clear(self):
+        while self.content_layout.count():
+            item = self.content_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.hide()
+                widget.setParent(None)
+                widget.deleteLater()
+        self._cells = []
+
+    def _render(self, _index=None):
+        self._clear()
+        selected = self.selector.currentData()
+        shown = [e for e in self._entries if selected is None or e[0] == selected]
+        if not shown:
+            empty = QLabel("No images yet.")
+            empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.content_layout.addWidget(empty)
             return
-        self._pixmap = QPixmap(self._paths[index][1])
+        for title, images in shown:
+            header = QLabel(f"<b>{title}</b>")
+            self.content_layout.addWidget(header)
+            row = QHBoxLayout()
+            row.setSpacing(10)
+            for caption, path in images:
+                column = QVBoxLayout()
+                caption_label = QLabel(caption)
+                caption_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                image_label = QLabel()
+                image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                column.addWidget(caption_label)
+                column.addWidget(image_label)
+                row.addLayout(column, 1)
+                self._cells.append((image_label, path))
+            if len(images) == 1:
+                row.addStretch(1)  # a lone image keeps the width of one pair column
+            holder = QWidget()
+            holder.setLayout(row)
+            self.content_layout.addWidget(holder)
+        self.content_layout.addStretch(1)
         self._fit()
 
     def _fit(self):
-        if self._pixmap is None or self._pixmap.isNull():
+        """Scale each image to half the viewport width (and to the viewport height when only one pair is shown)."""
+        if not self._cells:
             return
-        size = self.scroll.viewport().size()
-        self.label.setPixmap(self._pixmap.scaled(
-            size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        viewport = self.scroll.viewport().size()
+        width = max(120, (viewport.width() - 2 * self.MARGIN - 10) // 2 - 4)
+        height = None if self.selector.currentData() is None else max(120, viewport.height() - 90)
+        for label, path in self._cells:
+            reader = QImageReader(path)
+            size = reader.size()
+            if not size.isValid():
+                label.setText(f"Could not read {os.path.basename(path)}")
+                continue
+            scale = width / size.width()
+            if height is not None:
+                scale = min(scale, height / size.height())
+            scale = min(scale, 1.0)
+            reader.setScaledSize(QSize(max(1, round(size.width() * scale)), max(1, round(size.height() * scale))))
+            label.setPixmap(QPixmap.fromImage(reader.read()))
 
 
 class ResultsView(QTabWidget):
@@ -140,13 +200,9 @@ class ResultsView(QTabWidget):
                 self.addTab(_make_table(pd.read_csv(path), transpose=transpose), title)
                 added = True
 
-        images = []
-        for pattern in ("renders/*.png", "heatmaps/*.png", "renders/pairs/*.png",
-                        "renders/gt/*.png", "renders/rm/*.png"):
-            for p in sorted(glob.glob(os.path.join(out_dir, pattern))):
-                images.append((os.path.relpath(p, out_dir), p))
-        if images:
-            self.gallery.set_images(images)
+        entries = collect_image_entries(out_dir)
+        if entries:
+            self.gallery.set_entries(entries)
             self.addTab(self.gallery, "Images")
             added = True
 

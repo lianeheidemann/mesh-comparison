@@ -167,6 +167,8 @@ def run_pipeline(gt_path, rm_path, out_dir,
         "camera_elevation_deg": elevation_deg,
         "render_width": width,
         "render_height": height,
+        "heatmap_vmax_normalized": float(norm.vmax),
+        "heatmap_vmax_gt_units": float(norm.vmax * gt_diag_raw),
         **collect_provenance(),
     }]).to_csv(meta_csv, index=False)
 

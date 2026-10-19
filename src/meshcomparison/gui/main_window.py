@@ -367,6 +367,7 @@ class MainWindow(QMainWindow):
             rm = load_mesh(aligned) if os.path.isfile(aligned) else None
             heat = None
             scale = 1.0
+            vmax = None
             heat_path = os.path.join(cfg.out, "heatmaps", "gt_heatmap_colored.ply")
             meta_path = os.path.join(cfg.out, "metrics", "run_metadata.csv")
             if cfg.run_geometry and os.path.isfile(heat_path):
@@ -379,7 +380,12 @@ class MainWindow(QMainWindow):
                         if "gt_bbox_diagonal_original_units" in row:
                             scale = float(row["gt_bbox_diagonal_original_units"].iloc[0])
                             break
-            self.viewer.show_run_result(gt, rm, heat, scale)
+                geometry_meta = os.path.join(cfg.out, "metrics", "run_metadata_geometry.csv")
+                if os.path.isfile(geometry_meta):
+                    row = pd.read_csv(geometry_meta)
+                    if "heatmap_vmax_gt_units" in row:
+                        vmax = float(row["heatmap_vmax_gt_units"].iloc[0])
+            self.viewer.show_run_result(gt, rm, heat, scale, vmax)
         except Exception as exc:
             self._append_log(f"Could not display the 3D result: {exc}")
 

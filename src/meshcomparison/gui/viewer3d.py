@@ -16,6 +16,11 @@ PLACEHOLDER_COLOR = "#477ca4"
 PLACEHOLDER_EDGE = "#80b9e7"
 DEFAULT_AZIMUTH = -135.0
 DEFAULT_ELEVATION = 25.264
+HEATMAP_CMAP = "RdYlGn_r"
+# The pipeline's heatmap PNG is rendered by pyrender with strong lights, which brightens the palette
+# (pink/cyan tones). This gain reproduces that look in the viewer; "Exact palette" shows the true colours.
+HEATMAP_PNG_GAIN = 2.0
+HEATMAP_LEGEND_TITLE = "GT to RM distance"
 
 
 def to_polydata(mesh):
@@ -25,7 +30,9 @@ def to_polydata(mesh):
     poly = pv.PolyData(np.asarray(mesh.vertices, dtype=np.float64), cells)
     visual = getattr(mesh, "visual", None)
     if visual is not None and getattr(visual, "kind", None) == "vertex":
-        poly.point_data["rgb"] = np.asarray(visual.vertex_colors)[:, :3].astype(np.uint8)
+        colors = np.asarray(visual.vertex_colors)[:, :3].astype(np.uint8)
+        poly.point_data["rgb"] = colors
+        poly.point_data["rgb_png"] = np.clip(colors.astype(np.float32) * HEATMAP_PNG_GAIN, 0, 255).astype(np.uint8)
     return poly
 
 
@@ -43,6 +50,8 @@ class MeshViewer(QWidget):
         self._floor_actor = None
         self._placeholder_actor = None
         self._placeholder_poly = None
+        self._heatmap_vmax = None
+        self._legend_actor = None
 
         self.plotter = QtInteractor(self)
         self.plotter.set_background(VIEW_BACKGROUND)
@@ -76,6 +85,14 @@ class MeshViewer(QWidget):
         self.edges = QCheckBox("Edges")
         self.edges.toggled.connect(self._on_edges)
         controls.addWidget(self.edges)
+
+        self.exact_palette = QCheckBox("Exact palette")
+        self.exact_palette.setToolTip(
+            "Show the heatmap with the true RdYlGn_r colours of the legend, "
+            "instead of the brighter look of the pipeline's PNG.")
+        self.exact_palette.setEnabled(False)
+        self.exact_palette.toggled.connect(self._on_palette_toggled)
+        controls.addWidget(self.exact_palette)
 
         reset = QPushButton("Reset view")
         reset.clicked.connect(self.reset_view)
@@ -161,6 +178,9 @@ class MeshViewer(QWidget):
             self.plotter.remove_actor(old, render=False)
         self._polys.pop(key, None)
         box = self._checks[key]
+        if key == "heatmap":
+            self._remove_legend()
+            self.exact_palette.setEnabled(False)
         if mesh is None:
             box.setEnabled(False)
             if not self._actors:
@@ -176,14 +196,15 @@ class MeshViewer(QWidget):
             poly.points = poly.points * scale
         self._polys[key] = poly
 
-        kwargs = dict(smooth_shading=False, show_edges=self.edges.isChecked(), reset_camera=False)
         if key == "heatmap" and "rgb" in poly.point_data:
-            kwargs.update(scalars="rgb", rgb=True)
+            self._actors[key] = self._add_heatmap_actor(poly)
+            self.exact_palette.setEnabled(True)
         else:
-            kwargs.update(color=GT_COLOR if key == "gt" else RM_COLOR)
-        if key == "rm":
-            kwargs["opacity"] = self.opacity.value() / 100.0
-        self._actors[key] = self.plotter.add_mesh(poly, **kwargs)
+            kwargs = dict(smooth_shading=False, show_edges=self.edges.isChecked(), reset_camera=False,
+                          color=GT_COLOR if key == "gt" else RM_COLOR)
+            if key == "rm":
+                kwargs["opacity"] = self.opacity.value() / 100.0
+            self._actors[key] = self.plotter.add_mesh(poly, **kwargs)
 
         box.setEnabled(True)
         was_blocked = box.blockSignals(True)
@@ -192,6 +213,51 @@ class MeshViewer(QWidget):
         self._set_visible(key, box.isChecked())
         self._refresh_floor()
         self.reset_view()
+
+    def _add_heatmap_actor(self, poly):
+        """Heatmap actor: bright PNG-like look by default, flat true palette colours with 'Exact palette'."""
+        exact = self.exact_palette.isChecked()
+        actor = self.plotter.add_mesh(
+            poly, scalars="rgb" if exact else "rgb_png", rgb=True, smooth_shading=False,
+            show_edges=self.edges.isChecked(), reset_camera=False)
+        prop = actor.GetProperty()
+        # ambient + diffuse = 1 keeps the true colours at full brightness on faces turned to the light
+        prop.SetAmbient(0.55 if exact else 0.5)
+        prop.SetDiffuse(0.45 if exact else 0.7)
+        prop.SetSpecular(0.0)
+        return actor
+
+    def _on_palette_toggled(self, _checked):
+        poly = self._polys.get("heatmap")
+        if poly is None:
+            return
+        visible = self._checks["heatmap"].isChecked()
+        self.plotter.remove_actor(self._actors["heatmap"], render=False)
+        self._actors["heatmap"] = self._add_heatmap_actor(poly)
+        self._set_visible("heatmap", visible)
+
+    def _update_legend(self):
+        """Colour bar 0 → 95th-percentile distance (the range the heatmap colours are normalised to)."""
+        self._remove_legend()
+        vmax = self._heatmap_vmax
+        if not vmax or vmax <= 0:
+            return
+        # Invisible helper mesh whose only job is to carry the colormap and range of the scalar bar.
+        helper = pv.Sphere(radius=1e-6)
+        helper["distance"] = np.linspace(0.0, vmax, helper.n_points)
+        self._legend_actor = self.plotter.add_mesh(
+            helper, scalars="distance", cmap=HEATMAP_CMAP, clim=(0.0, vmax), reset_camera=False,
+            scalar_bar_args=dict(title=HEATMAP_LEGEND_TITLE, n_labels=5, fmt="%.3g", color="white",
+                                 vertical=True, position_x=0.90, position_y=0.20, height=0.6, width=0.05,
+                                 title_font_size=14, label_font_size=12))
+        self._legend_actor.SetVisibility(False)
+
+    def _remove_legend(self):
+        if self._legend_actor is not None:
+            self.plotter.remove_actor(self._legend_actor, render=False)
+            self._legend_actor = None
+        if HEATMAP_LEGEND_TITLE in self.plotter.scalar_bars:
+            self.plotter.remove_scalar_bar(HEATMAP_LEGEND_TITLE, render=False)
 
     def _refresh_floor(self):
         """Create one horizontal grid plane beneath the current mesh bounds."""
@@ -250,8 +316,12 @@ class MeshViewer(QWidget):
             zmin, zmax,
         )
 
-    def show_run_result(self, gt_mesh, rm_mesh, heatmap_mesh, heatmap_scale):
-        """Switch to the post-run view: aligned RM over GT, plus the heatmap (shown instead of the plain GT)."""
+    def show_run_result(self, gt_mesh, rm_mesh, heatmap_mesh, heatmap_scale, heatmap_vmax=None):
+        """Switch to the post-run view: aligned RM over GT, plus the heatmap (shown instead of the plain GT).
+
+        ``heatmap_vmax`` is the upper end of the distance scale in GT units (for the legend).
+        """
+        self._heatmap_vmax = heatmap_vmax
         self.set_layer("gt", gt_mesh)
         self.set_layer("rm", rm_mesh)
         self.set_layer("heatmap", heatmap_mesh, scale=heatmap_scale)
@@ -265,7 +335,15 @@ class MeshViewer(QWidget):
         actor = self._actors.get(key)
         if actor is not None:
             actor.SetVisibility(bool(visible))
+            if key == "heatmap":
+                self._update_legend_visibility(bool(visible))
             self.plotter.render()
+
+    def _update_legend_visibility(self, visible):
+        if self._legend_actor is None and visible and self._heatmap_vmax:
+            self._update_legend()
+        if self._legend_actor is not None and HEATMAP_LEGEND_TITLE in self.plotter.scalar_bars:
+            self.plotter.scalar_bars[HEATMAP_LEGEND_TITLE].SetVisibility(visible)
 
     def _on_opacity(self, value):
         actor = self._actors.get("rm")

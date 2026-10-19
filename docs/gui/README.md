@@ -76,11 +76,13 @@ Na aba **3D view**, o [`MeshViewer`](../../src/meshcomparison/gui/viewer3d.py) d
 
 - Camadas independentes para **GT**, **RM alinhada** e **heatmap de desvio** (quando disponível).
 - Rotação, pan e zoom da câmera, com opção **Reset view**. A vista inicial usa a mesma direção dos renders da avaliação (eixo Z para cima, azimute -135°, elevação 25,264°).
+- **Legenda de distância** à direita quando o heatmap está visível: escala de 0 até o percentil 95 das distâncias GT→RM, em unidades da malha GT (valor lido de `heatmap_vmax_gt_units` em `run_metadata_geometry.csv`; saídas antigas sem essa coluna não mostram a legenda). Distâncias acima desse valor aparecem no vermelho máximo.
+- Heatmap com o mesmo aspecto do PNG do pipeline (cores mais claras, tons rosa/ciano causados pela iluminação forte do renderizador). Como esses tons **não** existem na paleta `RdYlGn_r` da legenda, a caixa **Exact palette** mostra as cores fiéis à legenda.
 - Controle da opacidade da RM e alternância de linhas das arestas (**Edges**).
 - **Save image…** para salvar uma captura PNG do viewer.
 - Sobreposição de camadas no mesmo viewer. **Não há, no código atual, três viewports independentes com câmeras sincronizadas**; não confundir com visualização lado a lado.
 
-A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs, com o botão **Open output folder** no canto superior direito para abrir a pasta de saída. A aba **Log** mostra a execução. O menu **View → Dark theme** alterna o tema da aplicação Qt. *Esse controle de tema não é a mesma coisa que as duas imagens claro/escuro no README do GitHub.*
+A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs. Na aba **Images** as imagens aparecem **em pares**, GT à esquerda e RM alinhada à direita, fotografadas no mesmo ângulo: a vista geométrica, o heatmap (imagem única) e cada vista perceptual salva. O seletor tem a opção **All**, padrão, que mostra todos os pares um abaixo do outro (com rolagem); escolher uma entrada mostra só aquele par. Há também o botão **Open output folder** no canto superior direito para abrir a pasta de saída. A aba **Log** mostra a execução. O menu **View → Dark theme** alterna o tema da aplicação Qt. *Esse controle de tema não é a mesma coisa que as duas imagens claro/escuro no README do GitHub.*
 
 ### Saídas esperadas
 

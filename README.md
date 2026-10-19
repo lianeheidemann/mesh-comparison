@@ -140,14 +140,6 @@ These geometric values describe this example run. Compare results only when the 
 *Screenshot of the perceptual summary for the example GT/RM mesh pair.* Lower LPIPS is better; higher PSNR and SSIM are better under comparable settings. The screenshot's rounded values differ slightly from the versioned [example results](docs/results/README.md), so treat them as separately recorded results until the respective run settings and metadata are matched. This is **not** a completed benchmark of different generative AI tools.
 
 
-### Perceptual summary — desktop screenshot
-
-<p align="center">
-  <img src="assets/interface/perceptual-summary-example.png" width="100%" alt="Screenshot of the Mesh Comparison desktop Results tab, showing LPIPS, PSNR (dB), and SSIM perceptual summary statistics across evaluated camera views">
-</p>
-
-*Screenshot of the perceptual summary for the example GT/RM mesh pair.* Lower LPIPS is better; higher PSNR and SSIM are better under comparable settings. The screenshot's rounded values differ slightly from the versioned [example perceptual CSV](examples/output/metrics/metrics_perceptual.csv) above, so treat them as separately recorded results until the respective run settings and metadata are matched. This is **not** a completed benchmark of different generative AI tools.
-
 <table>
   <tr>
     <td width="50%" align="center">

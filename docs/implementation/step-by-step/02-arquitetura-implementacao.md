@@ -48,7 +48,7 @@ python -m pip install -e . --no-deps
 python -m meshcomparison.gui
 ```
 
-O modo de uso principal é pela interface (`mesh-gui` ou `python -m meshcomparison.gui`); as antigas CLIs por pipeline foram removidas. Para automação, as funções `run_pipeline` continuam disponíveis em Python. Etapas comuns aos dois pipelines (carregar, normalizar, MSE, ICP e exportar a RM alinhada) ficam em [`common/prepare.py`](../../../src/meshcomparison/common/prepare.py). Consulte o [README principal](../../../README.md).
+Etapas comuns aos dois pipelines (carregar, normalizar, MSE, ICP e exportar a RM alinhada) ficam em [`common/prepare.py`](../../../src/meshcomparison/common/prepare.py). Consulte o [README principal](../../../README.md) para iniciar a interface ou chamar os pipelines em Python.
 
 ## Passo 4 — Distinguir processamento e interface
 

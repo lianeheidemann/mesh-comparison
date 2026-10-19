@@ -29,4 +29,4 @@ A implementação existente de `similarity_icp_align` converte os vértices em `
 
 Continue para [05 — Conferir MSE e RMSE simétricos](05-mse-rmse.md).
 
-**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte os módulos indicados e os utilitários compartilhados em `src/meshcomparison/common/` para ver as implementações completas.
+**Código de referência:** [alinhamento ICP](../../../src/meshcomparison/common/alignment.py) e [preparo compartilhado](../../../src/meshcomparison/common/prepare.py).

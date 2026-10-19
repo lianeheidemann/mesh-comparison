@@ -35,6 +35,7 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
 
 ### Table of contents
 
+- [Single-view 3D reconstruction: evaluation context](#single-view-3d-reconstruction-evaluation-context)
 - [Example results](#example-results)
 - [Technologies](#technologies)
 - [Workspace layout](#workspace-layout)
@@ -54,6 +55,36 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
 <img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture flow: the desktop GUI or Python API invokes geometric and perceptual pipelines; both share mesh preparation and write files to the selected output folder">
 
 The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially. Python callers can invoke either pipeline's `run_pipeline(...)` function directly. The detailed module and GUI flow is in the [implementation guide](docs/implementation/README.md).
+
+## Single-view 3D reconstruction: evaluation context
+
+In a **single-view 3D reconstruction** scenario, a reconstruction method attempts to infer a 3D shape from **one 2D image**. For a controlled experiment, that image may be rendered from a known original 3D mesh (the **ground truth**, or **GT**). An external reconstruction method then produces a **reconstructed mesh (RM)** from that single view.
+
+The overall experimental workflow is:
+
+```text
+Ground-truth mesh (GT)
+        |
+        v
+Render one 2D view of the GT
+        |
+        v
+External single-view 3D reconstruction method
+        |
+        v
+Reconstructed mesh (RM)
+        |
+        v
+Mesh Comparison: evaluate GT against RM
+        |-- Geometric: alignment (conditional ICP), Chamfer, Hausdorff, RMSE, heatmaps
+        `-- Perceptual: render GT and RM from matching camera views; LPIPS, PSNR, SSIM
+```
+
+**Project boundary:** Mesh Comparison **does not reconstruct a mesh from an image** and does not take the single source image as a substitute for either mesh. It takes **two existing 3D meshes** (GT and RM), conditionally aligns them, and evaluates their similarity. The single-view image acquisition and the reconstruction algorithm belong to an **upstream, external** stage; the repository's included example meshes do not, by themselves, establish how the RM was generated.
+
+**Terminology:** *Single-view 3D reconstruction* is the precise term for inferring geometry from one image. *One-shot* is sometimes used informally, but *one-shot learning* has a different meaning in machine learning (learning from a single labeled example); it should not be treated as synonymous here.
+
+**Interpretation:** A single view can hide surfaces and make depth or shape ambiguous. A visually convincing result from that view is therefore not proof of overall geometric fidelity. This is why the evaluator combines **geometric distances and local heatmaps** with **perceptual similarity across multiple matched, newly rendered viewpoints**. These evaluation camera views are distinct from the **single input image** used upstream to generate the RM. Metric values also depend on scale, alignment, mesh sampling, rendering, and camera settings.
 
 ## Example results
 
@@ -314,6 +345,7 @@ To use other values from Python code, call the relevant pipeline's `run_pipeline
 
 ## Scope and limitations
 
+- The application evaluates supplied GT/RM meshes; it does not generate a reconstructed mesh from a single image. A single-view reconstruction method must run separately.
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
 - The GitHub Actions workflow checks linting, the tests and that the pipelines import. It does not run offscreen rendering or validate CUDA execution.
 - LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.

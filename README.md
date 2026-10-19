@@ -138,6 +138,21 @@ The images below are sample outputs from the geometric and perceptual pipelines.
 
 These values describe this example run. Compare results only when the inputs, camera views, and pipeline settings are consistent. STL files do not store physical units, so geometric values use the unit system of the GT mesh.
 
+
+### Perceptual summary from the desktop interface (example GT/RM)
+
+The following table transcribes the perceptual statistics shown in a desktop-interface screenshot for the **same example mesh pair** (ground truth and reconstruction). The statistics summarize the evaluated camera views.
+
+| Metric | Min | 25th percentile | Median | 75th percentile | Max | Mean |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| LPIPS | 0.0995 | 0.1064 | 0.1129 | 0.1217 | 0.1383 | 0.1148 |
+| PSNR (dB) | 8.9456 | 10.8019 | 11.1326 | 11.4727 | 12.6706 | 10.9592 |
+| SSIM | 0.9185 | 0.9279 | 0.9309 | 0.9382 | 0.9444 | 0.9322 |
+
+**Metric directions:** lower **LPIPS** is better; higher **PSNR** and **SSIM** are better, when computed under comparable conditions.
+
+**Reproducibility note:** These are the rounded values visible in the supplied GUI screenshot. They differ slightly from the committed [example perceptual CSV](examples/output/metrics/metrics_perceptual.csv) used for the metric snapshot above. Keep the screenshot values and the versioned CSV identified separately until the respective run settings and metadata can be matched; do not combine them as if they belonged to one execution. This is an example **GT vs. RM** evaluation, **not** a completed comparison of different generative AI tools.
+
 <table>
   <tr>
     <td width="50%" align="center">

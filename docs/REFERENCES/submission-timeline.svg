@@ -87,7 +87,10 @@
       <text x="430" y="1047" fill="#52627a" font-size="18">Mês provisório para acompanhamento; sem data oficial anunciada</text>
     </g>
     <g>
-      <circle cx="124" cy="1138" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
+      <!-- IJCNN 2027 conference days: highlighted marker -->
+      <circle cx="124" cy="1138" r="24" fill="#1769aa" opacity="0.18"/>
+      <circle cx="124" cy="1138" r="17" fill="#1769aa" stroke="#ffffff" stroke-width="6"/>
+      <circle cx="124" cy="1138" r="8" fill="#9bd2ff"/>
       <rect x="174" y="1094" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
       <rect x="198" y="1111" width="202" height="54" rx="12" fill="#e4f1fb"/>
       <text x="299" y="1146" fill="#155b91" font-size="20" font-weight="700" text-anchor="middle">14–18 jun. 2027</text>
@@ -95,7 +98,10 @@
       <text x="430" y="1162" fill="#52627a" font-size="18">Cidade do Cabo, África do Sul</text>
     </g>
     <g>
-      <circle cx="124" cy="1253" r="13" fill="#7651a8" stroke="#f7f9fc" stroke-width="5"/>
+      <!-- IV 2027 conference days: highlighted marker -->
+      <circle cx="124" cy="1253" r="24" fill="#7651a8" opacity="0.18"/>
+      <circle cx="124" cy="1253" r="17" fill="#7651a8" stroke="#ffffff" stroke-width="6"/>
+      <circle cx="124" cy="1253" r="8" fill="#dbc2ff"/>
       <rect x="174" y="1209" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
       <rect x="198" y="1226" width="202" height="54" rx="12" fill="#f0eafb"/>
       <text x="299" y="1261" fill="#654294" font-size="20" font-weight="700" text-anchor="middle">28–30 jul. 2027</text>

@@ -188,26 +188,29 @@ Versions are taken from the [Windows CUDA environment snapshot](environments/req
 
 ```text
 mesh-comparison/
-├── README.md  LICENSE  pyproject.toml
-├── src/meshcomparison/            # Python package
-│   ├── common/                    # Shared: mesh I/O, preparation (scale + ICP), distances, rendering, device detection
-│   ├── geometry/                  # Geometric evaluation (pipeline, metrics, heatmap)
-│   ├── gui/                       # Desktop: config, panels, runner/worker, outputs, results and 3D viewer (PySide6/PyVistaQt)
-│   └── perceptual/                # Multi-view perceptual evaluation (cameras, PSNR/SSIM/LPIPS)
-├── data/samples/                  # gt.stl (ground truth) and mod.stl (reconstructed mesh)
-├── environments/                  # environment.yml (general), environment-lock.yml (Windows snapshot) and requirements-windows-cu128.txt (pip snapshot, CUDA 12.8)
-├── examples/output/               # Committed results of the sample run
-│   ├── aligned/                   # Aligned reconstructed mesh exports
-│   ├── heatmaps/                  # Geometric distance heatmap assets
-│   ├── metrics/                   # CSV metric reports
-│   └── renders/                   # Mesh and view renders (gt/, rm/, pairs/)
-├── docs/                          # Geometric concepts, implementation, GUI and harness guides
-└── tests/                         # pytest suite
+├── src/meshcomparison/
+│   ├── common/
+│   ├── geometry/
+│   ├── perceptual/
+│   └── gui/
+├── data/samples/
+├── examples/output/
+│   ├── aligned/
+│   ├── heatmaps/
+│   ├── metrics/
+│   └── renders/
+├── environments/
+├── assets/
+├── docs/
+├── tests/
+├── pyproject.toml
+├── LICENSE
+└── README.md
 ```
 
-The sample meshes in `data/samples/` (`gt.stl` as the ground truth, `mod.stl` as the reconstructed mesh) are the ones to try first; the interface writes results to the output folder you choose (default: a local `output/` folder, git-ignored). The results committed in `examples/output/` come from the sample run. Runs may replace files with the same names in the output folders.
+The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface.
 
-The interface starts the selected pipelines in isolated child processes, keeping rendering separate from the interactive 3D viewer and allowing cancellation.
+Use `data/samples/gt.stl` (GT) and `data/samples/mod.stl` (RM) to try the application. The interface saves new results to the selected output folder (default: `output/`); versioned example results are in `examples/output/`. Choose a new output folder for each experiment to avoid overwriting files.
 
 ## Requirements
 

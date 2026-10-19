@@ -8,12 +8,15 @@ from typing import Optional
 DEVICE_CHOICES = ("auto", "cuda", "cpu")
 
 TORCH_INSTALL_URL = "https://pytorch.org/get-started/locally/"
+CUDA_INSTALL_COMMAND = (
+    "pip uninstall -y torch torchvision\n"
+    "pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128"
+)
 CUDA_INSTALL_HINT = (
     "A NVIDIA GPU was detected, but the installed PyTorch is a CPU-only build, so CUDA cannot be used.\n"
     "Reinstall PyTorch with CUDA support (pick the command matching your driver at "
     f"{TORCH_INSTALL_URL}), for example:\n"
-    "    pip uninstall -y torch torchvision\n"
-    "    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128"
+    + "\n".join("    " + line for line in CUDA_INSTALL_COMMAND.splitlines())
 )
 
 

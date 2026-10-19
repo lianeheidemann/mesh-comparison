@@ -8,6 +8,7 @@ from ..common.alignment import similarity_icp_align
 from ..common.device import get_device_info
 from ..common.distances import symmetric_mse
 from ..common.io import ensure_dirs, load_mesh
+from ..common.provenance import collect_provenance
 from .cameras import build_tight_ortho_camera, camera_pose_for_view, render_mesh_rgba
 from .figures import save_pair_figure
 from .image_metrics import (
@@ -26,6 +27,14 @@ OUTPUT_SUBDIRS = {
     "metrics": ("metrics",),
     "aligned": ("aligned",),
 }
+
+
+def resolve_save_views(save_views, num_views):
+    """Requested view indices if they all exist (1..num_views); otherwise up to 3 spread-out views."""
+    requested = sorted(set(save_views))
+    if all(1 <= v <= num_views for v in requested):
+        return requested
+    return sorted({1, max(1, num_views // 3), max(1, 2 * num_views // 3)})
 
 
 def run_pipeline(gt_path, rm_path, out_dir,
@@ -98,9 +107,13 @@ def run_pipeline(gt_path, rm_path, out_dir,
         )
     print(f"    LPIPS device: {device_info.describe()}")
 
-    print("[6/8] Rendering 100 views and computing metrics...")
+    print(f"[6/8] Rendering {num_views} views and computing metrics...")
     per_view_rows = []
-    save_views = set(save_views)
+    requested_views = set(save_views)
+    save_views = set(resolve_save_views(requested_views, num_views))
+    if save_views != requested_views:
+        print(f"    WARNING: requested saved views {sorted(requested_views)} do not all exist with "
+              f"{num_views} views; saving views {sorted(save_views)} instead.")
     azimuths = np.linspace(0.0, 360.0, num_views, endpoint=False)
 
     lpips_vals = []
@@ -234,6 +247,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
         "camera_margin": camera_margin,
         "radius_factor": radius_factor,
         "lpips_device": device_info.describe(),
+        **collect_provenance(),
         "final_transform_00": final_transform[0, 0],
         "final_transform_01": final_transform[0, 1],
         "final_transform_02": final_transform[0, 2],

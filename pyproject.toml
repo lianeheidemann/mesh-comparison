@@ -35,6 +35,9 @@ mesh-gui = "meshcomparison.gui.app:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"meshcomparison.gui" = ["icon.ico", "icon.png"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

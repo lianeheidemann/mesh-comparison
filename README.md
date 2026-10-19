@@ -194,26 +194,37 @@ Versions are taken from the [Windows CUDA environment snapshot](environments/req
 ```text
 mesh-comparison/
 ├── src/meshcomparison/
-│   ├── common/
-│   ├── geometry/
-│   ├── perceptual/
-│   └── gui/
-├── data/samples/
-├── examples/output/
+│   ├── common/                # Shared I/O, alignment and rendering utilities
+│   ├── geometry/              # Geometric evaluation and heatmaps
+│   ├── perceptual/            # Multi-view perceptual evaluation
+│   └── gui/                   # Desktop interface and pipeline execution
+├── data/samples/              # Sample GT and RM meshes
+├── examples/output/           # Versioned example results
 │   ├── aligned/
 │   ├── heatmaps/
 │   ├── metrics/
 │   └── renders/
-├── environments/
-├── assets/
+├── environments/              # Conda and Windows CUDA dependency files
+├── assets/                    # Interface screenshots and previews
 ├── docs/
-├── tests/
+│   ├── harness/
+│   │   ├── README.md          # Agent Harness roadmap and status
+│   │   ├── CONTRATOS-CIENTIFICOS.md  # Mandatory scientific contracts
+│   │   ├── REFERENCIAS.md
+│   │   └── step-by-step/
+│   ├── implementation/
+│   ├── gui/
+│   ├── avaliacao-geometrica/
+│   └── results/
+├── tests/                     # Automated tests
+├── AGENTS.md                  # Repository-wide coding agent instructions
+├── CLAUDE.md                  # Claude Code instructions
 ├── pyproject.toml
 ├── LICENSE
 └── README.md
 ```
 
-The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface.
+The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface. The root-level [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) direct coding agents to the mandatory [scientific contracts](docs/harness/CONTRATOS-CIENTIFICOS.md), while [docs/harness/](docs/harness/README.md) documents the harness workflow.
 
 Use `data/samples/gt.stl` (GT) and `data/samples/mod.stl` (RM) to try the application. The interface saves new results to the selected output folder (default: `output/`); versioned example results are in `examples/output/`. Choose a new output folder for each experiment to avoid overwriting files.
 

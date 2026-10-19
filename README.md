@@ -25,7 +25,7 @@
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/PyVistaQt-3B4A5A?style=flat-square"><img src="https://img.shields.io/badge/PyVistaQt-61778E?style=flat-square" alt="PyVistaQt"></picture>
 </p>
 
-This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Run evaluations in the desktop interface or call the pipeline functions from Python. **The application does not convert FBX files**: FBX input is rejected. Convert it outside Mesh Comparison (for example, with Blender) to STL, OBJ, PLY, or another supported `trimesh` format before loading it.
+This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Run evaluations in the desktop interface or call the pipeline functions from Python. 
 
 <p align="center">
   <img src="assets/interface/evaluate-meshe-preview-v1.webp">

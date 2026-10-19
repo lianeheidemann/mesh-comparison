@@ -52,6 +52,7 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 - [Parameters](#parameters)
 - [Scope and limitations](#scope-and-limitations)
 - [Development](#development)
+  - [Agent Harness for Scientific Integrity](#agent-harness-for-scientific-integrity)
 - [Troubleshooting](#troubleshooting)
 - [License and credits](#license-and-credits)
 
@@ -144,7 +145,6 @@ These geometric values describe this example run. Compare results only when the 
 
 *Screenshot of the perceptual summary for the example GT/RM mesh pair.* Lower LPIPS is better; higher PSNR and SSIM are better under comparable settings. The screenshot's rounded values differ slightly from the versioned [example results](docs/results/README.md), so treat them as separately recorded results until the respective run settings and metadata are matched. This is **not** a completed benchmark of different generative AI tools.
 
-
 <table>
   <tr>
     <td width="50%" align="center">
@@ -194,26 +194,37 @@ Versions are taken from the [Windows CUDA environment snapshot](environments/req
 ```text
 mesh-comparison/
 ├── src/meshcomparison/
-│   ├── common/
-│   ├── geometry/
-│   ├── perceptual/
-│   └── gui/
-├── data/samples/
-├── examples/output/
+│   ├── common/                # Shared I/O, alignment and rendering utilities
+│   ├── geometry/              # Geometric evaluation and heatmaps
+│   ├── perceptual/            # Multi-view perceptual evaluation
+│   └── gui/                   # Desktop interface and pipeline execution
+├── data/samples/              # Sample GT and RM meshes
+├── examples/output/           # Versioned example results
 │   ├── aligned/
 │   ├── heatmaps/
 │   ├── metrics/
 │   └── renders/
-├── environments/
-├── assets/
+├── environments/              # Conda and Windows CUDA dependency files
+├── assets/                    # Interface screenshots and previews
 ├── docs/
-├── tests/
+│   ├── harness/
+│   │   ├── README.md          # Agent Harness roadmap and status
+│   │   ├── CONTRATOS-CIENTIFICOS.md  # Mandatory scientific contracts
+│   │   ├── REFERENCIAS.md
+│   │   └── step-by-step/
+│   ├── implementation/
+│   ├── gui/
+│   ├── avaliacao-geometrica/
+│   └── results/
+├── tests/                     # Automated tests
+├── AGENTS.md                  # Repository-wide coding agent instructions
+├── CLAUDE.md                  # Claude Code instructions
 ├── pyproject.toml
 ├── LICENSE
 └── README.md
 ```
 
-The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface.
+The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface. The root-level [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) direct coding agents to the mandatory [scientific contracts](docs/harness/CONTRATOS-CIENTIFICOS.md), while [docs/harness/](docs/harness/README.md) documents the harness workflow.
 
 Use `data/samples/gt.stl` (GT) and `data/samples/mod.stl` (RM) to try the application. The interface saves new results to the selected output folder (default: `output/`); versioned example results are in `examples/output/`. Choose a new output folder for each experiment to avoid overwriting files.
 
@@ -321,6 +332,16 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 ## Development
 
 Implementation details are in the [technical guide](docs/implementation/README.md); the [desktop guide](docs/gui/README.md) covers the Qt/PyVista viewer; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
+
+### Agent Harness for Scientific Integrity
+
+This project adopts an **Agent Harness** to guide AI-assisted development while safeguarding scientific integrity, methodological consistency, and reproducibility.
+
+Codex and Claude Code follow repository-level instructions defined in [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md), with the [Scientific Contracts (CC-01–CC-13)](docs/harness/CONTRATOS-CIENTIFICOS.md) serving as the mandatory methodological reference.
+
+The harness establishes safeguards against unintended changes to geometric and perceptual metrics, alignment procedures, rendering parameters, and evaluation outputs. Methodological changes require explicit review and scientific validation. These safeguards support scientific validity but do not independently establish it; numerical equivalence and regression testing remain necessary.
+
+For implementation details, see the [Agent Harness documentation](docs/harness/README.md).
 
 `environments/environment.yml` also installs `pytest` and `ruff`. From the activated environment (with `pip install -e . --no-deps` done):
 

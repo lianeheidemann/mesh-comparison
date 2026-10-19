@@ -2,7 +2,7 @@
 
 > **Estado:** documentação e plano de evolução; **não** significa que um harness autônomo completo esteja implementado.
 >
-> **Escopo:** inventário inicial realizado na `main` em **18/10/2026**, adaptado à branch `harness-documentation-and-new-interface` (pacote `src/meshcomparison/`, pipelines por módulo executados pela GUI PySide6/PyVista). Os status refletem arquivos e configurações; execução de testes e proteção remota precisam ser comprovadas.
+> **Escopo:** inventário inicial realizado na `main` em **18/10/2026**, atualizado na branch `single-view-3d-reconstruction` em 19/10/2026 (pacote `src/meshcomparison/`, pipelines científicos acionados pela interface gráfica PySide6/PyVista). Os status refletem arquivos e configurações; execução de testes e proteção remota precisam ser comprovadas.
 
 ## 1. O que é *harness*?
 
@@ -15,9 +15,16 @@ Neste projeto, a finalidade proposta não é substituir o pipeline científico p
 ### Abrangência do projeto
 
 - **GT (ground truth)** e **RM (reconstructed mesh)** são processadas por `src/meshcomparison/geometry/pipeline.py` e `src/meshcomparison/perceptual/pipeline.py`, com entradas de exemplo em `data/samples/`.
-- Open3D auxilia no alinhamento ICP; Trimesh, NumPy e SciPy dão suporte à geometria; `pyrender` gera renderizações; LPIPS, PSNR e SSIM avaliam imagens. A branch de destino também traz uma interface desktop em PySide6/PyVistaQt.
+- Open3D auxilia no alinhamento ICP; Trimesh, NumPy e SciPy dão suporte à geometria; `pyrender` gera renderizações; LPIPS, PSNR e SSIM avaliam imagens. A execução de avaliações pelo usuário ocorre exclusivamente pela interface desktop PySide6/PyVistaQt; internamente, ela aciona os pipelines em processos separados.
+- **Fluxo de uso:** carregar GT e RM, iniciar a avaliação e consultar/exportar resultados pela interface gráfica. Scripts internos e testes automatizados não são apresentados como modos alternativos de execução para o usuário.
 - Métricas e imagens são artefatos reproduzíveis **desde que** entradas, parâmetros, versões, câmera e ambiente sejam controlados.
 - **Não alterar silenciosamente a metodologia:** mudanças em ICP, escala, amostragem de vértices/superfícies, câmera, iluminação, máscaras ou métricas exigem avaliação de regressão e atualização da documentação.
+
+### Execução das avaliações: exclusivamente pela interface
+
+O fluxo operacional do Mesh Comparison é **GUI-first**: o usuário seleciona as malhas GT e RM, inicia a avaliação geométrica e/ou perceptual e acompanha os resultados pela interface desktop. A GUI utiliza `src/meshcomparison/gui/runner.py` para iniciar os pipelines em subprocessos internos, mantendo o processamento separado do visualizador 3D. Esses subprocessos são detalhes de implementação, **não** um segundo modo de uso documentado.
+
+**Distinção importante:** comandos de instalação, `ruff`, `pytest` e eventuais testes automatizados dos módulos continuam apropriados para desenvolvimento, CI e regressão científica. Eles não substituem a execução da aplicação pela interface nem devem ser apresentados como instruções de uso para o usuário final. Para a baseline funcional, validar o fluxo completo da GUI e registrar as saídas produzidas por ela.
 
 ## 2. Inventário do que já existe
 
@@ -29,11 +36,11 @@ Neste projeto, a finalidade proposta não é substituir o pipeline científico p
 | Guias de implementação passo a passo | ✅ | Decomposição de tarefas e transferência de conhecimento | [Guias existentes](../implementation/step-by-step/) |
 | Ambiente Conda declarado | ✅ | Instalação do projeto e execução de tarefas/testes | [environment.yml](../../environments/environment.yml) inclui GUI, mas deixa dependências sem pin; a validação limpa da branch atual ainda precisa ser registrada |
 | Dependências com versões registradas | 🟡 | Ajuda a reproduzir snapshots específicos | [environment-lock.yml](../../environments/environment-lock.yml) é um snapshot Windows CPU anterior à GUI; [requirements-windows-cu128.txt](../../environments/requirements-windows-cu128.txt) registra outro snapshot pip com GUI e PyTorch CUDA 12.8 |
-| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes unitários](../../tests/) para métricas de pontos, CPU/CUDA simulado, PSNR/máscaras e configuração Qt-free da GUI; **regressões end-to-end ainda pendentes** |
+| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes unitários](../../tests/) para métricas de pontos, CPU/CUDA simulado, PSNR/máscaras e configuração Qt-free da GUI; **testes de schema end-to-end existentes, mas equivalência científica com o original ainda não comprovada** |
 | Lint com Ruff | ✅ | Verifica padrões de código | Etapa `ruff check .` no [CI](../../.github/workflows/ci.yml) |
 | GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes e verificação de importação dos pipelines |
-| Pipelines de processamento | ✅ | Permitem execução repetível | [Geometria](../../src/meshcomparison/geometry/pipeline.py) e [avaliação perceptual](../../src/meshcomparison/perceptual/pipeline.py) |
-| Instruções específicas para agentes | ❌ | Definem regras de atuação, comandos e limites | `AGENTS.md` e `CLAUDE.md` ausentes na raiz da `main` auditada |
+| Pipelines de processamento | ✅ | Processamento científico acionado pela GUI | [Geometria](../../src/meshcomparison/geometry/pipeline.py) e [avaliação perceptual](../../src/meshcomparison/perceptual/pipeline.py); a interface inicia processos internos via [runner](../../src/meshcomparison/gui/runner.py), sem expor execução independente ao usuário |
+| Instruções específicas para agentes | ✅ | Definem regras de atuação, comandos e limites | [AGENTS.md](../../AGENTS.md) e [CLAUDE.md](../../CLAUDE.md) existentes nesta branch; leitura dos contratos CC-01–CC-13 obrigatória |
 | Ciclo autônomo de correção e validação | ❓ | Permite ao agente testar, diagnosticar, corrigir e revalidar | Não demonstrado por arquivos auditados; CI **não** equivale a agente autônomo |
 | Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/step-by-step/10-limitacoes-evolucao.md) separa casos unitários existentes dos cenários de malhas e renderização ainda pendentes |
 | Proteção de branch e revisões obrigatórias | ❓ | Impede merge sem critérios e aprovação | Configuração remota do GitHub não auditada |
@@ -52,13 +59,21 @@ O diagrama abaixo representa um **fluxo-alvo**, não uma funcionalidade que já 
 
 Fluxo recomendado: **solicitação com critérios de aceitação → agente com permissões limitadas → leitura do contexto do repositório → alteração em branch isolada → validação local → CI no pull request → revisão humana → merge autorizado**. Quando os testes falharem, registrar a falha e iterar sem ocultar resultados; quando houver ambiguidade científica, pedir decisão humana.
 
+### Instruções e contratos científicos já versionados
+
+- [AGENTS.md](../../AGENTS.md): regras gerais obrigatórias para Codex, Claude Code e demais agentes; define planejamento, limites de alterações, validação e aprovação humana.
+- [CLAUDE.md](../../CLAUDE.md): instruções de entrada para Claude Code, remetendo ao `AGENTS.md` e aos contratos.
+- [CONTRATOS-CIENTIFICOS.md](CONTRATOS-CIENTIFICOS.md): **referência metodológica obrigatória** (CC-01–CC-13), baseada no [código original de Thiago Figueiro Ribeiro](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). Registra normalização, distâncias entre vértices, ICP, heatmap, câmeras, PSNR legado, SSIM, LPIPS, CSVs e proveniência.
+
+**Regra:** alterações metodológicas exigem aprovação humana, ADR, baseline comparativa e testes; otimizações de interface e desempenho não devem alterar silenciosamente resultados científicos. A existência dos documentos não comprova a execução de testes de equivalência nem garante, por si só, a obediência dos agentes.
+
 ## 4. O que falta para um harness mais completo?
 
 Não existe uma certificação universal de “harness completo”. Neste projeto, adotamos a seguinte **definição operacional de pronto**, sem exigir um orquestrador novo:
 
-1. **Instruções versionadas** e breves (`AGENTS.md`; opcionalmente integração Claude Code), com regras, comandos e limites.
-2. **Contexto navegável**: mapa de arquitetura, contratos das métricas, documentação de decisões (ADRs) e procedimento de desenvolvimento.
-3. **Ambiente verificável**: dependências consistentes, entradas de teste pequenas e execução dos dois pipelines em ambientes suportados.
+1. **Instruções versionadas — arquivos presentes:** `AGENTS.md` e `CLAUDE.md` já estabelecem regras, comandos e limites; verificar sua aplicação em tarefas reais.
+2. **Contexto navegável — parcial:** contratos científicos CC-01–CC-13 já documentados; mapa de arquitetura e ADRs ainda precisam ser avaliados.
+3. **Ambiente verificável**: dependências consistentes, entradas de teste pequenas e execução das avaliações **pela interface gráfica** em ambientes suportados; testes automatizados podem chamar componentes internos sem constituir outro fluxo de uso.
 4. **Critérios objetivos**: testes unitários, integração, propriedades geométricas, regressão de renderização e tolerâncias explícitas.
 5. **Gates de CI**: status checks, proteção de branch, revisão de pull requests e logs reproduzíveis.
 6. **Ciclo de agente assistido**: receber tarefa, consultar contexto, planejar, alterar, rodar checks, diagnosticar falhas, revalidar e produzir relatório verificável; sem merge automático sem autorização explícita.
@@ -70,8 +85,8 @@ Não existe uma certificação universal de “harness completo”. Neste projet
 | Camada | Ferramentas / artefatos | Responsabilidade |
 | --- | --- | --- |
 | Motor de execução do agente | Codex ou Claude Code | Decidir chamadas de ferramentas **sob permissões definidas**; não é parte do pipeline científico |
-| Orientação | `AGENTS.md`, documentação e ADRs | Instruções curtas e fonte de verdade |
-| Execução | Conda, interface gráfica e API Python | Rodar o aplicativo e produzir artefatos |
+| Orientação | [AGENTS.md](../../AGENTS.md), [CLAUDE.md](../../CLAUDE.md), [contratos científicos](CONTRATOS-CIENTIFICOS.md) e ADRs | Instruções versionadas e referência metodológica |
+| Execução | Interface desktop PySide6/PyVistaQt; pipelines internos acionados pela GUI | Executar avaliações GT × RM e produzir artefatos pela interface; Python/pytest permanecem ferramentas internas de desenvolvimento e validação |
 | Verificação | Ruff, pytest, cenários de malhas e validações de saída | Detectar erros e regressões |
 | Integração | Git, PR, GitHub Actions, regras de branch | Impedir integração de mudanças não verificadas |
 | Evidências | Resultados de testes, logs sem segredos e relatório de PR | Sustentar aprovação ou correção |
@@ -99,6 +114,16 @@ O [**guia de implantação do Harness**](step-by-step/README.md) agora atende a 
 | 07 | [Modelo reutilizável para futuros projetos](step-by-step/07-modelo-reutilizavel.md) |
 
 A documentação informa, em cada etapa, **como construir do zero, o que já existe no Mesh Comparison, o que falta e como verificar a conclusão**.
+
+### Próximas ações prioritárias
+
+1. Registrar uma **baseline executada** do código original e da implementação atual: commits, hashes das malhas, parâmetros, dependências e resultados. Na versão atual, coletar os resultados por avaliações iniciadas na **interface gráfica**, sem exigir um fluxo alternativo de execução ao usuário.
+2. Estender os testes existentes com os cenários científicos T-01 a T-10 definidos nos [contratos](CONTRATOS-CIENTIFICOS.md), com tolerâncias justificadas.
+3. Comparar métricas e renderizações entre as duas versões com as mesmas entradas e configurações, utilizando os resultados exportados pela interface atual; não declarar equivalência sem evidências.
+4. Documentar decisões arquiteturais (ADRs) e verificar controles efetivos de branch, CI e revisão humana.
+5. Executar e registrar um ciclo supervisionado de Codex ou Claude Code, com logs, testes e relatório de revisão.
+
+**Situação atual:** instruções e contratos documentados; validação científica comparativa, aprovação de mudanças metodológicas e ciclo supervisionado ainda não demonstrados como concluídos.
 
 ## 6. Referências e leitura complementar
 

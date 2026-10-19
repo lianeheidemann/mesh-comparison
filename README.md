@@ -28,7 +28,7 @@
 This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Run evaluations in the desktop interface or call the pipeline functions from Python. **The application does not convert FBX files**: FBX input is rejected. Convert it outside Mesh Comparison (for example, with Blender) to STL, OBJ, PLY, or another supported `trimesh` format before loading it.
 
 <p align="center">
-  <img src="assets/interface/interface-v1.png" width="100%" alt="Mesh Comparison desktop interface">
+  <img src="assets/interface/evaluate-meshe-preview-v1.webp">
 </p>
 
 **Quick links:** [Example results](#example-results) · [Installation](#installation) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/README.md) · [Agent Harness guide](docs/harness/README.md) · [Limitations](#scope-and-limitations)
@@ -337,6 +337,11 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import c
 - **`pyrender` fails to create an offscreen context**: a working offscreen OpenGL setup is required. On headless Linux, install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl` (as the CI does).
 - **CUDA not available**: expected on CPU-only installs; LPIPS then runs on CPU, just slower.
 - **Cannot load an `.fbx` file**: FBX is rejected and is not converted by this application. Convert it outside Mesh Comparison to STL, OBJ, PLY, or another supported `trimesh` format, then load the converted file.
+
+## Interface
+<p align="center">
+  <img src="assets/interface/interface-v1.png" width="100%" alt="Mesh Comparison desktop interface">
+</p>
 
 ## License and credits
 

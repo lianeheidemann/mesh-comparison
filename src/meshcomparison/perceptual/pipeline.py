@@ -1,4 +1,7 @@
+import collections
 import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import imageio.v2 as imageio
 import numpy as np
@@ -8,7 +11,7 @@ from ..common.device import get_device_info
 from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
 from ..common.provenance import collect_provenance
-from .cameras import build_tight_ortho_camera, camera_pose_for_view, render_mesh_rgba
+from .cameras import build_tight_ortho_camera, camera_pose_for_view, make_view_renderer
 from .figures import save_pair_figure
 from .image_metrics import (
     crop_to_union_mask,
@@ -20,6 +23,8 @@ from .image_metrics import (
 )
 
 TOTAL_STEPS = 8
+METRIC_WORKERS = 2  # threads computing PSNR/SSIM/LPIPS while the main thread renders
+MAX_PENDING_VIEWS = 3  # rendered views waiting for metrics (each keeps two full-size images in memory)
 
 OUTPUT_SUBDIRS = {
     "renders_gt": ("renders", "gt"),
@@ -64,35 +69,62 @@ def _scene_framing(meshes):
     return 0.5 * (low + high), np.linalg.norm(high - low) + 1e-12
 
 
-def _evaluate_view(gt, rm_aligned, lpips_model, device, azimuth, center, diag,
-                   elevation_deg, radius_factor, camera_margin, width, height):
-    """Render GT and RM from one azimuth; return their images, the camera and the three metrics."""
+def _render_view(renderer, gt, rm_aligned, azimuth, center, diag, elevation_deg, radius_factor, camera_margin):
+    """Render GT and RM from one azimuth (OpenGL: must run on the thread that owns the renderer)."""
     cam_pose = camera_pose_for_view(
         center=center, diag=diag, azimuth_deg=azimuth, elevation_deg=elevation_deg, radius_factor=radius_factor)
     cam_cfg = build_tight_ortho_camera([gt, rm_aligned], camera_pose=cam_pose, margin=camera_margin)
 
-    gt_rgba = render_mesh_rgba(gt, cam_cfg, width=width, height=height)
-    rm_rgba = render_mesh_rgba(rm_aligned, cam_cfg, width=width, height=height)
+    gt_img, gt_alpha, gt_mask = rgba_to_rgb_mask(renderer.render("gt", cam_cfg))
+    rm_img, rm_alpha, rm_mask = rgba_to_rgb_mask(renderer.render("rm", cam_cfg))
+    return {"gt_img": gt_img, "rm_img": rm_img, "gt_mask": gt_mask, "rm_mask": rm_mask, "cam_cfg": cam_cfg}
 
-    gt_img, gt_alpha, gt_mask = rgba_to_rgb_mask(gt_rgba)
-    rm_img, rm_alpha, rm_mask = rgba_to_rgb_mask(rm_rgba)
 
+def _view_metrics(view, lpips_model, lpips_lock, device):
+    """PSNR, SSIM and LPIPS of a rendered view (CPU/GPU work that can overlap with the next render)."""
     # Crop to union of object regions so background does not dominate
-    gt_crop, rm_crop, gt_mask_c, rm_mask_c, union_c = crop_to_union_mask(gt_img, rm_img, gt_mask, rm_mask, pad=12)
+    gt_crop, rm_crop, gt_mask_c, rm_mask_c, union_c = crop_to_union_mask(
+        view["gt_img"], view["rm_img"], view["gt_mask"], view["rm_mask"], pad=12)
 
     # Zero background in the crop
     gt_crop_masked = gt_crop * union_c[..., None].astype(np.float32)
     rm_crop_masked = rm_crop * union_c[..., None].astype(np.float32)
 
+    with lpips_lock:  # one network call at a time (GPU memory / CPU threads)
+        lpips_value = masked_lpips(lpips_model, gt_crop_masked, rm_crop_masked, device=device)
     return {
-        "gt_img": gt_img,
-        "rm_img": rm_img,
         "crop_shape": gt_crop.shape,
-        "cam_cfg": cam_cfg,
         "psnr": masked_psnr(gt_crop, rm_crop, union_c),
         "ssim": masked_ssim(gt_crop_masked, rm_crop_masked),
-        "lpips": masked_lpips(lpips_model, gt_crop_masked, rm_crop_masked, device=device),
+        "lpips": lpips_value,
     }
+
+
+def _evaluate_views(renderer, gt, rm_aligned, azimuths, center, diag, elevation_deg, radius_factor,
+                    camera_margin, lpips_model, device, on_rendered):
+    """
+    Yield ``(index, azimuth, view, metrics)`` in view order.
+
+    Rendering stays on this thread (OpenGL); each rendered view's metrics are computed in worker threads
+    while the next view renders. ``on_rendered(index, view)`` runs on this thread right after rendering.
+    """
+    lpips_lock = threading.Lock()
+    pending = collections.deque()
+
+    def collect(item):
+        index, azimuth, view, future = item
+        return index, azimuth, view, future.result()
+
+    with ThreadPoolExecutor(max_workers=METRIC_WORKERS) as pool:
+        for i, az in enumerate(azimuths, start=1):
+            view = _render_view(renderer, gt, rm_aligned, az, center, diag, elevation_deg, radius_factor,
+                                camera_margin)
+            on_rendered(i, view)
+            pending.append((i, az, view, pool.submit(_view_metrics, view, lpips_model, lpips_lock, device)))
+            if len(pending) > MAX_PENDING_VIEWS:
+                yield collect(pending.popleft())
+        while pending:
+            yield collect(pending.popleft())
 
 
 def _save_view_images(index, gt_img, rm_img, paths):
@@ -174,33 +206,36 @@ def run_pipeline(gt_path, rm_path, out_dir,
     per_view_rows = []
     lpips_vals, psnr_vals, ssim_vals = [], [], []
 
-    for i, az in enumerate(azimuths, start=1):
-        view = _evaluate_view(gt, rm_aligned, lpips_model, device_info.device, az, center, diag,
-                              elevation_deg, radius_factor, camera_margin, width, height)
-        lpips_vals.append(view["lpips"])
-        psnr_vals.append(view["psnr"])
-        ssim_vals.append(view["ssim"])
+    def save_if_selected(index, view):
+        if index in save_views:
+            _save_view_images(index, view["gt_img"], view["rm_img"], paths)
 
-        per_view_rows.append({
-            "view_idx": i,
-            "azimuth_deg": float(az),
-            "elevation_deg": float(elevation_deg),
-            "lpips": view["lpips"],
-            "psnr": view["psnr"],
-            "ssim": view["ssim"],
-            "crop_h": int(view["crop_shape"][0]),
-            "crop_w": int(view["crop_shape"][1]),
-            "xmag": float(view["cam_cfg"]["xmag"]),
-            "ymag": float(view["cam_cfg"]["ymag"]),
-        })
+    with make_view_renderer(gt, rm_aligned, width=width, height=height) as renderer:
+        results = _evaluate_views(
+            renderer, gt, rm_aligned, azimuths, center, diag, elevation_deg, radius_factor, camera_margin,
+            lpips_model, device_info.device, save_if_selected)
+        for i, az, view, metrics in results:
+            lpips_vals.append(metrics["lpips"])
+            psnr_vals.append(metrics["psnr"])
+            ssim_vals.append(metrics["ssim"])
 
-        if i in save_views:
-            _save_view_images(i, view["gt_img"], view["rm_img"], paths)
+            per_view_rows.append({
+                "view_idx": i,
+                "azimuth_deg": float(az),
+                "elevation_deg": float(elevation_deg),
+                "lpips": metrics["lpips"],
+                "psnr": metrics["psnr"],
+                "ssim": metrics["ssim"],
+                "crop_h": int(metrics["crop_shape"][0]),
+                "crop_w": int(metrics["crop_shape"][1]),
+                "xmag": float(view["cam_cfg"]["xmag"]),
+                "ymag": float(view["cam_cfg"]["ymag"]),
+            })
 
-        print(
-            f"    View {i:03d}/{num_views} | az={az:7.2f} | "
-            f"LPIPS={view['lpips']:.5f} | PSNR={view['psnr']:.3f} | SSIM={view['ssim']:.5f}"
-        )
+            print(
+                f"    View {i:03d}/{num_views} | az={az:7.2f} | "
+                f"LPIPS={metrics['lpips']:.5f} | PSNR={metrics['psnr']:.3f} | SSIM={metrics['ssim']:.5f}"
+            )
 
     print(f"[7/{TOTAL_STEPS}] Summarizing metrics...")
     summary_df = _summary_table(lpips_vals, psnr_vals, ssim_vals)

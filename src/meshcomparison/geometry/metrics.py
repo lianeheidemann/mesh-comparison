@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..common.distances import symmetric_vertex_errors
+from ..common.distances import mse_from_errors, symmetric_vertex_errors
 
 
 def compute_metrics(gt_vertices, rm_vertices):
@@ -19,6 +19,7 @@ def compute_metrics(gt_vertices, rm_vertices):
     return {
         "d_gt2rm": d_gt2rm,
         "d_rm2gt": d_rm2gt,
+        "mse": mse_from_errors(d_gt2rm, d_rm2gt),
         "chamfer_mean": chamfer_mean,
         "hausdorff": hausdorff,
         "rmse": rmse,

@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 
-from ..common.distances import symmetric_mse
 from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
 from ..common.provenance import collect_provenance
@@ -105,9 +104,8 @@ def run_pipeline(gt_path, rm_path, out_dir,
     prepared = prepare_meshes(gt_path, rm_path, mse_threshold_normalized, TOTAL_STEPS)
 
     print(f"[5/{TOTAL_STEPS}] Computing final metrics...")
-    gt, rm_aligned = prepared.gt, prepared.rm_aligned
-    post_mse_norm = symmetric_mse(gt.vertices, rm_aligned.vertices)
-    metrics = compute_metrics(gt.vertices, rm_aligned.vertices)
+    metrics = compute_metrics(prepared.gt.vertices, prepared.rm_aligned.vertices)
+    post_mse_norm = metrics["mse"]  # same distances, computed once
 
     print(f"[6/{TOTAL_STEPS}] Rendering orthographic views and heatmap...")
     files, norm = _render_views_and_heatmap(

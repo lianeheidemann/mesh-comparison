@@ -52,6 +52,8 @@ O diagrama abaixo representa um **fluxo-alvo**, não uma funcionalidade que já 
 
 Fluxo recomendado: **solicitação com critérios de aceitação → agente com permissões limitadas → leitura do contexto do repositório → alteração em branch isolada → validação local → CI no pull request → revisão humana → merge autorizado**. Quando os testes falharem, registrar a falha e iterar sem ocultar resultados; quando houver ambiguidade científica, pedir decisão humana.
 
+**Base metodológica para agentes:** antes de alterar os algoritmos de comparação de malhas, consultar os [Contratos científicos (GT × RM)](CONTRATOS-CIENTIFICOS.md), derivados da inspeção do [código original de Thiago Figueiro Ribeiro](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). O documento distingue comportamentos herdados, diferenças de parâmetros e verificações que ainda precisam de testes.
+
 ## 4. O que falta para um harness mais completo?
 
 Não existe uma certificação universal de “harness completo”. Neste projeto, adotamos a seguinte **definição operacional de pronto**, sem exigir um orquestrador novo:

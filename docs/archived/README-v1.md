@@ -2,6 +2,8 @@
   <img src="../assets/mesh-comparison-logo.svg" width="180" alt="Mesh Comparison logo">
 </p>
 
+> **Archived documentation:** this snapshot predates the current modular package and desktop interface. Its installation commands, file layout, and pipeline entry points are historical; use the [current project README](../../README.md) and [documentation index](../README.md) for current instructions.
+
 <h1 align="center">Mesh Comparison: Mesh Evaluation</h1>
 
 <p align="center">
@@ -47,7 +49,7 @@ This workspace compares a ground-truth mesh with a reconstructed mesh. Convert F
 | scikit-image | 0.26.0 | Structural Similarity Index (SSIM) calculation. |
 | pandas | 3.0.6 | Tabular metrics, summaries, and CSV exports. |
 
-These versions were reported from the local Windows `meshEval` environment on 2026-10-17. Imports and both example pipelines were confirmed in that environment. PyTorch reports `2.14.1+cpu`; CUDA is unavailable, so perceptual evaluation runs on CPU. [`environment-lock.yml`](../../environments/environment-lock.yml) records the installed Conda and pip package versions for recreating this Windows environment. [`environment.yml`](../../environments/environment.yml) remains the general, unpinned dependency list. These observed versions do not identify the environment that produced older outputs already in the repository. The installer’s base Python version is independent of the project environment.
+These versions were reported from the local Windows `meshEval` environment on 2026-10-17. Imports and both example pipelines were confirmed in that environment. PyTorch reports `2.14.1+cpu`; CUDA is unavailable, so perceptual evaluation runs on CPU. [`environment-lock.yml`](../../environments/environment-lock.yml) records the Python and pip package pins from this Windows snapshot; it does not pin the Conda executable version. [`environment.yml`](../../environments/environment.yml) remains the general, unpinned dependency list. These observed versions do not identify the environment that produced older outputs already in the repository. The installer’s base Python version is independent of the project environment.
 
 ## Workspace layout
 

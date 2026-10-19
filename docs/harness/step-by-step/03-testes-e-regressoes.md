@@ -23,7 +23,7 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 | --- | --- | --- |
 | Unitário | Função pura com casos válidos e inválidos | Resultado esperado e falhas previsíveis |
 | Integração | Dois componentes trocam dados | Contrato de entrada/saída preservado |
-| Smoke/CLI | Executar `--help` ou comando mínimo | Exit code e mensagem adequados |
+| Smoke | Importar o módulo ou executar um comando mínimo | Exit code e mensagem adequados |
 | End-to-end | Entrada pequena → saída final | Saída completa e validável |
 | Regressão | Reexecutar caso já resolvido | Alterações só com aceite explícito |
 
@@ -33,7 +33,7 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 | --- | :---: | --- |
 | Ferramenta de testes integrada ao projeto | ✅ | `pytest` no [environment.yml](../../../environments/environment.yml) e [CI](../../../.github/workflows/ci.yml) |
 | Execução automatizada de pytest | ✅ | Etapa `pytest -q` do workflow (configurada; não equivale a run comprovadamente verde) |
-| Smoke tests dos dois CLIs | ✅ | Duas chamadas `--help` no workflow |
+| Smoke de importação dos pipelines e do worker | ✅ | Uma chamada `python -c "import ..."` no workflow; o worker também é testado em `tests/test_worker.py` |
 | Testes de métricas geométricas de pontos | ✅ | [`tests/test_geometry.py`](../../../tests/test_geometry.py) testa nuvens idênticas, Chamfer, Hausdorff e RMSE para deslocamento simples |
 | Transformações de bbox, MSE e subsampling | ✅ | [`tests/test_common.py`](../../../tests/test_common.py); não comprova ICP end-to-end |
 | Helpers perceptuais (PSNR, máscaras, estatísticas) | ✅ | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py) |

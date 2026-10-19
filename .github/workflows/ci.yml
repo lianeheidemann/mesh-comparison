@@ -28,7 +28,6 @@ jobs:
         run: ruff check .
       - name: Tests
         run: pytest -q
-      - name: CLI smoke test
+      - name: Import smoke test
         run: |
-          python -m meshcomparison.geometry --help
-          python -m meshcomparison.perceptual --help
+          python -c "import meshcomparison.geometry.pipeline, meshcomparison.perceptual.pipeline, meshcomparison.gui.worker"

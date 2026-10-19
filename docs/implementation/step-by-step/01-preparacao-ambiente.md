@@ -11,7 +11,8 @@ Instale Conda/Miniconda, abra um terminal na **raiz do repositório** (onde fica
 Arquivos relevantes:
 
 - [`environments/environment.yml`](../../../environments/environment.yml): ambiente geral para os pipelines, GUI e ferramentas de desenvolvimento.
-- [`environments/environment-lock.yml`](../../../environments/environment-lock.yml): snapshot Windows mais antigo; **não fixa as novas dependências da GUI**.
+- [`environments/environment-lock.yml`](../../../environments/environment-lock.yml): snapshot Windows CPU mais antigo; **não fixa as dependências da GUI**.
+- [`environments/requirements-windows-cu128.txt`](../../../environments/requirements-windows-cu128.txt): snapshot pip separado para Windows, com pins da GUI e PyTorch CUDA 12.8; veja o [README principal](../../../README.md#installation) para instalá-lo num ambiente virtual novo.
 - [`pyproject.toml`](../../../pyproject.toml): pacote Python, pontos de entrada e extras.
 
 ## Passo 2 — Criar e ativar o ambiente
@@ -34,9 +35,9 @@ Com `meshEval` ativo e na raiz:
 python -m pip install -e . --no-deps
 ```
 
-O modo editável disponibiliza os módulos `meshcomparison.*` e os comandos `mesh-eval`, `percept-eval` e `mesh-gui`. **Instalar só bibliotecas NumPy/Trimesh/Open3D via pip não instala o pacote local.** `--no-deps` pressupõe que as dependências necessárias já vieram do arquivo de ambiente.
+O modo editável disponibiliza os módulos `meshcomparison.*` e o comando `mesh-gui` (a interface). **Instalar só bibliotecas NumPy/Trimesh/Open3D via pip não instala o pacote local.** `--no-deps` pressupõe que as dependências necessárias já vieram do arquivo de ambiente.
 
-Se você usou o snapshot Windows e pretende abrir a interface, instale separadamente:
+Se você restaurou o snapshot antigo `environment-lock.yml` e pretende abrir a interface, instale separadamente:
 
 ```bat
 python -m pip install PySide6 pyvista pyvistaqt
@@ -44,12 +45,11 @@ python -m pip install PySide6 pyvista pyvistaqt
 
 Na configuração geral essas três bibliotecas já estão declaradas. Sua disponibilidade e a abertura da janela ainda precisam ser testadas no computador.
 
-## Passo 4 — Verificar importações e interfaces de linha de comando
+## Passo 4 — Verificar importações e testes
 
 ```bat
 python -c "import meshcomparison, trimesh, open3d, pyrender, numpy, pandas; print('Pacote e dependências principais importados')"
-python -m meshcomparison.geometry --help
-python -m meshcomparison.perceptual --help
+python -c "import meshcomparison.geometry.pipeline, meshcomparison.perceptual.pipeline, meshcomparison.gui.worker"
 ruff check .
 pytest -q
 ```
@@ -58,14 +58,15 @@ O último comando requer a suíte de testes do repositório. Se houver falha, an
 
 ## Passo 5 — Executar uma avaliação pequena
 
-Com `data/samples/gt.stl` e `data/samples/mod.stl`, gere saídas em pastas isoladas:
+Abra a interface (`python -m meshcomparison.gui`), escolha `data/samples/gt.stl` (GT) e `data/samples/mod.stl` (RM), defina uma **pasta de saída nova** (por exemplo `output/check`) e clique em **Run evaluation**. Para uma execução rápida em código Python, sem a janela:
 
-```bat
-python -m meshcomparison.geometry --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/geometry-check
-python -m meshcomparison.perceptual --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/perceptual-check --num-views 3 --save-views 1 2 3
+```python
+from meshcomparison.perceptual.pipeline import run_pipeline
+
+run_pipeline("data/samples/gt.stl", "data/samples/mod.stl", "output/perceptual-check", num_views=3, save_views=(1, 2, 3))
 ```
 
-A avaliação perceptual pode demorar, baixar pesos do modelo LPIPS (quando ainda não estiverem em cache) e exigir suporte à renderização OpenGL offscreen. Uma execução com três vistas é **smoke test**, não reproduz os resultados históricos de 100 vistas. Os diretórios em `output/` são locais e descartáveis; os exemplos versionados ficam em [`examples/output/`](../../../examples/output/).
+A avaliação perceptual pode demorar, baixar pesos do modelo LPIPS (quando ainda não estiverem em cache) e exigir suporte à renderização OpenGL offscreen. Uma execução com três vistas é **smoke test**, não reproduz os resultados históricos de 100 vistas (a interface usa sempre 100). Os diretórios em `output/` são locais e descartáveis; os exemplos versionados ficam em [`examples/output/`](../../../examples/output/).
 
 ## Passo 6 — Verificar a GUI e o dispositivo
 
@@ -84,11 +85,11 @@ Se CUDA estiver indisponível, LPIPS pode rodar em CPU. Para instalar uma build 
 ## Estado e checklist de verificação
 
 - [x] Arquivos de ambiente e `pyproject.toml` disponíveis no repositório.
-- [x] CLIs modularizadas e testes configurados no CI.
+- [x] Pipelines modularizados (executados pela interface) e testes configurados no CI.
 - [x] Resultado histórico de execução CPU documentado em [resultados](../../results/README.md).
 - [ ] Registrar execução limpa da **branch atual** com `pip install -e . --no-deps` e resultados de Ruff/pytest.
 - [ ] Validar abertura e interação da GUI com modelos reais.
 - [ ] Verificar execução perceptual em CUDA, se for objetivo, sem presumir suporte por haver GPU NVIDIA.
 - [ ] Registrar informações de SO, commit e versões instaladas; atualizar o snapshot apenas depois de testes.
 
-**Próximo passo:** [02 — Arquitetura e CLI](02-arquitetura-implementacao.md). Também consulte o [guia de Harness](../../harness/README.md) para critérios de revisão e integração.
+**Próximo passo:** [02 — Arquitetura modular e interface](02-arquitetura-implementacao.md). Também consulte o [guia de Harness](../../harness/README.md) para critérios de revisão e integração.

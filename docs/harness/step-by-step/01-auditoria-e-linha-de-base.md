@@ -23,21 +23,20 @@ Um agente deve poder instalar, executar, testar e reproduzir o projeto sem depen
 conda env create -f environments/environment.yml
 conda activate meshEval
 python -m pip install -e . --no-deps
-python -m meshcomparison.geometry --help
-python -m meshcomparison.perceptual --help
+python -c "import meshcomparison.geometry.pipeline, meshcomparison.perceptual.pipeline, meshcomparison.gui.worker"
 ruff check .
 pytest -q
 ```
 
-Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambiente e entrypoint. O `environments/environment-lock.yml` foi obtido em Windows **antes de PySide6/PyVista/PyVistaQt serem incluídos** e não deve ser tratado como lock universal de Linux/macOS ou garantia de execução da GUI.
+Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambiente e ponto de entrada. O `environments/environment-lock.yml` é um snapshot Windows CPU **anterior à GUI**; `environments/requirements-windows-cu128.txt` é um snapshot pip distinto, com pins da GUI e PyTorch CUDA 12.8. Nenhum deles é um lock universal para Linux/macOS.
 
 ## O que já está implantado no Mesh Comparison
 
 | Item | Estado | Referência |
 | --- | :---: | --- |
 | Gerenciamento de ambiente Conda | ✅ | [environment.yml](../../../environments/environment.yml) |
-| Dependências com versões registradas | 🟡 | [environment-lock.yml](../../../environments/environment-lock.yml) registra versões antigas do Windows, **sem a GUI** |
-| Entradas e scripts executáveis documentados | ✅ | [README](../../../README.md), `data/samples/gt.stl`, `data/samples/mod.stl` e pipelines |
+| Dependências com versões registradas | 🟡 | [environment-lock.yml](../../../environments/environment-lock.yml) registra o snapshot Windows CPU antigo; [requirements-windows-cu128.txt](../../../environments/requirements-windows-cu128.txt) registra o snapshot pip com GUI e CUDA 12.8 |
+| Entradas e pipelines documentados | ✅ | [README](../../../README.md), `data/samples/gt.stl`, `data/samples/mod.stl` e pipelines |
 | Saídas de avaliação e métricas de exemplo | ✅ | [README principal](../../../README.md) e [`examples/output/`](../../../examples/output/); `output/` é pasta local ignorada pelo Git |
 | Baseline sistemática com hashes e comparação de cenários | 🟡 | Exemplos existem; validação ampla documentada como pendente |
 | Reprodutibilidade de toda a renderização entre plataformas | ❓ | Não comprovada; requer validação específica |
@@ -45,12 +44,19 @@ Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambi
 
 ### Verificação prática deste projeto
 
-Em branch isolada, rodar os comandos acima. Em seguida:
+Em branch isolada, rode os comandos acima. Para uma verificação curta em Python, use pastas distintas porque os dois pipelines exportam `aligned/rm_aligned.ply`:
 
-```bash
-python -m meshcomparison.geometry --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/harness-baseline-geometry
-python -m meshcomparison.perceptual --gt data/samples/gt.stl --rm data/samples/mod.stl --out output/harness-baseline-perceptual --num-views 10 --save-views 1 5 10
+```python
+from meshcomparison.geometry.pipeline import run_pipeline as run_geometry
+from meshcomparison.perceptual.pipeline import run_pipeline as run_perceptual
+
+run_geometry("data/samples/gt.stl", "data/samples/mod.stl", "output/harness-baseline/geometry",
+             width=320, height=240)
+run_perceptual("data/samples/gt.stl", "data/samples/mod.stl", "output/harness-baseline/perceptual",
+               num_views=10, save_views=(1, 5, 10), width=320, height=240, device="cpu")
 ```
+
+Também é possível executar o mesmo fluxo pela interface (`python -m meshcomparison.gui`), que usa os parâmetros fixos descritos no [guia desktop](../../gui/README.md).
 
 Separar essas saídas das anteriores. Não comparar a mediana de 10 vistas com resultados anteriores de 100 vistas como se os experimentos fossem equivalentes. Executar e registrar resultados reais antes de afirmar que tudo passou.
 

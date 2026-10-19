@@ -14,9 +14,11 @@ Os testes abaixo **existem no repositório**; isso não equivale a afirmar que f
 | MSE, amostragem e transformação de caixa | [`tests/test_common.py`](../../../tests/test_common.py) | Não comprova convergência robusta de ICP em todas as situações |
 | Device CPU/CUDA e avisos | [`tests/test_device.py`](../../../tests/test_device.py) com simulações (*mocks*) | Não confirma GPU real nem execução de LPIPS em CUDA |
 | PSNR e máscaras | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py) | Não confirma renderização/LPIPS/SSIM em cenário multivista completo |
-| Configuração da GUI | [`tests/test_gui_config.py`](../../../tests/test_gui_config.py) | Não abre janela nem valida a renderização Qt/PyVistaQt |
+| Preparo comum e exportação alinhada | [`tests/test_prepare.py`](../../../tests/test_prepare.py) | Não cobre todas as condições geométricas nem a convergência robusta de ICP |
+| Configuração e worker da GUI | [`tests/test_gui_config.py`](../../../tests/test_gui_config.py), [`tests/test_worker.py`](../../../tests/test_worker.py) | Worker exercitado em subprocesso para geometria; não abre janela nem valida Qt/PyVistaQt |
+| Leitura de resultados para o viewer | [`tests/test_outputs.py`](../../../tests/test_outputs.py) | Não valida a interação real com o viewer 3D |
 
-O [workflow de CI](../../../.github/workflows/ci.yml) chama Ruff, pytest e `--help`, mas **não executa os pipelines completos com renderização**, nem faz teste gráfico da GUI.
+O [workflow de CI](../../../.github/workflows/ci.yml) chama Ruff, pytest e uma verificação de importação dos pipelines, mas **não executa os pipelines completos com renderização**, nem faz teste gráfico da GUI.
 
 ## 2. O que ainda precisa ser implementado e comprovado
 
@@ -58,9 +60,9 @@ Isso verifica uma propriedade básica de **distâncias entre vértices**; não v
 
 Potenciais evoluções: amostragem uniforme de superfície, análise topológica, escolha de ICP com/sem escala, PSNR RGB convencional e validação de renderização. A **separação em módulos já foi implementada** em `src/meshcomparison/`, portanto não deve continuar como uma tarefa pendente genérica. Alterações nas definições científicas exigem testes de regressão e documentação (ADR) antes de comparar novos CSVs com o histórico.
 
-## 5. Divergência de mensagem identificada durante a auditoria
+## 5. Ajustes recentes da implementação
 
-O [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py) exibe uma mensagem fixa com **“Rendering 100 views”** na etapa 6, independentemente do valor de `--num-views`. O laço calcula a quantidade real definida pelo argumento. **Pendente:** ajustar o texto do log para usar a variável `num_views` e acrescentar um teste que confira a mensagem ao executar com uma quantidade diferente de 100. Enquanto isso, consultar `per_view_metrics.csv` e a contagem `View i/N` para confirmar o total processado.
+O preparo compartilhado dos pipelines agora está em [`common/prepare.py`](../../../src/meshcomparison/common/prepare.py); a camada GUI foi separada em painéis, supervisor, worker de processo filho e carregador de saídas. A mensagem de progresso do pipeline perceptual também usa agora o número real de vistas (`num_views`). Esses testes cobrem partes isoladas do contrato; não substituem a validação end-to-end e a inspeção da janela em um ambiente gráfico real.
 
 ## Critérios para concluir esta etapa
 

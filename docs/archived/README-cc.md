@@ -2,6 +2,8 @@
   <img src="../assets/mesh-comparison-logo.svg" width="180" alt="Mesh Comparison logo">
 </p>
 
+> **Archived documentation:** this snapshot describes the legacy script-based version. Its installation commands, file layout, and CLI options no longer describe the current package. Use the [current project README](../../README.md) and [documentation index](../README.md) for current instructions.
+
 <h1 align="center">Mesh Comparison</h1>
 
 <p align="center">

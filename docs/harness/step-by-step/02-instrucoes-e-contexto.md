@@ -41,7 +41,7 @@ Os comandos exatos devem ser definidos para a stack real. Texto de prompt **não
 | README com utilização e limitações | ✅ | [README](../../../README.md) |
 | Passo a passo técnico de implementação | ✅ | [docs/implementation/step-by-step](../../implementation/step-by-step/) |
 | Documentação de evolução de harness | ✅ | [docs/harness](../README.md) |
-| Instruções de agente `AGENTS.md`/`CLAUDE.md` | ❌ | Arquivos não encontrados na raiz da `main` auditada |
+| Instruções de agente `AGENTS.md`/`CLAUDE.md` | ❌ | Não encontrados na raiz na auditoria registrada em 18/10/2026 |
 | ADRs e políticas de domínio especializadas para o agente | ❓ | Necessitam inventário e validação |
 
 ### Adaptar o que existe sem jogar fora o código

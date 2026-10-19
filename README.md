@@ -31,7 +31,8 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
   <img src="assets/interface/evaluate-meshe-preview-v1.webp">
 </p>
 
-**Quick links:** [Example results](#example-results) · [Installation](#installation) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/README.md) 
+**Quick links:** [Installation](#installation) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/README.md) 
+
 ### Table of contents
 
 - [Example results](#example-results)

@@ -31,8 +31,6 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
   <img src="assets/interface/evaluate-meshe-preview-v1.webp">
 </p>
 
-**Quick links:** [Installation](#installation) · [Run desktop app](#desktop-interface) · [Example results](#example-results) · [Technologies](#technologies) · [Windows validation](#validate-on-windows) · [Single-view research](#single-view-3d-reconstruction-evaluation-context) · [Technical documentation](docs/README.md) · [Meshy](https://www.meshy.ai/pt-PT) · [Tripo AI](https://www.tripo3d.ai/pt)
-
 ### Table of contents
 
 - [Single-view 3D reconstruction: evaluation context](#single-view-3d-reconstruction-evaluation-context)

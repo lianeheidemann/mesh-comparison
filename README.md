@@ -116,7 +116,7 @@ Render ONE reference image (same 2D input for all generators)
 
 The images below are sample outputs from the geometric and perceptual pipelines. This recorded run used 100 camera views; the pre-alignment normalized MSE was below the configured threshold, so ICP alignment was skipped.
 
-**Execution status:** both pipelines completed without errors with the repository's example meshes. This confirms the example workflow in the recorded Windows environment; it is not a systematic test of varied mesh conditions. That environment uses CPU-only PyTorch, so CUDA acceleration was unavailable and was not tested.
+**Execution status:** Both pipelines completed without errors with the repository's example meshes. This confirms the example workflow, but does not constitute systematic validation across varied mesh conditions. For LPIPS, the application automatically prefers CUDA when available and falls back to CPU otherwise.
 
 ### Geometric metric snapshot
 

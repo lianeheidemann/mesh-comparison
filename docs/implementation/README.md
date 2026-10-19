@@ -1,6 +1,6 @@
 # Mesh Comparison — implementar, entender e evoluir o projeto
 
-Este guia descreve a arquitetura atual em `src/meshcomparison/`. O fluxo geométrico está em [`geometry/pipeline.py`](../../src/meshcomparison/geometry/pipeline.py) e o perceptual em [`perceptual/pipeline.py`](../../src/meshcomparison/perceptual/pipeline.py). Ambos reutilizam o preparo compartilhado em [`common/prepare.py`](../../src/meshcomparison/common/prepare.py). A interface desktop fica em [`gui/`](../../src/meshcomparison/gui/); ela inicia cada pipeline em um processo filho por meio de `gui/runner.py` e `gui/worker.py`.
+Este guia descreve a arquitetura atual em `src/meshcomparison/`. O fluxo geométrico está em [`geometry/pipeline.py`](../../src/meshcomparison/geometry/pipeline.py) e o perceptual em [`perceptual/pipeline.py`](../../src/meshcomparison/perceptual/pipeline.py). Ambos reutilizam o preparo compartilhado em [`common/prepare.py`](../../src/meshcomparison/common/prepare.py), que carrega as entradas, normaliza as duas malhas usando a diagonal da caixa da GT, calcula o MSE pré-alinhamento e chama ICP de similaridade apenas quando esse MSE excede o limiar. A interface desktop fica em [`gui/`](../../src/meshcomparison/gui/); `gui/runner.py` inicia um processo filho por pipeline via `gui/worker.py`. Se ambos forem selecionados, os processos rodam em sequência. A API Python também pode chamar cada `run_pipeline(...)` diretamente.
 
 ![Arquitetura modular](images/architecture.svg)
 
@@ -21,12 +21,12 @@ O marcador **[x]** significa que o componente de código/documentação existe �
 
 ## Componentes adicionais da branch atual
 
-- **[GUI PySide6/PyVistaQt](../gui/README.md):** visualização 3D, controles de camadas, tabelas de métricas, galeria, dispositivos CPU/CUDA para LPIPS e execução/cancelamento dos pipelines em processos separados. A existência no código não implica testes de interface gráfica completos.
+- **[GUI PySide6/PyVistaQt](../gui/README.md):** visualização 3D, controles de camadas, resumo perceptual, galeria, dispositivos CPU/CUDA para LPIPS e execução/cancelamento dos pipelines em processos filhos sequenciais. A GUI exibe `metrics_perceptual.csv` e as imagens; os CSVs geométricos, por vista e metadados permanecem disponíveis na pasta de saída. A existência no código não implica testes de interface gráfica completos.
 - **[Empacotamento](../../pyproject.toml):** o comando `mesh-gui` (ou `python -m meshcomparison.gui`) abre a interface, que executa os pipelines em processos filhos (`meshcomparison.gui.worker`).
 - **[Harness](../harness/README.md):** orientações para construir novos projetos já preparados para agentes e para evoluir este sem substituir implementações existentes.
 
 ## Prática recomendada
 
-Use [`environments/environment.yml`](../../environments/environment.yml) para criar o ambiente `meshEval` e depois rode `python -m pip install -e . --no-deps` na raiz. O [snapshot Windows](../../environments/environment-lock.yml) é um registro **anterior à GUI** e não contém PySide6/PyVista/PyVistaQt.
+Use [`environments/environment.yml`](../../environments/environment.yml) para criar o ambiente `meshEval` e depois rode `python -m pip install -e . --no-deps` na raiz. O [snapshot Windows](../../environments/environment-lock.yml) não contém PySide6, PyVista ou PyVistaQt; instale esses extras para usar a GUI nesse ambiente.
 
 Os exemplos didáticos nas etapas não necessariamente são módulos completos executáveis isoladamente; compare com o código real em `src/meshcomparison/` antes de reutilizá-los. **GT** é a referência e **RM** é a reconstrução. As métricas geométricas comparam vizinhos mais próximos entre vértices; o ICP pode corrigir escala uniforme. Registre modificações de algoritmo, câmera e métricas antes de comparar resultados históricos.

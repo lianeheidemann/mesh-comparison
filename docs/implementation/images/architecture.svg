@@ -52,7 +52,7 @@
   <rect class="card" x="925" y="225" width="255" height="96" rx="12"/>
   <text x="1052" y="258" text-anchor="middle" font-size="18" font-weight="bold">Módulos comuns</text>
   <text class="muted" x="1052" y="284" text-anchor="middle" font-size="14">io · alignment · rendering</text>
-  <text class="muted" x="1052" y="304" text-anchor="middle" font-size="14">provenance · device</text>
+  <text class="muted" x="1052" y="304" text-anchor="middle" font-size="14">transforms · device</text>
 
   <text class="muted" x="600" y="365" text-anchor="middle" font-size="14">Cada pipeline selecionado roda em um processo filho; ao selecionar os dois, a execução é sequencial.</text>
 </svg>

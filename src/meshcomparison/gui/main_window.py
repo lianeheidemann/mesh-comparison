@@ -1,8 +1,7 @@
 import os
 import sys
 
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QPlainTextEdit, QProgressBar, QPushButton,
     QScrollArea, QSplitter, QTabWidget, QVBoxLayout, QWidget,
@@ -87,13 +86,10 @@ class MainWindow(QMainWindow):
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self.runner.cancel)
-        self.open_button = QPushButton("Open output folder")
-        self.open_button.clicked.connect(self._open_output)
         buttons = QHBoxLayout()
         buttons.addWidget(self.run_button, 1)
         buttons.addWidget(self.cancel_button)
         layout.addLayout(buttons)
-        layout.addWidget(self.open_button)
 
         self.progress = QProgressBar()
         self.progress.setRange(0, 100)
@@ -186,11 +182,6 @@ class MainWindow(QMainWindow):
                 meshes.gt, meshes.rm_aligned, meshes.heatmap, meshes.heatmap_scale, meshes.heatmap_vmax)
         except Exception as exc:
             self._append_log(f"Could not display the 3D result: {exc}")
-
-    def _open_output(self):
-        out = self.meshes_panel.out_field.text()
-        if out and os.path.isdir(out):
-            QDesktopServices.openUrl(QUrl.fromLocalFile(out))
 
     def closeEvent(self, event):
         if self.runner.running:

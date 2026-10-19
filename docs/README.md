@@ -1,6 +1,6 @@
 # Documentação — Mesh Comparison
 
-Esta é a navegação da documentação para a versão atual do projeto, organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro anterior; mudanças na estrutura do projeto não equivalem a uma nova execução validada.
+Esta é a navegação da documentação para a versão atual do projeto, organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro histórico; mudanças na estrutura do projeto não equivalem a uma nova execução validada. A pasta [`archived/`](archived/README-v1.md) guarda READMEs de versões anteriores e não deve ser usada como instrução de instalação ou execução.
 
 | Área | Conteúdo | Quando consultar |
 | --- | --- | --- |
@@ -10,6 +10,33 @@ Esta é a navegação da documentação para a versão atual do projeto, organiz
 | [Resultados de exemplo](results/README.md) | Métricas e imagens de uma execução previamente registrada | Para consultar um conjunto específico de resultados |
 | [Agent Harness](harness/README.md) | Estado do desenvolvimento assistido por agentes, guardrails e roteiro reutilizável | Para organizar futuras implementações via LLM |
 | [Referências sobre Harness](harness/REFERENCIAS.md) | Fontes oficiais e materiais complementares | Para fundamentar decisões e arquitetura |
+
+## Arquitetura atual
+
+```mermaid
+flowchart LR
+    GT[Malha de referência: GT] --> INPUTS[Entradas e configuração da execução]
+    RM[Malha reconstruída: RM] --> INPUTS
+    subgraph Entry[Formas de execução]
+        GUI[GUI PySide6] --> RUNNER[runner.py<br/>QProcess + worker por pipeline]
+        API[API Python<br/>run_pipeline(...)]
+    end
+    RUNNER --> GEO[geometry/pipeline.py]
+    RUNNER --> PER[perceptual/pipeline.py]
+    API --> GEO
+    API --> PER
+    INPUTS --> GEO
+    INPUTS --> PER
+    GEO --> PREP[common/prepare.py<br/>carregar, normalizar, medir MSE<br/>e alinhar com ICP quando necessário]
+    PER --> PREP
+    PREP --> GEOM[Geometria: distâncias,<br/>renders e heatmap]
+    PREP --> PERCEPT[Perceptual: renders multivista<br/>e LPIPS, PSNR, SSIM]
+    GEOM --> OUT[Arquivos CSV, PLY e PNG<br/>na pasta de saída]
+    PERCEPT --> OUT
+    OUT --> VIEW[GUI: viewer 3D e galeria<br/>Resumo perceptual; demais CSVs no disco]
+```
+
+Na GUI, os pipelines selecionados são executados em processos filhos **sequencialmente**. A GUI e a API chamam os mesmos módulos de pipeline; o preparo compartilhado carrega as duas malhas, escala ambas pela diagonal da caixa delimitadora da GT e executa ICP de similaridade somente quando o MSE normalizado pré-alinhamento excede o limiar. Consulte o [guia de implementação](implementation/README.md) para os módulos e o [guia desktop](gui/README.md) para os resultados exibidos.
 
 ## Entrada rápida para a versão atual
 

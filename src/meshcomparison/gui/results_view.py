@@ -12,30 +12,64 @@ from PySide6.QtWidgets import (
 from .gallery import collect_image_entries
 
 
-def _fmt(value):
-    if isinstance(value, float):
-        return f"{value:.6g}"
-    return str(value)
+SUMMARY_COLUMNS = (  # (CSV column, header) in reading order
+    ("min", "Min"), ("p25", "25th pct"), ("median", "Median"), ("p75", "75th pct"), ("max", "Max"), ("mean", "Mean"),
+)
+METRIC_LABELS = {
+    "lpips": ("LPIPS", "lower is better"),
+    "psnr": ("PSNR (dB)", "higher is better"),
+    "ssim": ("SSIM", "higher is better"),
+}
 
 
-def _make_table(df, transpose=False):
-    if transpose:
-        df = df.T.reset_index()
-        df.columns = ["parameter", "value"]
-    table = QTableWidget(len(df), len(df.columns))
-    table.setHorizontalHeaderLabels([str(c) for c in df.columns])
+def _make_summary_table(df):
+    """Perceptual summary: one row per metric, statistics as evenly spaced, centred columns."""
+    columns = [(key, header) for key, header in SUMMARY_COLUMNS if key in df.columns]
+    table = QTableWidget(len(df), len(columns) + 1)
+    table.setHorizontalHeaderLabels(["Metric"] + [header for _, header in columns])
     table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+    table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
     table.setAlternatingRowColors(True)
+    table.setShowGrid(False)
     table.verticalHeader().setVisible(False)
-    for r, row in enumerate(df.itertuples(index=False)):
-        for c, value in enumerate(row):
-            item = QTableWidgetItem(_fmt(value))
-            if c > 0 or not transpose:
-                item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+    table.verticalHeader().setDefaultSectionSize(46)
+
+    centred = Qt.AlignmentFlag.AlignCenter
+    for r, row in enumerate(df.to_dict("records")):
+        name, hint = METRIC_LABELS.get(row["metric"], (str(row["metric"]).upper(), ""))
+        label = QTableWidgetItem(name)
+        label.setToolTip(hint)
+        font = label.font()
+        font.setBold(True)
+        label.setFont(font)
+        table.setItem(r, 0, label)
+        for c, (key, _) in enumerate(columns, start=1):
+            item = QTableWidgetItem(f"{row[key]:.4f}")
+            item.setTextAlignment(centred)
             table.setItem(r, c, item)
-    table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
-    table.horizontalHeader().setStretchLastSection(True)
+
+    header = table.horizontalHeader()
+    header.setDefaultAlignment(centred)
+    header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+    header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+    header.setStretchLastSection(False)
+    table.setFixedHeight(header.height() + table.verticalHeader().defaultSectionSize() * len(df) + 8)
     return table
+
+
+def _make_summary_page(df):
+    page = QWidget()
+    layout = QVBoxLayout(page)
+    layout.setContentsMargins(12, 12, 12, 12)
+    layout.setSpacing(10)
+    layout.addWidget(_make_summary_table(df))
+    hint = QLabel("LPIPS: lower is better · PSNR: higher is better · SSIM: higher is better. "
+                  "Statistics over all rendered views.")
+    hint.setObjectName("hint")
+    hint.setWordWrap(True)
+    layout.addWidget(hint)
+    layout.addStretch(1)
+    return page
 
 
 class ImageGallery(QWidget):
@@ -150,7 +184,6 @@ class ImageGallery(QWidget):
 
 class ResultsView(QTabWidget):
     PERCEPTUAL_CSV = os.path.join("metrics", "metrics_perceptual.csv")
-    METADATA_CSV = os.path.join("metrics", "run_metadata.csv")
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -185,14 +218,10 @@ class ResultsView(QTabWidget):
         self._out_dir = out_dir
         self.open_button.setEnabled(os.path.isdir(out_dir))
         added = False
-        for title, rel, transpose in (
-            ("Perceptual summary", self.PERCEPTUAL_CSV, False),
-            ("Run metadata", self.METADATA_CSV, True),
-        ):
-            path = os.path.join(out_dir, rel)
-            if os.path.isfile(path):
-                self.addTab(_make_table(pd.read_csv(path), transpose=transpose), title)
-                added = True
+        summary = os.path.join(out_dir, self.PERCEPTUAL_CSV)
+        if os.path.isfile(summary):
+            self.addTab(_make_summary_page(pd.read_csv(summary)), "Perceptual summary")
+            added = True
 
         entries = collect_image_entries(out_dir)
         if entries:

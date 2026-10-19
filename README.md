@@ -31,19 +31,24 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
   <img src="assets/interface/evaluate-meshe-preview-v1.webp">
 </p>
 
-**Quick links:** [Single-view 3D evaluation](#single-view-3d-reconstruction-evaluation-context) · [Meshy](https://www.meshy.ai/pt-PT) · [Tripo AI](https://www.tripo3d.ai/pt) · [Installation](#installation) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/) 
+**Quick links:** [Installation](#installation) · [Run desktop app](#desktop-interface) · [Example results](#example-results) · [Technologies](#technologies) · [Windows validation](#validate-on-windows) · [Single-view research](#single-view-3d-reconstruction-evaluation-context) · [Technical documentation](docs/README.md) · [Meshy](https://www.meshy.ai/pt-PT) · [Tripo AI](https://www.tripo3d.ai/pt)
 
 ### Table of contents
 
 - [Single-view 3D reconstruction: evaluation context](#single-view-3d-reconstruction-evaluation-context)
+  - [Planned comparison across generative 3D models](#planned-comparison-across-generative-3d-models)
+  - [Evaluation criteria](#brief-overview-of-evaluation-criteria)
 - [Example results](#example-results)
 - [Technologies](#technologies)
 - [Workspace layout](#workspace-layout)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Desktop interface](#desktop-interface)
+- [Run](#run)
+  - [Desktop interface](#desktop-interface)
 - [Validate on Windows](#validate-on-windows)
 - [Pipelines](#pipelines)
+  - [Geometric evaluation](#geometric-evaluation)
+  - [Perceptual evaluation](#perceptual-evaluation)
 - [Parameters](#parameters)
 - [Scope and limitations](#scope-and-limitations)
 - [Development](#development)

@@ -136,7 +136,7 @@ The Windows `meshEval` lock snapshot was recorded on 2026-10-17. Its Python and 
 mesh-comparison/
 ├── README.md  LICENSE  pyproject.toml
 ├── src/meshcomparison/            # Python package
-│   ├── common/                    # Shared: mesh I/O, preparation (scale + ICP), distances, rendering, provenance, device detection
+│   ├── common/                    # Shared: mesh I/O, preparation (scale + ICP), distances, rendering, device detection
 │   ├── geometry/                  # Geometric evaluation (pipeline, metrics, heatmap)
 │   ├── gui/                       # Desktop: config, panels, runner/worker, outputs, results and 3D viewer (PySide6/PyVistaQt)
 │   └── perceptual/                # Multi-view perceptual evaluation (cameras, PSNR/SSIM/LPIPS)
@@ -299,15 +299,14 @@ Main outputs:
 
 - `output/metrics/per_view_metrics.csv`: one row per view with LPIPS, PSNR, SSIM, camera angle, and framing values.
 - `output/metrics/metrics_perceptual.csv`: min, max, 25th/75th percentiles, median, and mean for each perceptual metric.
-- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, the final transform, and the environment (project, Python and PyTorch/CUDA versions, device, UTC timestamp).
-- `output/metrics/run_metadata_geometry.csv`: the same kind of record for the geometric pipeline (inputs, camera and render settings, the heatmap colour-scale maximum in normalized and GT units, environment).
+- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, and the final transform.
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh in the ground-truth input scale.
 - `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.
 
 
 ## Parameters
 
-The interface shows analysis parameters as **fixed values** configured in `RunConfig` (`src/meshcomparison/gui/config.py`): ICP MSE threshold `1e-4` (alignment runs only above it), render size `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views `1 33 66`), camera margin `1.05` and camera radius factor `1.45`. If a run has fewer views than the saved-view numbers requested, up to three spread-out views are saved instead and a warning is logged.
+The interface shows analysis parameters as **fixed values** configured in `RunConfig` (`src/meshcomparison/gui/config.py`): ICP MSE threshold `1e-4` (alignment runs only above it), render size `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views `1 33 66`), camera margin `1.05` and camera radius factor `1.45`. Images are saved only for the view numbers that exist.
 
 To use other values from Python code, call the relevant pipeline's `run_pipeline(...)` with its supported keyword arguments. The geometric pipeline accepts `mse_threshold_normalized`, `azimuth_deg`, `elevation_deg`, `width` and `height`; the perceptual pipeline accepts `mse_threshold_normalized`, `elevation_deg`, `width`, `height`, `num_views`, `save_views`, `camera_margin`, `radius_factor` and `device`.
 

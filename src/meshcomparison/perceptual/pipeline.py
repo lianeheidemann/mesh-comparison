@@ -10,7 +10,6 @@ import pandas as pd
 from ..common.device import get_device_info
 from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
-from ..common.provenance import collect_provenance
 from .cameras import build_tight_ortho_camera, camera_pose_for_view, make_view_renderer
 from .figures import save_pair_figure
 from .image_metrics import (
@@ -33,14 +32,6 @@ OUTPUT_SUBDIRS = {
     "metrics": ("metrics",),
     "aligned": ("aligned",),
 }
-
-
-def resolve_save_views(save_views, num_views):
-    """Requested view indices if they all exist (1..num_views); otherwise up to 3 spread-out views."""
-    requested = sorted(set(save_views))
-    if all(1 <= v <= num_views for v in requested):
-        return requested
-    return sorted({1, max(1, num_views // 3), max(1, 2 * num_views // 3)})
 
 
 def _load_lpips(device):
@@ -155,7 +146,7 @@ def _summary_table(lpips_vals, psnr_vals, ssim_vals):
 
 
 def _metadata_row(gt_path, rm_path, prepared, mse_threshold_normalized, elevation_deg, num_views, save_views,
-                  camera_margin, radius_factor, device_info):
+                  camera_margin, radius_factor):
     return {
         "gt_file": os.path.abspath(gt_path),
         "rm_file": os.path.abspath(rm_path),
@@ -168,8 +159,6 @@ def _metadata_row(gt_path, rm_path, prepared, mse_threshold_normalized, elevatio
         "saved_views": ",".join(map(str, sorted(save_views))),
         "camera_margin": camera_margin,
         "radius_factor": radius_factor,
-        "lpips_device": device_info.describe(),
-        **collect_provenance(),
         **transform_columns(prepared.final_transform),
     }
 
@@ -194,11 +183,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
     lpips_model, device_info = _load_lpips(device)
 
     print(f"[6/{TOTAL_STEPS}] Rendering {num_views} views and computing metrics...")
-    requested_views = set(save_views)
-    save_views = set(resolve_save_views(requested_views, num_views))
-    if save_views != requested_views:
-        print(f"    WARNING: requested saved views {sorted(requested_views)} do not all exist with "
-              f"{num_views} views; saving views {sorted(save_views)} instead.")
+    save_views = set(save_views)
 
     azimuths = np.linspace(0.0, 360.0, num_views, endpoint=False)
     center, diag = _scene_framing([gt, rm_aligned])
@@ -251,7 +236,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
     meta_csv = os.path.join(paths["metrics"], "run_metadata.csv")
     pd.DataFrame([_metadata_row(
         gt_path, rm_path, prepared, mse_threshold_normalized, elevation_deg, num_views, save_views,
-        camera_margin, radius_factor, device_info)]).to_csv(meta_csv, index=False)
+        camera_margin, radius_factor)]).to_csv(meta_csv, index=False)
 
     print("\nDone.")
     print(f"GT renders:       {paths['renders_gt']}")

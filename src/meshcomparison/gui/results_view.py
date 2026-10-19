@@ -149,11 +149,8 @@ class ImageGallery(QWidget):
 
 
 class ResultsView(QTabWidget):
-    GEOMETRY_CSV = os.path.join("metrics", "metrics_geometry.csv")
     PERCEPTUAL_CSV = os.path.join("metrics", "metrics_perceptual.csv")
-    PER_VIEW_CSV = os.path.join("metrics", "per_view_metrics.csv")
     METADATA_CSV = os.path.join("metrics", "run_metadata.csv")
-    GEOMETRY_METADATA_CSV = os.path.join("metrics", "run_metadata_geometry.csv")
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -189,11 +186,8 @@ class ResultsView(QTabWidget):
         self.open_button.setEnabled(os.path.isdir(out_dir))
         added = False
         for title, rel, transpose in (
-            ("Geometric metrics", self.GEOMETRY_CSV, True),
             ("Perceptual summary", self.PERCEPTUAL_CSV, False),
-            ("Per-view metrics", self.PER_VIEW_CSV, False),
             ("Run metadata", self.METADATA_CSV, True),
-            ("Run metadata (geometric)", self.GEOMETRY_METADATA_CSV, True),
         ):
             path = os.path.join(out_dir, rel)
             if os.path.isfile(path):

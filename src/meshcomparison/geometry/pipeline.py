@@ -4,7 +4,6 @@ import pandas as pd
 
 from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
-from ..common.provenance import collect_provenance
 from .heatmap import colorize_gt_heatmap, save_heatmap_figure
 from .metrics import compute_metrics
 from .rendering import build_shared_camera, render_mesh
@@ -43,7 +42,7 @@ def _render_views_and_heatmap(prepared, d_gt2rm, paths, azimuth_deg, elevation_d
     if os.path.exists(heat_image_tmp):
         os.remove(heat_image_tmp)
 
-    return files, norm
+    return files
 
 
 def _metrics_row(gt_path, rm_path, prepared, post_mse_norm, metrics, mse_threshold_normalized,
@@ -77,22 +76,6 @@ def _metrics_row(gt_path, rm_path, prepared, post_mse_norm, metrics, mse_thresho
     }
 
 
-def _metadata_row(gt_path, rm_path, prepared, norm, mse_threshold_normalized,
-                  azimuth_deg, elevation_deg, width, height):
-    return {
-        "gt_file": os.path.abspath(gt_path),
-        "rm_file": os.path.abspath(rm_path),
-        "mse_threshold_normalized": mse_threshold_normalized,
-        "camera_azimuth_deg": azimuth_deg,
-        "camera_elevation_deg": elevation_deg,
-        "render_width": width,
-        "render_height": height,
-        "heatmap_vmax_normalized": float(norm.vmax),
-        "heatmap_vmax_gt_units": float(norm.vmax * prepared.gt_diag_raw),
-        **collect_provenance(),
-    }
-
-
 def run_pipeline(gt_path, rm_path, out_dir,
                  mse_threshold_normalized=1e-4,
                  azimuth_deg=45.0,
@@ -108,7 +91,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
     post_mse_norm = metrics["mse"]  # same distances, computed once
 
     print(f"[6/{TOTAL_STEPS}] Rendering orthographic views and heatmap...")
-    files, norm = _render_views_and_heatmap(
+    files = _render_views_and_heatmap(
         prepared, metrics["d_gt2rm"], paths, azimuth_deg, elevation_deg, width, height)
 
     print(f"[7/{TOTAL_STEPS}] Saving outputs...")
@@ -117,10 +100,6 @@ def run_pipeline(gt_path, rm_path, out_dir,
     csv_path = os.path.join(paths["metrics"], "metrics_geometry.csv")
     pd.DataFrame([_metrics_row(gt_path, rm_path, prepared, post_mse_norm, metrics, mse_threshold_normalized,
                                azimuth_deg, elevation_deg)]).to_csv(csv_path, index=False)
-
-    meta_csv = os.path.join(paths["metrics"], "run_metadata_geometry.csv")
-    pd.DataFrame([_metadata_row(gt_path, rm_path, prepared, norm, mse_threshold_normalized,
-                                azimuth_deg, elevation_deg, width, height)]).to_csv(meta_csv, index=False)
 
     print("\nDone.")
     print(f"GT render:        {files['gt_render']}")

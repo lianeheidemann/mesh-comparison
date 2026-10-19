@@ -6,7 +6,7 @@
 
 ## Passo 1 — Conferir os resultados exportados
 
-Depois de calcular as métricas, o pipeline geométrico grava `metrics/metrics_geometry.csv` dentro da pasta de saída selecionada na interface ou passada como `out_dir` à função Python. O fluxo perceptual grava uma linha por vista em `metrics/per_view_metrics.csv` e estatísticas de mínimo, máximo, percentis 25/75, mediana e média em `metrics/metrics_perceptual.csv`. O pipeline perceptual gera `metrics/run_metadata.csv` e o geométrico gera `metrics/run_metadata_geometry.csv`; ambos registram parâmetros e o ambiente da execução (versões do projeto, Python e PyTorch/CUDA, e data/hora UTC). O CSV geométrico de métricas continua incluindo seus parâmetros e os componentes da transformação.
+Depois de calcular as métricas, o pipeline geométrico grava `metrics/metrics_geometry.csv` dentro da pasta de saída selecionada na interface ou passada como `out_dir` à função Python. O fluxo perceptual grava uma linha por vista em `metrics/per_view_metrics.csv` e estatísticas de mínimo, máximo, percentis 25/75, mediana e média em `metrics/metrics_perceptual.csv`. **Somente o pipeline perceptual** gera `metrics/run_metadata.csv`; o CSV geométrico já inclui seus parâmetros de execução e os componentes da transformação. As saídas e colunas são as do pipeline original.
 
 ## Passo 2 — Ler os resultados gerados pela versão atual
 

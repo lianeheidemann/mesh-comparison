@@ -77,13 +77,13 @@ Na aba **3D view**, o [`MeshViewer`](../../src/meshcomparison/gui/viewer3d.py) d
 - Um cubo maciço de referência, pequeno e centralizado sobre o plano, enquanto GT e RM ainda não foram carregadas.
 - Camadas independentes para **GT**, **RM alinhada** e **heatmap de desvio** (quando disponível).
 - Rotação, pan e zoom da câmera, com opção **Reset view**. A vista inicial usa a mesma direção dos renders da avaliação (eixo Z para cima, azimute -135°, elevação 25,264°); a elevação interativa fica limitada a 8°–78° para manter o plano abaixo do objeto e evitar que a câmera vire.
-- **Legenda de distância** à direita quando o heatmap está visível: escala de 0 até o percentil 95 das distâncias GT→RM, em unidades da malha GT (valor lido de `heatmap_vmax_gt_units` em `run_metadata_geometry.csv`; saídas antigas sem essa coluna não mostram a legenda). Distâncias acima desse valor aparecem no vermelho máximo.
+- **Legenda de distância** à direita quando o heatmap está visível: escala de 0 até o percentil 95 das distâncias GT→RM, em unidades da malha GT (calculada pela janela a partir da GT e da RM alinhada salvas; os pipelines não gravam esse valor). Distâncias acima desse valor aparecem no vermelho máximo.
 - Heatmap com o mesmo aspecto do PNG do pipeline (cores mais claras, tons rosa/ciano causados pela iluminação forte do renderizador). Como esses tons **não** existem na paleta `RdYlGn_r` da legenda, a caixa **Exact palette** mostra as cores fiéis à legenda.
 - Controle da opacidade da RM e alternância de linhas das arestas (**Edges**).
 - **Save image…** para salvar uma captura PNG do viewer.
 - Sobreposição de camadas no mesmo viewer. **Não há, no código atual, três viewports independentes com câmeras sincronizadas**; não confundir com visualização lado a lado.
 
-A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para carregar os CSVs produzidos e a galeria de PNGs. Na aba **Images** as imagens aparecem **em pares**, GT à esquerda e RM alinhada à direita, fotografadas no mesmo ângulo: a vista geométrica, o heatmap (imagem única) e cada vista perceptual salva. O seletor **All**, padrão, mostra todos os pares um abaixo do outro (com rolagem); escolher uma entrada mostra só aquele par. O botão **Open output folder** abre a pasta de saída. A aba **Log** mostra a execução. O tema é restaurado das configurações do aplicativo e usa o escuro por padrão; a interface atual não tem um menu para alterná-lo.
+A aba **Results** usa [`ResultsView`](../../src/meshcomparison/gui/results_view.py) para mostrar, em abas, o **resumo perceptual** (`metrics_perceptual.csv`), os **metadados da execução** (`run_metadata.csv`) e a galeria de PNGs. Os demais CSVs (`metrics_geometry.csv` e `per_view_metrics.csv`) continuam sendo gravados na pasta de saída, mas não têm aba própria. Na aba **Images** as imagens aparecem **em pares**, GT à esquerda e RM alinhada à direita, fotografadas no mesmo ângulo: a vista geométrica, o heatmap (imagem única) e cada vista perceptual salva. O seletor **All**, padrão, mostra todos os pares um abaixo do outro (com rolagem); escolher uma entrada mostra só aquele par. O botão **Open output folder** abre a pasta de saída. A aba **Log** mostra a execução. O tema é restaurado das configurações do aplicativo e usa o escuro por padrão; a interface atual não tem um menu para alterná-lo.
 
 ### Saídas esperadas
 
@@ -96,7 +96,6 @@ output/
 ├── metrics/metrics_perceptual.csv
 ├── metrics/per_view_metrics.csv
 ├── metrics/run_metadata.csv
-├── metrics/run_metadata_geometry.csv
 └── renders/
     ├── gt_ortho.png
     ├── rm_aligned_ortho.png

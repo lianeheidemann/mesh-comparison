@@ -15,7 +15,7 @@ Esta é a navegação da documentação para a versão atual do projeto, organiz
 
 O pacote em `src/meshcomparison/` está dividido em:
 
-- **`common/`** — carregamento de malhas, preparo compartilhado em `prepare.py` (normalização, MSE, ICP e exportação), transformações, distâncias, renderização, proveniência e escolha do dispositivo para LPIPS.
+- **`common/`** — carregamento de malhas, preparo compartilhado em `prepare.py` (normalização, MSE, ICP e exportação), transformações, distâncias, renderização e escolha do dispositivo para LPIPS.
 - **`geometry/`** — métricas geométricas, heatmap e pipeline.
 - **`perceptual/`** — câmeras, imagens, LPIPS/PSNR/SSIM e pipeline multivista.
 - **`gui/`** — interface Qt com módulos separados para janela, painéis, configuração, supervisão (`runner.py`), processo filho (`worker.py`), carregamento das saídas e visualizador PyVistaQt.

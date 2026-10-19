@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def colorize_gt_heatmap(gt_mesh, d_gt2rm, cmap_name="RdYlGn_r", robust_percentile=95):
+ROBUST_PERCENTILE = 95  # distances above this percentile share the top colour
+
+
+def colorize_gt_heatmap(gt_mesh, d_gt2rm, cmap_name="RdYlGn_r", robust_percentile=ROBUST_PERCENTILE):
     heat_mesh = gt_mesh.copy()
 
     vmax = np.nanpercentile(d_gt2rm, robust_percentile)

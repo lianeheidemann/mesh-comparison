@@ -24,6 +24,10 @@
 
 This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Convert FBX models to STL (or another supported `trimesh` format) before running the evaluation scripts; they do not load FBX directly.
 
+<p align="center">
+  <img src="assets/interface/interface-v1.png" width="100%" alt="Mesh Comparison desktop interface">
+</p>
+
 **Quick links:** [Example results](#example-results) · [Installation](#installation) · [Run the pipelines](#run) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/README.md) · [Agent Harness guide](docs/harness/README.md) · [Limitations](#scope-and-limitations)
 
 ### Table of contents

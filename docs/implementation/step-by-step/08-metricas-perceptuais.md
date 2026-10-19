@@ -47,5 +47,3 @@ Na interface, os parâmetros ficam somente para leitura e seguem os valores de `
 ## Passo 4 — Próxima etapa
 
 Continue para [09 — Conferir os resultados exportados](09-relatorios-validacao.md).
-
-**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte os módulos indicados e os utilitários compartilhados em `src/meshcomparison/common/` para ver as implementações completas.

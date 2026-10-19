@@ -23,10 +23,11 @@ Um agente deve poder instalar, executar, testar e reproduzir o projeto sem depen
 conda env create -f environments/environment.yml
 conda activate meshEval
 python -m pip install -e . --no-deps
-python -c "import meshcomparison.geometry.pipeline, meshcomparison.perceptual.pipeline, meshcomparison.gui.worker"
 ruff check .
 pytest -q
 ```
+
+Para conferir os pontos de entrada por importação, use o comando indicado no [guia de preparação do ambiente](../../implementation/step-by-step/01-preparacao-ambiente.md).
 
 Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambiente e ponto de entrada. O `environments/environment-lock.yml` é um snapshot Windows CPU **anterior à GUI**; `environments/requirements-windows-cu128.txt` é um snapshot pip distinto, com pins da GUI e PyTorch CUDA 12.8. Nenhum deles é um lock universal para Linux/macOS.
 

@@ -33,4 +33,4 @@ Teste uma RM com um único vértice distante: Hausdorff deverá reagir fortement
 
 Continue para [07 — Conferir câmera, renders e heatmap](07-renderizacao-heatmaps.md).
 
-**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte os módulos indicados e os utilitários compartilhados em `src/meshcomparison/common/` para ver as implementações completas.
+**Código de referência:** [métricas geométricas](../../../src/meshcomparison/geometry/metrics.py).

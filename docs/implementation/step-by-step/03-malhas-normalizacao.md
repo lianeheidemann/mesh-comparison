@@ -34,5 +34,3 @@ Valide com duas cópias idênticas de um STL: após normalizar, as coordenadas d
 ## Passo 4 — Próxima etapa
 
 Continue para [04 — Conferir a correspondência e o ICP](04-alinhamento-icp.md).
-
-**Código de referência:** [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [pipeline perceptual](../../../src/meshcomparison/perceptual/pipeline.py). As amostras acima mostram etapas de construção; consulte os módulos indicados e os utilitários compartilhados em `src/meshcomparison/common/` para ver as implementações completas.

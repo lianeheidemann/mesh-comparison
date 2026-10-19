@@ -2,7 +2,7 @@
 
 > **Estado:** interface implementada nos módulos `src/meshcomparison/gui/`. Este guia descreve o código disponível; **não** representa um teste executado da janela num computador local.
 
-A GUI permite escolher a **malha de referência (GT)** e a **malha reconstruída (RM)**, selecionar os pipelines, visualizar modelos 3D e consultar os resultados CSV/PNG. Os parâmetros de análise são exibidos como valores fixos; para alterá-los, use as funções Python `run_pipeline`. A aplicação usa **PySide6**, **PyVista + PyVistaQt (VTK)** e executa cada pipeline em um processo filho separado por `QProcess`; se ambos forem selecionados, eles rodam sequencialmente. A janela inicia maximizada, mantendo visíveis a barra de título do Windows e a barra de tarefas.
+A GUI permite escolher a **malha de referência (GT)** e a **malha reconstruída (RM)**, selecionar os pipelines, visualizar modelos 3D e consultar os resultados CSV/PNG. A aplicação usa **PySide6**, **PyVista + PyVistaQt (VTK)** e executa cada pipeline em um processo filho separado por `QProcess`. A janela inicia maximizada, mantendo visíveis a barra de título do Windows e a barra de tarefas.
 
 ## 1. Instalar e abrir
 

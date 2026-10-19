@@ -8,6 +8,7 @@ Esta é a navegação da documentação para a versão atual do projeto, organiz
 | [Implementação e evolução](implementation/README.md) | Estrutura modular, fluxo dos pipelines e tutoriais passo a passo | Ao estudar ou alterar o código |
 | [Interface desktop](gui/README.md) | Instalação, execução e controles da GUI PySide6/PyVistaQt | Para inspecionar GT, RM, heatmap e relatórios |
 | [Resultados de exemplo](results/README.md) | Métricas e imagens de uma execução previamente registrada | Para consultar um conjunto específico de resultados |
+| [Referências e chamadas](REFERENCES/README.md) | Artigos de pesquisa e chamadas de conferências | Para consultar fontes e oportunidades de publicação |
 | [Agent Harness](harness/README.md) | Estado do desenvolvimento assistido por agentes, guardrails e roteiro reutilizável | Para organizar futuras implementações via LLM |
 | [Referências sobre Harness](harness/REFERENCIAS.md) | Fontes oficiais e materiais complementares | Para fundamentar decisões e arquitetura |
 
@@ -36,7 +37,7 @@ flowchart LR
     OUT --> VIEW[GUI: viewer 3D e galeria<br/>Resumo perceptual; demais CSVs no disco]
 ```
 
-Na GUI, os pipelines selecionados são executados em processos filhos **sequencialmente**. A GUI e a API chamam os mesmos módulos de pipeline; o preparo compartilhado carrega as duas malhas, escala ambas pela diagonal da caixa delimitadora da GT e executa ICP de similaridade somente quando o MSE normalizado pré-alinhamento excede o limiar. Consulte o [guia de implementação](implementation/README.md) para os módulos e o [guia desktop](gui/README.md) para os resultados exibidos.
+Na GUI, os pipelines selecionados são executados em processos filhos sequencialmente; a API Python chama os mesmos módulos diretamente. Consulte o [guia de implementação](implementation/README.md) para detalhes técnicos e o [guia desktop](gui/README.md) para operar a interface.
 
 ## Entrada rápida para a versão atual
 
@@ -53,7 +54,7 @@ Depois de preparar `meshEval` e instalar o pacote em modo editável, abra a inte
 python -m meshcomparison.gui
 ```
 
-O comando inicia uma **janela desktop** (requer PySide6/PyVista/PyVistaQt e ambiente com interface gráfica). Cada pipeline roda em um processo filho (`meshcomparison.gui.worker`), o que isola a renderização da janela e permite cancelar uma execução. As funções `run_pipeline` de `geometry` e `perceptual` continuam importáveis em Python. Veja a [instalação detalhada](implementation/step-by-step/01-preparacao-ambiente.md). O CI atual executa `ruff check .`, `pytest -q` e uma verificação de importação dos pipelines e do worker; ele não testa a janela interativa nem executa os pipelines completos com renderização.
+O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e um ambiente com interface gráfica. Veja a [instalação detalhada](implementation/step-by-step/01-preparacao-ambiente.md). O CI atual executa `ruff check .`, `pytest -q` e uma verificação de importação dos pipelines e do worker; ele não testa a janela interativa nem executa os pipelines completos com renderização.
 
 **Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
 

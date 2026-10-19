@@ -31,7 +31,7 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
   <img src="assets/interface/evaluate-meshe-preview-v1.webp">
 </p>
 
-**Quick links:** [Installation](#installation) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/) 
+**Quick links:** [Single-view 3D evaluation](#single-view-3d-reconstruction-evaluation-context) · [Meshy](https://www.meshy.ai/pt-PT) · [Tripo AI](https://www.tripo3d.ai/pt) · [Installation](#installation) · [Desktop interface](#desktop-interface) · [Windows validation](#validate-on-windows) · [Technical documentation](docs/) 
 
 ### Table of contents
 
@@ -58,7 +58,9 @@ The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` s
 
 ## Single-view 3D reconstruction: evaluation context
 
-**Single-view 3D reconstruction** attempts to infer a 3D object from **one 2D image**. In the planned controlled comparison, the original 3D mesh is available as **ground truth (GT)**; a single image rendered from that GT is supplied unchanged to several external generative AI image-to-3D tools (for example, **Meshy** and **Tripo**). Each tool returns a **reconstructed mesh (RM)**. Mesh Comparison is used downstream to evaluate each generated mesh against the same GT.
+**Single-view 3D reconstruction** attempts to infer a 3D object from **one 2D image**. In the planned controlled comparison, the original 3D mesh is available as **ground truth (GT)**; a single image rendered from that GT is supplied unchanged to several external generative AI image-to-3D tools (for example, **[Meshy](https://www.meshy.ai/pt-PT)** and **[Tripo AI](https://www.tripo3d.ai/pt)**). Each tool returns a **reconstructed mesh (RM)**. Mesh Comparison is used downstream to evaluate each generated mesh against the same GT.
+
+**External image-to-3D platforms:** [Meshy — official website](https://www.meshy.ai/pt-PT) · [Tripo AI — official website](https://www.tripo3d.ai/pt)
 
 ### Planned comparison across generative 3D models
 
@@ -71,7 +73,7 @@ Render ONE reference image (same 2D input for all generators)
           +------------------------+----------------------+
           |                        |                      |
           v                        v                      v
-     Meshy image-to-3D        Tripo image-to-3D       Other AI models
+     Meshy image-to-3D        Tripo AI image-to-3D       Other AI models
           |                        |                      |
           v                        v                      v
      Generated mesh A         Generated mesh B        Generated mesh C
@@ -370,7 +372,7 @@ To use other values from Python code, call the relevant pipeline's `run_pipeline
 ## Scope and limitations
 
 - The application evaluates supplied GT/RM meshes; it does not generate a reconstructed mesh from a single image. A single-view reconstruction method must run separately.
-- Comparing Meshy, Tripo or other image-to-3D generators using identical inputs and recorded settings is a **proposed study**, not an already completed experiment or an automatic multi-model ranking feature.
+- Comparing Meshy, Tripo AI or other image-to-3D generators using identical inputs and recorded settings is a **proposed study**, not an already completed experiment or an automatic multi-model ranking feature.
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
 - The GitHub Actions workflow checks linting, the tests and that the pipelines import. It does not run offscreen rendering or validate CUDA execution.
 - LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.

@@ -16,25 +16,22 @@ Esta é a navegação da documentação para a versão atual do projeto, organiz
 
 ```mermaid
 flowchart LR
-    GT[Malha de referência: GT] --> INPUTS[Entradas e configuração da execução]
-    RM[Malha reconstruída: RM] --> INPUTS
-    subgraph Entry[Formas de execução]
-        GUI[GUI PySide6] --> RUNNER[runner.py<br/>QProcess + worker por pipeline]
-        API[API Python<br/>run_pipeline(...)]
-    end
-    RUNNER --> GEO[geometry/pipeline.py]
-    RUNNER --> PER[perceptual/pipeline.py]
-    API --> GEO
-    API --> PER
+    GT["Malha de referência (GT)"] --> INPUTS["Entradas e configuração"]
+    RM["Malha reconstruída (RM)"] --> INPUTS
+    GUI["Interface desktop PySide6"] --> RUNNER["QProcess e worker por pipeline"]
+    API["API Python: run_pipeline"] --> GEO["Pipeline geométrico"]
+    API --> PER["Pipeline perceptual"]
+    RUNNER --> GEO
+    RUNNER --> PER
     INPUTS --> GEO
     INPUTS --> PER
-    GEO --> PREP[common/prepare.py<br/>carregar, normalizar, medir MSE<br/>e alinhar com ICP quando necessário]
-    PER --> PREP
-    PREP --> GEOM[Geometria: distâncias,<br/>renders e heatmap]
-    PREP --> PERCEPT[Perceptual: renders multivista<br/>e LPIPS, PSNR, SSIM]
-    GEOM --> OUT[Arquivos CSV, PLY e PNG<br/>na pasta de saída]
+    GEO --> GEOPREP["Preparação das malhas: normalização e ICP condicional"]
+    PER --> PERPREP["Preparação das malhas: normalização e ICP condicional"]
+    GEOPREP --> GEOM["Chamfer, Hausdorff, RMSE e mapa de calor"]
+    PERPREP --> PERCEPT["Renderizações multivista: LPIPS, PSNR e SSIM"]
+    GEOM --> OUT["Resultados: CSV, PLY e PNG"]
     PERCEPT --> OUT
-    OUT --> VIEW[GUI: viewer 3D e galeria<br/>Resumo perceptual; demais CSVs no disco]
+    OUT --> VIEW["GUI: visualizador 3D, galeria e resultados"]
 ```
 
 Na GUI, os pipelines selecionados são executados em processos filhos sequencialmente; a API Python chama os mesmos módulos diretamente. Consulte o [guia de implementação](implementation/README.md) para detalhes técnicos e o [guia desktop](gui/README.md) para operar a interface.

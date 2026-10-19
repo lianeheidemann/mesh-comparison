@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..common.rendering import render_ortho_rgba
+from ..common.rendering import OrthoRenderer, render_ortho_rgba
 from ..common.transforms import apply_transform_points, bounds_corners, look_at
 
 
@@ -52,8 +52,18 @@ def build_tight_ortho_camera(meshes, camera_pose, margin=1.05):
     }
 
 
+TRANSPARENT_BACKGROUND = np.array([0, 0, 0, 0], dtype=np.float32)
+
+
 def render_mesh_rgba(mesh, camera_cfg, width=1600, height=1200, smooth=True):
     return render_ortho_rgba(
-        mesh, camera_cfg, np.array([0, 0, 0, 0], dtype=np.float32),
-        width=width, height=height, smooth=smooth
+        mesh, camera_cfg, TRANSPARENT_BACKGROUND, width=width, height=height, smooth=smooth
     )
+
+
+def make_view_renderer(gt, rm_aligned, width=1600, height=1200):
+    """One renderer (OpenGL context) with both meshes uploaded, for rendering many views quickly."""
+    renderer = OrthoRenderer(TRANSPARENT_BACKGROUND, width=width, height=height)
+    renderer.add_mesh("gt", gt)
+    renderer.add_mesh("rm", rm_aligned)
+    return renderer

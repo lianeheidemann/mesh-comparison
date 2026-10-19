@@ -25,7 +25,7 @@
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/PyVistaQt-3B4A5A?style=flat-square"><img src="https://img.shields.io/badge/PyVistaQt-61778E?style=flat-square" alt="PyVistaQt"></picture>
 </p>
 
-This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Run evaluations in the desktop interface or call the pipeline functions from Python. Convert FBX models to STL (or another supported `trimesh` format) before loading them; the project does not load FBX directly.
+This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM), combining geometric distance metrics with perceptual image metrics across multiple camera views. Run evaluations in the desktop interface or call the pipeline functions from Python. **The application does not convert FBX files**: FBX input is rejected. Convert it outside Mesh Comparison (for example, with Blender) to STL, OBJ, PLY, or another supported `trimesh` format before loading it.
 
 <p align="center">
   <img src="assets/interface/interface-v1.png" width="100%" alt="Mesh Comparison desktop interface">
@@ -51,7 +51,9 @@ This workspace compares a ground-truth mesh (GT) with a reconstructed mesh (RM),
 
 ---
 
-<img width="100%" src="docs/assets/how-the-code-works.svg">
+<img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture flow: the desktop GUI or Python API invokes geometric and perceptual pipelines; both share mesh preparation and write files to the selected output folder">
+
+The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially. Python callers can invoke either pipeline's `run_pipeline(...)` function directly. The detailed module and GUI flow is in the [implementation guide](docs/implementation/README.md).
 
 ## Example results
 
@@ -136,7 +138,7 @@ The Windows `meshEval` lock snapshot was recorded on 2026-10-17. Its Python and 
 mesh-comparison/
 ├── README.md  LICENSE  pyproject.toml
 ├── src/meshcomparison/            # Python package
-│   ├── common/                    # Shared: mesh I/O, preparation (scale + ICP), distances, rendering, provenance, device detection
+│   ├── common/                    # Shared: mesh I/O, preparation (scale + ICP), distances, rendering, device detection
 │   ├── geometry/                  # Geometric evaluation (pipeline, metrics, heatmap)
 │   ├── gui/                       # Desktop: config, panels, runner/worker, outputs, results and 3D viewer (PySide6/PyVistaQt)
 │   └── perceptual/                # Multi-view perceptual evaluation (cameras, PSNR/SSIM/LPIPS)
@@ -299,15 +301,14 @@ Main outputs:
 
 - `output/metrics/per_view_metrics.csv`: one row per view with LPIPS, PSNR, SSIM, camera angle, and framing values.
 - `output/metrics/metrics_perceptual.csv`: min, max, 25th/75th percentiles, median, and mean for each perceptual metric.
-- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, the final transform, and the environment (project, Python and PyTorch/CUDA versions, device, UTC timestamp).
-- `output/metrics/run_metadata_geometry.csv`: the same kind of record for the geometric pipeline (inputs, camera and render settings, the heatmap colour-scale maximum in normalized and GT units, environment).
+- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, and the final transform.
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh in the ground-truth input scale.
 - `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.
 
 
 ## Parameters
 
-The interface shows analysis parameters as **fixed values** configured in `RunConfig` (`src/meshcomparison/gui/config.py`): ICP MSE threshold `1e-4` (alignment runs only above it), render size `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views `1 33 66`), camera margin `1.05` and camera radius factor `1.45`. If a run has fewer views than the saved-view numbers requested, up to three spread-out views are saved instead and a warning is logged.
+The interface shows analysis parameters as **fixed values** configured in `RunConfig` (`src/meshcomparison/gui/config.py`): ICP MSE threshold `1e-4` (alignment runs only above it), render size `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views `1 33 66`), camera margin `1.05` and camera radius factor `1.45`. Images are saved only for the view numbers that exist.
 
 To use other values from Python code, call the relevant pipeline's `run_pipeline(...)` with its supported keyword arguments. The geometric pipeline accepts `mse_threshold_normalized`, `azimuth_deg`, `elevation_deg`, `width` and `height`; the perceptual pipeline accepts `mse_threshold_normalized`, `elevation_deg`, `width`, `height`, `num_views`, `save_views`, `camera_margin`, `radius_factor` and `device`.
 
@@ -335,7 +336,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import c
 
 - **`pyrender` fails to create an offscreen context**: a working offscreen OpenGL setup is required. On headless Linux, install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl` (as the CI does).
 - **CUDA not available**: expected on CPU-only installs; LPIPS then runs on CPU, just slower.
-- **Cannot load an `.fbx` file**: the pipelines do not read FBX directly; convert it to STL, PLY, or OBJ first.
+- **Cannot load an `.fbx` file**: FBX is rejected and is not converted by this application. Convert it outside Mesh Comparison to STL, OBJ, PLY, or another supported `trimesh` format, then load the converted file.
 
 ## License and credits
 

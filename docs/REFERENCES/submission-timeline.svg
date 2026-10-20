@@ -1,7 +1,7 @@
 
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1400" viewBox="0 0 1400 1400" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1520" viewBox="0 0 1400 1520" role="img" aria-labelledby="title desc">
   <title id="title">Calendário de submissões e conferências, 2026–2027</title>
-  <desc id="desc">Prazos de submissão da IJCNN 2027, datas das conferências IJCNN e IV 2027 e lembrete provisório para acompanhamento de abril de 2027 sobre a submissão da IV, sem data oficial anunciada.</desc>
+  <desc id="desc">Prazos de submissão da IJCNN 2027, datas das conferências IJCNN e IV 2027 e lembrete provisório para acompanhamento em fevereiro de 2027 sobre a submissão da IV, sem data oficial anunciada.</desc>
 
   <style>
     text { font-family: Arial, Helvetica, sans-serif; }
@@ -27,9 +27,10 @@
   <rect x="1170" y="46" width="26" height="26" rx="7" fill="#7651a8"/>
   <text x="1208" y="66" fill="#34445c" font-size="18">IV 2027</text>
 
-  <line x1="124" y1="175" x2="124" y2="1281" stroke="#c4cfdd" stroke-width="5" stroke-linecap="round"/>
+  <line x1="124" y1="175" x2="124" y2="1396" stroke="#c4cfdd" stroke-width="5" stroke-linecap="round"/>
 
   <g>
+    <!-- 15 de novembro de 2026 -->
     <g>
       <circle cx="124" cy="218" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
       <rect x="174" y="174" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
@@ -38,6 +39,7 @@
       <text x="430" y="225" fill="#20324b" font-size="23" font-weight="600">Prazo: propostas para sessões especiais e workshops</text>
     </g>
 
+    <!-- 30 de novembro de 2026 -->
     <g>
       <circle cx="124" cy="333" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
       <rect x="174" y="289" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
@@ -46,6 +48,7 @@
       <text x="430" y="340" fill="#20324b" font-size="23" font-weight="600">Prazo: propostas para competições e tutoriais</text>
     </g>
 
+    <!-- 1 de dezembro de 2026 -->
     <g>
       <circle cx="124" cy="448" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
       <rect x="174" y="404" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
@@ -54,6 +57,7 @@
       <text x="430" y="455" fill="#20324b" font-size="23" font-weight="600">Abertura das submissões de artigos</text>
     </g>
 
+    <!-- 15 de dezembro de 2026 -->
     <g>
       <circle cx="124" cy="563" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
       <rect x="174" y="519" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
@@ -63,6 +67,7 @@
       <text x="430" y="581" fill="#20324b" font-size="21" font-weight="600">e propostas de workshops</text>
     </g>
 
+    <!-- 31 de janeiro de 2027 -->
     <g>
       <circle cx="124" cy="678" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
       <rect x="174" y="634" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
@@ -71,34 +76,36 @@
       <text x="430" y="685" fill="#20324b" font-size="23" font-weight="600">Prazo final: artigos regulares</text>
     </g>
 
+    <!-- Fevereiro de 2027: acompanhamento provisório da IV -->
     <g>
-      <circle cx="124" cy="793" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
-      <rect x="174" y="749" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
-      <rect x="198" y="766" width="202" height="54" rx="12" fill="#e4f1fb"/>
-      <text x="299" y="801" fill="#155b91" font-size="20" font-weight="700" text-anchor="middle">15 mar. 2027</text>
-      <text x="430" y="800" fill="#20324b" font-size="23" font-weight="600">Notificação de aceitação: artigos regulares</text>
+      <circle cx="124" cy="793" r="13" fill="#7651a8" stroke="#f7f9fc" stroke-width="5"/>
+      <rect x="174" y="749" width="1162" height="88" rx="17" fill="#ffffff" stroke="#7651a8" stroke-width="2" stroke-dasharray="8 6"/>
+      <rect x="198" y="766" width="202" height="54" rx="12" fill="#f0eafb"/>
+      <text x="299" y="801" fill="#654294" font-size="20" font-weight="700" text-anchor="middle">fev. 2027 (?)</text>
+      <text x="430" y="790" fill="#20324b" font-size="22" font-weight="600">IV 2027: prazo de submissão a confirmar</text>
+      <text x="430" y="817" fill="#52627a" font-size="18">Mês provisório para acompanhamento; sem data oficial anunciada</text>
     </g>
 
+    <!-- 15 de março de 2027 -->
     <g>
       <circle cx="124" cy="908" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
       <rect x="174" y="864" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
       <rect x="198" y="881" width="202" height="54" rx="12" fill="#e4f1fb"/>
-      <text x="299" y="916" fill="#155b91" font-size="20" font-weight="700" text-anchor="middle">12 abr. 2027</text>
-      <text x="430" y="915" fill="#20324b" font-size="23" font-weight="600">Prazo final: versão para publicação (camera-ready)</text>
+      <text x="299" y="916" fill="#155b91" font-size="20" font-weight="700" text-anchor="middle">15 mar. 2027</text>
+      <text x="430" y="915" fill="#20324b" font-size="23" font-weight="600">Notificação de aceitação: artigos regulares</text>
     </g>
 
+    <!-- 12 de abril de 2027 -->
     <g>
-      <!-- IV 2027: data de submissão ainda não anunciada -->
-      <circle cx="124" cy="1023" r="13" fill="#7651a8" stroke="#f7f9fc" stroke-width="5"/>
-      <rect x="174" y="979" width="1162" height="88" rx="17" fill="#ffffff" stroke="#7651a8" stroke-width="2" stroke-dasharray="8 6"/>
-      <rect x="198" y="996" width="202" height="54" rx="12" fill="#f0eafb"/>
-      <text x="299" y="1031" fill="#654294" font-size="20" font-weight="700" text-anchor="middle">abr. 2027 (?)</text>
-      <text x="430" y="1020" fill="#20324b" font-size="22" font-weight="600">IV 2027: prazo de submissão a confirmar</text>
-      <text x="430" y="1047" fill="#52627a" font-size="18">Mês provisório para acompanhamento; sem data oficial anunciada</text>
+      <circle cx="124" cy="1023" r="13" fill="#1769aa" stroke="#f7f9fc" stroke-width="5"/>
+      <rect x="174" y="979" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
+      <rect x="198" y="996" width="202" height="54" rx="12" fill="#e4f1fb"/>
+      <text x="299" y="1031" fill="#155b91" font-size="20" font-weight="700" text-anchor="middle">12 abr. 2027</text>
+      <text x="430" y="1030" fill="#20324b" font-size="23" font-weight="600">Prazo final: versão para publicação (camera-ready)</text>
     </g>
 
+    <!-- IJCNN 2027: destaque verde -->
     <g>
-      <!-- IJCNN 2027: destaque verde -->
       <circle cx="124" cy="1138" r="24" fill="#22c55e" opacity="0.18"/>
       <circle cx="124" cy="1138" r="17" fill="#16a34a" stroke="#ffffff" stroke-width="6"/>
       <circle cx="124" cy="1138" r="8" fill="#bbf7d0"/>
@@ -110,8 +117,8 @@
       <text x="430" y="1162" fill="#52627a" font-size="18">Cidade do Cabo, África do Sul</text>
     </g>
 
+    <!-- IV 2027: destaque verde -->
     <g>
-      <!-- IV 2027: destaque verde -->
       <circle cx="124" cy="1253" r="24" fill="#22c55e" opacity="0.18"/>
       <circle cx="124" cy="1253" r="17" fill="#16a34a" stroke="#ffffff" stroke-width="6"/>
       <circle cx="124" cy="1253" r="8" fill="#bbf7d0"/>
@@ -124,5 +131,5 @@
     </g>
   </g>
 
-  <text x="174" y="1360" fill="#52627a" font-size="18">* Abril de 2027 é apenas um lembrete de acompanhamento, não um prazo oficial da IV 2027.</text>
+  <text x="174" y="1360" fill="#52627a" font-size="18">* Fevereiro de 2027 é apenas um lembrete de acompanhamento, não um prazo oficial da IV 2027.</text>
 </svg>

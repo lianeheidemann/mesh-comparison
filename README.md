@@ -215,10 +215,10 @@ mesh-comparison/
 │   │   └── step-by-step/
 │   ├── implementation/
 │   ├── gui/
-│   ├── REFERENCES/              # Scientific references, BibTeX and PDFs
+│   ├── REFERENCES/            # Scientific references, BibTeX and PDFs
 │   │   ├── references.bib
-│   │   └── pdf/
-│   ├── CONFERENCES/             # Conference information and timeline SVG
+│   │   └── pdfs
+│   ├── CONFERENCES/           # Conference information and timeline SVG
 │   │   └── submission-timeline.svg
 │   ├── avaliacao-geometrica/
 │   └── results/

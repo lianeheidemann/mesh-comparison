@@ -374,6 +374,10 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import c
 - **CUDA not available**: expected on CPU-only installs; LPIPS then runs on CPU, just slower.
 - **Cannot load an `.fbx` file**: FBX is rejected and is not converted by this application. Convert it outside Mesh Comparison to STL, OBJ, PLY, or another supported `trimesh` format, then load the converted file.
 
+## Interface 
+
+<img src="assets/interface/interface-v2.png">
+
 ## License and credits
 
 This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](LICENSE). Code derived from the original project remains the property of its author.

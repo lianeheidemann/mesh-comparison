@@ -49,6 +49,9 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
   - [Perceptual evaluation](#perceptual-evaluation)
 - [Parameters](#parameters)
 - [Scope and limitations](#scope-and-limitations)
+- [Research resources](#research-resources)
+  - [Scientific references](#scientific-references)
+  - [Conferences and submission calendar](#conferences-and-submission-calendar)
 - [Development](#development)
   - [Agent Harness for Scientific Integrity](#agent-harness-for-scientific-integrity)
 - [Troubleshooting](#troubleshooting)
@@ -212,6 +215,11 @@ mesh-comparison/
 │   │   └── step-by-step/
 │   ├── implementation/
 │   ├── gui/
+│   ├── REFERENCES/              # Scientific references, BibTeX and PDFs
+│   │   ├── references.bib
+│   │   └── pdf/
+│   ├── CONFERENCES/             # Conference information and timeline SVG
+│   │   └── submission-timeline.svg
 │   ├── avaliacao-geometrica/
 │   └── results/
 ├── tests/                     # Automated tests
@@ -326,6 +334,16 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 - The GitHub Actions workflow checks linting, the tests and that the pipelines import. It does not run offscreen rendering or validate CUDA execution.
 - LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.
 - Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/step-by-step/10-limitacoes-evolucao.md).
+
+## Research resources
+
+### Scientific references
+
+The [scientific references](docs/REFERENCES/README.md) collect supporting research publications with links to their original sources and locally indexed PDFs. A reusable [BibTeX bibliography](docs/REFERENCES/references.bib) is available for LaTeX and Overleaf. These materials provide research context and do not by themselves validate the project's methods or results.
+
+### Conferences and submission calendar
+
+The [conferences guide](docs/CONFERENCES/README.md) tracks publication opportunities, official calls for papers, and the [submission timeline](docs/CONFERENCES/submission-timeline.svg) for IJCNN 2027 and IV 2027. Tentative reminders are distinguished from officially announced deadlines; always confirm dates with the conference organizers before submitting.
 
 ## Development
 

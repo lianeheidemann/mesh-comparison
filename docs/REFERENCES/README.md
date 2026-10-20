@@ -16,5 +16,4 @@ Arquivo: [PDF](Pothole%20Detection%20Based%20on%20Disparity.pdf).
 ![Linha do tempo das chamadas e datas das conferências IJCNN 2027 e IV 2027](submission-timeline.svg)
 
 - **IJCNN 2027:** [chamada de trabalhos](https://ijcnn.org/2027/authors/call-for-papers). A página informa que artigos completos devem ter até seis páginas no formato IEEE de duas colunas.
-- **IV 2027:** [site oficial](https://iv.csites.fct.unl.pt/). O prazo de submissão de artigos ainda não foi anunciado. **Abril de 2027** aparece no calendário apenas como **lembrete provisório para acompanhar a divulgação**, não como prazo confirmado.
-
+- **IV 2027:** [site oficial](https://iv.csites.fct.unl.pt/). Na edição de 2026, o prazo de submissão de artigos foi 30 de março de 2026. Para a edição de 2027, *o prazo ainda não foi anunciado oficialmente*. Fevereiro de 2027 aparece no calendário apenas como um lembrete provisório para acompanhar a divulgação da chamada de trabalhos (Call for Papers), não como uma previsão ou prazo confirmado.

@@ -217,7 +217,7 @@ mesh-comparison/
 │   ├── gui/
 │   ├── REFERENCES/            # Scientific references, BibTeX and PDFs
 │   │   ├── references.bib
-│   │   └── pdfs
+│   │   └── pdf
 │   ├── CONFERENCES/           # Conference information and timeline SVG
 │   │   └── submission-timeline.svg
 │   ├── avaliacao-geometrica/

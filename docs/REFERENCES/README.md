@@ -10,6 +10,8 @@ Este diretório guarda documentos de pesquisa consultados como material de apoio
 
 [3] R. Zhang, P. Isola, A. A. Efros, E. Shechtman, and O. Wang, “The Unreasonable Effectiveness of Deep Features as a Perceptual Metric,” in *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*, 2018, pp. 586–595. [Online]. Available: [https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html](https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html). • Arquivo: [PDF](pdf/03-The-Unreasonable-Effectiveness-of-Deep-Features-as-a-Perceptual-Metric.pdf).
 
+---
+
 As referências também estão disponíveis em [BibTeX](references.bib), para uso em LaTeX e Overleaf.
 
 Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/README.md).

@@ -18,6 +18,6 @@ Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/REA
 
 ---
 
-Outros links:
+🔗 Outros links:
 
 https://www.microsoft.com/en-us/research/workbench/project/trellis?utm_source=chatgpt.com

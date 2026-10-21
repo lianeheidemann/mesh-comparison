@@ -25,3 +25,7 @@ Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/REA
 - https://studio.tripo3d.ai/
 
 - https://www.meshy.ai/
+
+- https://github.com/Comfy-Org/ComfyUI
+
+- https://github.com/Tencent-Hunyuan/Hunyuan3D-2

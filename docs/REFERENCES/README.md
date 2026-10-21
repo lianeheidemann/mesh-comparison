@@ -18,7 +18,7 @@ Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/REA
 
 ---
 
-🔗 Outros links:
+🔗 IAs Generativas 3D do tipo one-shot
 
 - https://www.microsoft.com/en-us/research/workbench/project/trellis?utm_source=chatgpt.com
 

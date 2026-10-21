@@ -15,3 +15,10 @@ Este diretório guarda documentos de pesquisa consultados como material de apoio
 As referências também estão disponíveis em [BibTeX](references.bib), para uso em LaTeX e Overleaf.
 
 Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/README.md).
+
+
+---
+
+Outros links:
+
+https://www.microsoft.com/en-us/research/workbench/project/trellis?utm_source=chatgpt.com

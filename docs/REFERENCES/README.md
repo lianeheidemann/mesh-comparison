@@ -16,7 +16,6 @@ As referências também estão disponíveis em [BibTeX](references.bib), para us
 
 Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/README.md).
 
-
 ---
 
 Outros links:

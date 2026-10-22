@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1323.92" height="1312.588" viewBox="38.54 14.894 1323.92 1312.588" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1821.07" height="1356.207" viewBox="-210.035 -8.477 1821.07 1356.207" role="img" aria-labelledby="title desc">
   <title id="title">Calendário de submissões e conferências, 2026–2027</title>
   <desc id="desc">Prazos de submissão da IJCNN 2027, datas das conferências IJCNN e IV 2027 e lembrete provisório para acompanhamento em fevereiro de 2027 sobre a submissão da IV, sem data oficial anunciada.</desc>
   <style>
@@ -95,13 +95,19 @@
     <!-- IJCNN 2027: destaque verde -->
     <g>
       <g data-sm-edit="element" transform="translate(0 0) rotate(0) scale(1.17)" style="transform-box:fill-box;transform-origin:center">
-        <circle cx="124" cy="1138" r="24" fill="#22c55e" opacity="0.18"/>
+        <g data-sm-anim="pulse" style="transform-box:fill-box;transform-origin:center;--sm-i:1.53;animation:sm-pulse 4.11s ease-in-out infinite">
+          <circle cx="124" cy="1138" r="24" fill="#22c55e" opacity="0.18"/>
+        </g>
       </g>
       <g data-sm-edit="element" transform="translate(0 0) rotate(0) scale(1.17)" style="transform-box:fill-box;transform-origin:center">
-        <circle cx="124" cy="1138" r="17" fill="#16a34a" stroke="#ffffff" stroke-width="6"/>
+        <g data-sm-anim="pulse" style="transform-box:fill-box;transform-origin:center;--sm-i:1.69;animation:sm-pulse 2s ease-in-out infinite">
+          <circle cx="124" cy="1138" r="17" fill="#16a34a" stroke="#ffffff" stroke-width="6"/>
+        </g>
       </g>
       <g data-sm-edit="element" transform="translate(0 0) rotate(0) scale(1.17)" style="transform-box:fill-box;transform-origin:center">
-        <circle cx="124" cy="1138" r="8" fill="#bbf7d0"/>
+        <g data-sm-anim="pulse" style="transform-box:fill-box;transform-origin:center;--sm-i:1.53;animation:sm-pulse 4.11s ease-in-out infinite">
+          <circle cx="124" cy="1138" r="8" fill="#bbf7d0"/>
+        </g>
       </g>
       <rect x="174" y="1094" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
       <rect x="198" y="1111" width="202" height="54" rx="12" fill="#e4f1fb"/>
@@ -112,13 +118,19 @@
     <!-- IV 2027: destaque verde -->
     <g>
       <g data-sm-edit="element" transform="translate(0 0) rotate(0) scale(1.17)" style="transform-box:fill-box;transform-origin:center">
-        <circle cx="124" cy="1253" r="24" fill="#22c55e" opacity="0.18"/>
+        <g data-sm-anim="pulse" style="transform-box:fill-box;transform-origin:center;--sm-i:1.53;animation:sm-pulse 4.11s ease-in-out infinite">
+          <circle cx="124" cy="1253" r="24" fill="#22c55e" opacity="0.18"/>
+        </g>
       </g>
       <g data-sm-edit="element" transform="translate(0 0) rotate(0) scale(1.17)" style="transform-box:fill-box;transform-origin:center">
-        <circle cx="124" cy="1253" r="17" fill="#16a34a" stroke="#ffffff" stroke-width="6"/>
+        <g data-sm-anim="pulse" style="transform-box:fill-box;transform-origin:center;--sm-i:1.69;animation:sm-pulse 2s ease-in-out infinite">
+          <circle cx="124" cy="1253" r="17" fill="#16a34a" stroke="#ffffff" stroke-width="6"/>
+        </g>
       </g>
       <g data-sm-edit="element" transform="translate(0 0) rotate(0) scale(1.17)" style="transform-box:fill-box;transform-origin:center">
-        <circle cx="124" cy="1253" r="8" fill="#bbf7d0"/>
+        <g data-sm-anim="pulse" style="transform-box:fill-box;transform-origin:center;--sm-i:1.53;animation:sm-pulse 4.11s ease-in-out infinite">
+          <circle cx="124" cy="1253" r="8" fill="#bbf7d0"/>
+        </g>
       </g>
       <rect x="174" y="1209" width="1162" height="88" rx="17" fill="#ffffff" stroke="#d9e2ed"/>
       <rect x="198" y="1226" width="202" height="54" rx="12" fill="#f0eafb"/>
@@ -127,4 +139,5 @@
       <text x="430" y="1277" fill="#52627a" font-size="18">Roma, Itália</text>
     </g>
   </g>
+  <style data-sm-anim="keyframes">@keyframes sm-spin{to{transform:rotate(360deg)}}@keyframes sm-pulse{50%{transform:scale(calc(1 + .15 * var(--sm-i,1)))}}@keyframes sm-float{50%{transform:translateY(calc(-8% * var(--sm-i,1)))}}@keyframes sm-sway{25%{transform:rotate(calc(-8deg * var(--sm-i,1)))}75%{transform:rotate(calc(8deg * var(--sm-i,1)))}}@keyframes sm-fade{50%{opacity:calc(1 - .75 * var(--sm-i,1))}}</style>
 </svg>

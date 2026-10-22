@@ -20,7 +20,7 @@ Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/REA
 
 🔗 IAs Generativas 3D do tipo "one-shot" (ou single-image-to-3D)
 
-- https://www.microsoft.com/en-us/research/workbench/project/trellis?utm_source=chatgpt.com
+- https://www.microsoft.com/en-us/research/workbench/project/trellis
 
 - https://studio.tripo3d.ai/
 

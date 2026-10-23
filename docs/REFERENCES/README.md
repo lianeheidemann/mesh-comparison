@@ -29,3 +29,9 @@ Para prazos e chamadas de trabalhos, consulte [Conferências](../CONFERENCES/REA
 - https://github.com/Comfy-Org/ComfyUI
 
 - https://github.com/Tencent-Hunyuan/Hunyuan3D-2
+
+---
+
+Outros links:
+
+- https://arxiv.org/pdf/2502.06608

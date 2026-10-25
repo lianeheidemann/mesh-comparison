@@ -215,11 +215,6 @@ mesh-comparison/
 │   │   └── step-by-step/
 │   ├── implementation/
 │   ├── gui/
-│   ├── REFERENCES/            # Scientific references, BibTeX and PDFs
-│   │   ├── references.bib
-│   │   └── pdf
-│   ├── CONFERENCES/           # Conference information and timeline SVG
-│   │   └── submission-timeline.svg
 │   ├── avaliacao-geometrica/
 │   └── results/
 ├── tests/                     # Automated tests
@@ -337,13 +332,7 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 
 ## Research resources
 
-### Scientific references
-
-The [scientific references](docs/REFERENCES/README.md) collect supporting research publications with links to their original sources and locally indexed PDFs. A reusable [BibTeX bibliography](docs/REFERENCES/references.bib) is available for LaTeX and Overleaf. These materials provide research context and do not by themselves validate the project's methods or results.
-
-### Conferences and submission calendar
-
-The [conferences guide](docs/CONFERENCES/README.md) tracks publication opportunities, official calls for papers, and the [submission timeline](docs/CONFERENCES/submission-timeline.svg) for IJCNN 2027 and IV 2027. Tentative reminders are distinguished from officially announced deadlines; always confirm dates with the conference organizers before submitting.
+Scientific references (BibTeX and PDFs) and the conferences guide with the submission timeline for IJCNN 2027 and IV 2027 have moved to the private research workspace [mesh-comparison-article](https://github.com/lianeheidemann/mesh-comparison-article), under `references/` and `conferences/`.
 
 ## Development
 

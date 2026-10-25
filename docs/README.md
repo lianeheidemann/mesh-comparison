@@ -8,7 +8,7 @@ Esta é a navegação da documentação para a versão atual do projeto, organiz
 | [Implementação e evolução](implementation/README.md) | Estrutura modular, fluxo dos pipelines e tutoriais passo a passo | Ao estudar ou alterar o código |
 | [Interface desktop](gui/README.md) | Instalação, execução e controles da GUI PySide6/PyVistaQt | Para inspecionar GT, RM, heatmap e relatórios |
 | [Resultados de exemplo](results/README.md) | Métricas e imagens de uma execução previamente registrada | Para consultar um conjunto específico de resultados |
-| [Referências e chamadas](REFERENCES/README.md) | Artigos de pesquisa e chamadas de conferências | Para consultar fontes e oportunidades de publicação |
+| [Referências e chamadas](https://github.com/lianeheidemann/mesh-comparison-article) | Movidas para o repositório privado `mesh-comparison-article` (`references/` e `conferences/`) | Para consultar fontes e oportunidades de publicação |
 | [Agent Harness](harness/README.md) | Estado do desenvolvimento assistido por agentes, guardrails e roteiro reutilizável | Para organizar futuras implementações via LLM |
 | [Referências sobre Harness](harness/REFERENCIAS.md) | Fontes oficiais e materiais complementares | Para fundamentar decisões e arquitetura |
 

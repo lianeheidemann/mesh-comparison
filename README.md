@@ -49,7 +49,6 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
   - [Perceptual evaluation](#user-content-perceptual-evaluation)
 - [Parameters](#user-content-parameters)
 - [Scope and limitations](#user-content-scope-and-limitations)
-- [Research resources](#user-content-research-resources)
 - [Development](#user-content-development)
   - [Agent Harness for Scientific Integrity](#user-content-agent-harness-for-scientific-integrity)
 - [Troubleshooting](#user-content-troubleshooting)
@@ -271,10 +270,6 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
 - CI checks code and output structure only, not metric values, CUDA or the GUI window; see [Development](#user-content-development).
 - Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/README.md).
-
-## Research resources
-
-Scientific references (BibTeX and PDFs) and the conferences guide with the submission timeline for IJCNN 2027 and IV 2027 have moved to the private research workspace [mesh-comparison-article](https://github.com/lianeheidemann/mesh-comparison-article), under `references/` and `conferences/`.
 
 ## Development
 

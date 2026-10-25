@@ -15,14 +15,13 @@ Neste projeto, a finalidade proposta não é substituir o pipeline científico p
 ### Abrangência do projeto
 
 - **GT (ground truth)** e **RM (reconstructed mesh)** são processadas por `src/meshcomparison/geometry/pipeline.py` e `src/meshcomparison/perceptual/pipeline.py`, com entradas de exemplo em `data/samples/`.
-- Open3D auxilia no alinhamento ICP; Trimesh, NumPy e SciPy dão suporte à geometria; `pyrender` gera renderizações; LPIPS, PSNR e SSIM avaliam imagens. A execução de avaliações pelo usuário ocorre exclusivamente pela interface desktop PySide6/PyVistaQt; internamente, ela aciona os pipelines em processos separados.
-- **Fluxo de uso:** carregar GT e RM, iniciar a avaliação e consultar/exportar resultados pela interface gráfica. Scripts internos e testes automatizados não são apresentados como modos alternativos de execução para o usuário.
+- Open3D auxilia no alinhamento ICP; Trimesh, NumPy e SciPy dão suporte à geometria; `pyrender` gera renderizações; LPIPS, PSNR e SSIM avaliam imagens.
 - Métricas e imagens são artefatos reproduzíveis **desde que** entradas, parâmetros, versões, câmera e ambiente sejam controlados.
 - **Não alterar silenciosamente a metodologia:** mudanças em ICP, escala, amostragem de vértices/superfícies, câmera, iluminação, máscaras ou métricas exigem avaliação de regressão e atualização da documentação.
 
 ### Execução das avaliações: exclusivamente pela interface
 
-O fluxo operacional do Mesh Comparison é **GUI-first**: o usuário seleciona as malhas GT e RM, inicia a avaliação geométrica e/ou perceptual e acompanha os resultados pela interface desktop. A GUI utiliza `src/meshcomparison/gui/runner.py` para iniciar os pipelines em subprocessos internos, mantendo o processamento separado do visualizador 3D. Esses subprocessos são detalhes de implementação, **não** um segundo modo de uso documentado.
+O fluxo operacional do Mesh Comparison é **GUI-first**: o usuário seleciona as malhas GT e RM, inicia a avaliação geométrica e/ou perceptual e acompanha os resultados pela interface desktop. A GUI utiliza `src/meshcomparison/gui/runner.py` para iniciar os pipelines em subprocessos internos, mantendo o processamento separado do visualizador 3D. Esses subprocessos, scripts internos e testes automatizados são detalhes de implementação, **não** modos alternativos de uso documentados.
 
 **Distinção importante:** comandos de instalação, `ruff`, `pytest` e eventuais testes automatizados dos módulos continuam apropriados para desenvolvimento, CI e regressão científica. Eles não substituem a execução da aplicação pela interface nem devem ser apresentados como instruções de uso para o usuário final. Para a baseline funcional, validar o fluxo completo da GUI e registrar as saídas produzidas por ela.
 
@@ -72,7 +71,7 @@ Não existe uma certificação universal de “harness completo”. Neste projet
 
 1. **Instruções versionadas — arquivos presentes:** `AGENTS.md` já estabelece regras, comandos e limites; verificar sua aplicação em tarefas reais.
 2. **Contexto navegável — parcial:** contratos científicos CC-01–CC-13 já documentados; mapa de arquitetura e ADRs ainda precisam ser avaliados.
-3. **Ambiente verificável**: dependências consistentes, entradas de teste pequenas e execução das avaliações **pela interface gráfica** em ambientes suportados; testes automatizados podem chamar componentes internos sem constituir outro fluxo de uso.
+3. **Ambiente verificável**: dependências consistentes, entradas de teste pequenas e execução das avaliações pela interface em ambientes suportados.
 4. **Critérios objetivos**: testes unitários, integração, propriedades geométricas, regressão de renderização e tolerâncias explícitas.
 5. **Gates de CI**: status checks, proteção de branch, revisão de pull requests e logs reproduzíveis.
 6. **Ciclo de agente assistido**: receber tarefa, consultar contexto, planejar, alterar, rodar checks, diagnosticar falhas, revalidar e produzir relatório verificável; sem merge automático sem autorização explícita.
@@ -85,7 +84,7 @@ Não existe uma certificação universal de “harness completo”. Neste projet
 | --- | --- | --- |
 | Motor de execução do agente | Codex ou Claude Code | Decidir chamadas de ferramentas **sob permissões definidas**; não é parte do pipeline científico |
 | Orientação | [AGENTS.md](../../AGENTS.md), [contratos científicos](CONTRATOS-CIENTIFICOS.md) e ADRs | Instruções versionadas e referência metodológica |
-| Execução | Interface desktop PySide6/PyVistaQt; pipelines internos acionados pela GUI | Executar avaliações GT × RM e produzir artefatos pela interface; Python/pytest permanecem ferramentas internas de desenvolvimento e validação |
+| Execução | Interface desktop PySide6/PyVistaQt; pipelines internos acionados pela GUI | Executar avaliações GT × RM e produzir artefatos |
 | Verificação | Ruff, pytest, cenários de malhas e validações de saída | Detectar erros e regressões |
 | Integração | Git, PR, GitHub Actions, regras de branch | Impedir integração de mudanças não verificadas |
 | Evidências | Resultados de testes, logs sem segredos e relatório de PR | Sustentar aprovação ou correção |
@@ -116,9 +115,9 @@ A documentação informa, em cada etapa, **como construir do zero, o que já exi
 
 ### Próximas ações prioritárias
 
-1. Registrar uma **baseline executada** do código original e da implementação atual: commits, hashes das malhas, parâmetros, dependências e resultados. Na versão atual, coletar os resultados por avaliações iniciadas na **interface gráfica**, sem exigir um fluxo alternativo de execução ao usuário.
+1. Registrar uma **baseline executada** do código original e da implementação atual: commits, hashes das malhas, parâmetros, dependências e resultados. Na versão atual, coletar os resultados pela interface gráfica.
 2. Estender os testes existentes com os cenários científicos T-01 a T-10 definidos nos [contratos](CONTRATOS-CIENTIFICOS.md), com tolerâncias justificadas.
-3. Comparar métricas e renderizações entre as duas versões com as mesmas entradas e configurações, utilizando os resultados exportados pela interface atual; não declarar equivalência sem evidências.
+3. Comparar métricas e renderizações entre as duas versões com as mesmas entradas e configurações; não declarar equivalência sem evidências.
 4. Documentar decisões arquiteturais (ADRs) e verificar controles efetivos de branch, CI e revisão humana.
 5. Executar e registrar um ciclo supervisionado de Codex ou Claude Code, com logs, testes e relatório de revisão.
 

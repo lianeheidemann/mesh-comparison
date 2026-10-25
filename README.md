@@ -62,13 +62,11 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 
 <img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines used by the desktop interface">
 
-The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially. The [documentation index](docs/README.md) summarizes the package modules; the [implementation guide](docs/implementation/README.md) lists the existing tests, pending validation and planned evolution.
+The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially.
 
 ## Single-view 3D reconstruction: evaluation context
 
 **Single-view 3D reconstruction** attempts to infer a 3D object from **one 2D image**. In the planned controlled comparison, the original 3D mesh is available as **ground truth (GT)**; a single image rendered from that GT is supplied unchanged to several external generative AI image-to-3D tools (for example, **[Meshy](https://www.meshy.ai/pt-PT)** and **[Tripo AI](https://www.tripo3d.ai/pt)**). Each tool returns a **reconstructed mesh (RM)**. Mesh Comparison is used downstream to evaluate each generated mesh against the same GT.
-
-**External image-to-3D platforms:** [Meshy — official website](https://www.meshy.ai/pt-PT) · [Tripo AI — official website](https://www.tripo3d.ai/pt)
 
 ### Planned comparison across generative 3D models
 
@@ -124,7 +122,7 @@ Render ONE reference image (same 2D input for all generators)
 
 The images below are sample outputs from the geometric and perceptual pipelines. This recorded run used 100 camera views; the pre-alignment normalized MSE was below the configured threshold, so ICP alignment was skipped.
 
-**Execution status:** Both pipelines completed without errors with the repository's example meshes. This confirms the example workflow, but does not constitute systematic validation across varied mesh conditions. For LPIPS, the application automatically prefers CUDA when available and falls back to CPU otherwise.
+**Execution status:** Both pipelines completed without errors with the repository's example meshes. This confirms the example workflow, but does not constitute systematic validation across varied mesh conditions.
 
 ### Geometric metric snapshot
 
@@ -136,8 +134,7 @@ The images below are sample outputs from the geometric and perceptual pipelines.
 | Symmetric Hausdorff distance | 0.308021 | Lower is better |
 | Symmetric RMSE | 0.0322591 | Lower is better |
 
-These geometric values describe this example run. Compare results only when the inputs, camera views, and pipeline settings are consistent. STL files do not store physical units, so geometric values use the unit system of the GT mesh.
-
+These values describe this example run.
 
 ### Perceptual summary — desktop screenshot
 
@@ -145,7 +142,7 @@ These geometric values describe this example run. Compare results only when the 
   <img src="assets/interface/perceptual-summary-example.png" width="100%" alt="Screenshot of the Mesh Comparison desktop Results tab, showing LPIPS, PSNR (dB), and SSIM perceptual summary statistics across evaluated camera views">
 </p>
 
-*Screenshot of the perceptual summary for the example GT/RM mesh pair.* Lower LPIPS is better; higher PSNR and SSIM are better under comparable settings. The screenshot's rounded values differ slightly from the versioned [example results](docs/results/README.md), so treat them as separately recorded results until the respective run settings and metadata are matched. This is **not** a completed benchmark of different generative AI tools.
+*Screenshot of the perceptual summary for the example GT/RM mesh pair.* Lower LPIPS is better; higher PSNR and SSIM are better under comparable settings. The screenshot's rounded values differ slightly from the versioned [example results](docs/results/README.md), so treat them as separately recorded results until the respective run settings and metadata are matched.
 
 <table>
   <tr>
@@ -221,13 +218,11 @@ mesh-comparison/
 └── README.md
 ```
 
-The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface. The root-level [AGENTS.md](AGENTS.md) directs coding agents to the mandatory [scientific contracts](docs/harness/CONTRATOS-CIENTIFICOS.md), while [docs/harness/](docs/harness/README.md) documents the harness workflow.
-
 Use `data/samples/gt.stl` (GT) and `data/samples/mod.stl` (RM) to try the application. The interface saves new results to the selected output folder (default: `output/`); versioned example results are in `examples/output/`. Choose a new output folder for each experiment to avoid overwriting files.
 
 ## Requirements
 
-Use Python 3.12 with the project dependencies and a graphical desktop environment. The interface uses PySide6/PyVistaQt; mesh evaluation requires an OpenGL-capable rendering setup. For **LPIPS**, the default `Auto` mode prefers CUDA when PyTorch supports it, otherwise it uses the CPU.
+Use Python 3.12 with the project dependencies and a graphical desktop environment. The interface uses PySide6/PyVistaQt; mesh evaluation requires an OpenGL-capable rendering setup.
 
 ## Installation
 
@@ -271,7 +266,7 @@ With the `meshEval` environment active, start the interface with:
 mesh-gui
 ```
 
-The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If the window does not open and Python reports `No module named 'PySide6'`, install the interface packages with `python -m pip install PySide6 pyvista pyvistaqt`, then try again. The GUI needs a desktop session. See [Validate on Windows](#user-content-validate-on-windows) for choosing meshes and running an evaluation.
+The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If Python reports `No module named 'PySide6'`, install the GUI packages as described in [Installation](#user-content-installation). The GUI needs a desktop session. See [Validate on Windows](#user-content-validate-on-windows) for choosing meshes and running an evaluation.
 
 ## Validate on Windows
 
@@ -285,7 +280,7 @@ mesh-gui
 
 In the interface, select `data/samples/gt.stl` for **Ground truth (GT)** and `data/samples/mod.stl` for **Reconstruction (RM)**. Choose a **new output folder**, keep both **Geometric** and **Perceptual** enabled, leave **Compute device (LPIPS)** on **Auto — prefer CUDA**, and click **Run evaluation**. The viewer shows the aligned meshes and heatmap; the **Results** tab shows perceptual statistics and images.
 
-When `torch.cuda.is_available()` is `True`, LPIPS can use CUDA; otherwise it uses CPU. Compare the generated CSVs in the output folder with the [recorded example metrics](examples/output/metrics/) under comparable settings. Small numerical differences, especially between CPU and GPU runs, are possible.
+Compare the generated CSVs in the output folder with the [recorded example metrics](examples/output/metrics/) under comparable settings. Small numerical differences, especially between CPU and GPU runs, are possible.
 
 ## Pipelines
 
@@ -302,16 +297,15 @@ Main outputs (relative to the output folder; the committed sample run is in `exa
 
 ### Perceptual evaluation
 
-The perceptual pipeline (`src/meshcomparison/perceptual/`) uses the same shared mesh preparation and conditional ICP alignment, then renders the meshes across a rotating set of camera azimuths. It computes masked LPIPS, PSNR, and SSIM per view and summarizes their distributions. By default, it evaluates 100 views and saves views 1, 33, and 66.
+The perceptual pipeline (`src/meshcomparison/perceptual/`) uses the same shared mesh preparation and conditional ICP alignment, then renders the meshes across a rotating set of camera azimuths. It computes masked LPIPS, PSNR, and SSIM per view and summarizes their distributions; the number of views and saved views are listed under [Parameters](#user-content-parameters).
 
 Main outputs:
 
 - `output/metrics/per_view_metrics.csv`: one row per view with LPIPS, PSNR, SSIM, camera angle, and framing values.
 - `output/metrics/metrics_perceptual.csv`: min, max, 25th/75th percentiles, median, and mean for each perceptual metric.
 - `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, and the final transform.
-- `output/aligned/rm_aligned.ply`: aligned reconstructed mesh in the ground-truth input scale.
+- `output/aligned/rm_aligned.ply`: the same aligned mesh written by the geometric pipeline.
 - `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.
-
 
 ## Parameters
 
@@ -319,11 +313,8 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 
 ## Scope and limitations
 
-- The application evaluates supplied GT/RM meshes; it does not generate a reconstructed mesh from a single image. A single-view reconstruction method must run separately.
-- Comparing Meshy, Tripo AI or other image-to-3D generators using identical inputs and recorded settings is a **proposed study**, not an already completed experiment or an automatic multi-model ranking feature.
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
-- The GitHub Actions workflow checks linting, the tests and that the pipelines import. Its subprocess tests run the pipelines with offscreen rendering at a reduced configuration (320 × 240 px, 2 perceptual views on CPU) to check output structure only; it does not validate metric values, the default 100-view configuration, CUDA execution or the GUI window.
-- LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.
+- CI checks code and output structure only, not metric values, CUDA or the GUI window; see [Development](#user-content-development).
 - Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/README.md).
 
 ## Research resources
@@ -342,8 +333,6 @@ Codex, Claude Code and other coding agents follow repository-level instructions 
 
 The harness establishes safeguards against unintended changes to geometric and perceptual metrics, alignment procedures, rendering parameters, and evaluation outputs. Methodological changes require explicit review and scientific validation. These safeguards support scientific validity but do not independently establish it; numerical equivalence and regression testing remain necessary.
 
-For implementation details, see the [Agent Harness documentation](docs/harness/README.md).
-
 `environments/environment.yml` also installs `pytest` and `ruff`. From the activated environment (with `pip install -e . --no-deps` done):
 
 ```bat
@@ -351,7 +340,7 @@ ruff check .
 pytest
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import check of both pipelines and the worker. The tests include subprocess runs of the pipelines at a reduced configuration that check CSV structure; CI does not validate metric values, CUDA or the GUI window.
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import check of both pipelines and the worker. Its subprocess tests run the pipelines with offscreen rendering at a reduced configuration (320 × 240 px, 2 perceptual views on CPU) to check output structure only; CI does not validate metric values, the default 100-view configuration, CUDA execution or the GUI window.
 
 ## Troubleshooting
 

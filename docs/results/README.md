@@ -17,8 +17,6 @@
 | Hausdorff simétrico | 0,0815869 | 0,308021 unidade |
 | RMSE simétrico | 0,00854461 | 0,0322591 unidade |
 
-O MSE pré-alinhamento ficou abaixo do limiar de 0,0001, por isso nenhuma transformação de alinhamento foi aplicada nesta execução.
-
 ## Métricas perceptuais
 
 Resumo das 100 vistas calculadas:

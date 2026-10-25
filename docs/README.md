@@ -51,7 +51,7 @@ Depois de preparar `meshEval` e instalar o pacote em modo editável, abra a inte
 python -m meshcomparison.gui
 ```
 
-O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e um ambiente com interface gráfica. Veja a [instalação](../README.md#user-content-installation) no README principal. O CI atual executa `ruff check .`, `pytest -q` e uma verificação de importação dos pipelines e do worker. Alguns testes rodam os pipelines em subprocesso com configuração reduzida, apenas para verificar a estrutura das saídas; o CI não testa a janela interativa, não valida valores científicos nem a configuração padrão de 100 vistas.
+O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e um ambiente com interface gráfica. Veja a [instalação](../README.md#user-content-installation) no README principal. O que o CI verifica está descrito em [Development](../README.md#user-content-development).
 
 **Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
 

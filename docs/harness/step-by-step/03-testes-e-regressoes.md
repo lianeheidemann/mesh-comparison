@@ -38,7 +38,11 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 | Transformações de bbox, MSE e subsampling | ✅ | [`tests/test_common.py`](../../../tests/test_common.py); não comprova ICP end-to-end |
 | Helpers perceptuais (PSNR, máscaras, estatísticas) | ✅ | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py) |
 | Device e parâmetros de interface | ✅ | [`tests/test_device.py`](../../../tests/test_device.py) usa simulações; [`tests/test_gui_config.py`](../../../tests/test_gui_config.py) verifica comandos/configuração, **não uma janela real** |
-| Cenários completos de malhas deformadas, incompletas e densidades distintas | 🟡 | [Plano de validação](../../implementation/step-by-step/10-limitacoes-evolucao.md) registra as lacunas |
+| Preparo comum, ICP condicional e exportação alinhada | ✅ | [`tests/test_prepare.py`](../../../tests/test_prepare.py): ICP não acionado abaixo do limiar, exportação na escala de entrada e colunas da transformação |
+| Escala do heatmap e leitura de saídas da GUI | ✅ | [`tests/test_heatmap.py`](../../../tests/test_heatmap.py) e [`tests/test_outputs.py`](../../../tests/test_outputs.py) verificam o percentil 95; [`tests/test_gallery.py`](../../../tests/test_gallery.py) verifica o pareamento GT/RM da galeria |
+| Reuso do renderer offscreen | 🟡 | [`tests/test_rendering.py`](../../../tests/test_rendering.py) compara renderer reutilizado e renders avulsos; é ignorado sem OpenGL offscreen |
+| Integração por subprocesso (worker e schema dos CSVs) | 🟡 | [`tests/test_worker.py`](../../../tests/test_worker.py) e [`tests/test_output_schema.py`](../../../tests/test_output_schema.py) executam os pipelines com configuração reduzida e comparam colunas com `examples/output/metrics/`; **não** comparam valores |
+| Cenários completos de malhas deformadas, incompletas e densidades distintas | 🟡 | [Plano de validação](../../implementation/README.md) registra as lacunas |
 | Regressão do fluxo multivista LPIPS/PSNR/SSIM | ❓ | Testes integrados com renderização e modelos reais ainda precisam ser demonstrados |
 
 ### Casos que devem ser acrescentados neste projeto

@@ -18,7 +18,7 @@ The contracts CC-01 through CC-13 cover loading, normalization, nearest-vertex m
 6. Compare GT and RM using the **same orthographic camera for each view**, with unchanged framing, illumination, mask/crop and view-index conventions unless explicitly approved.
 7. Preserve the **legacy PSNR formula**, which sums RGB squared errors and divides by the number of union-mask pixels, not three times that number. Never silently replace it with a standard-library PSNR implementation.
 8. Preserve the existing zero-background crop approach for SSIM and AlexNet LPIPS. Do not describe these as spatially masked SSIM/LPIPS. Preserve exclusion of non-finite values from perceptual summary statistics.
-9. Preserve report column meanings, original-unit conversion, aligned-mesh export, and output paths. Record differences between CLI, GUI and Python-function defaults; compare runs only with explicit matching parameters.
+9. Preserve report column meanings, original-unit conversion, aligned-mesh export, and output paths. Record differences between the original CLI, the current GUI (`RunConfig`) and Python-function defaults (the current package has no CLI); compare runs only with explicit matching parameters.
 10. Never silently change scientific definitions, thresholds, sampling, coordinate conventions, random seeds, model weights, or outputs while optimizing speed, parallelism, rendering or UI.
 
 ## Required agent workflow
@@ -47,6 +47,15 @@ The contracts CC-01 through CC-13 cover loading, normalization, nearest-vertex m
 Before changing any methodology covered by CC-01–CC-13 — e.g., using point-to-surface distances, altering ICP scaling, switching PSNR definitions, modifying view/mask semantics or metric aggregation — **stop and request approval**. Propose a versioned alternative, an Architecture Decision Record (ADR), regression/baseline comparisons, migration/compatibility considerations and documentation updates. Never overwrite legacy metrics under the same name while changing their meaning.
 
 If the scientific contracts and a user request conflict, explain the conflict and ask for a methodological decision rather than silently overriding the contracts. If an instruction in this file conflicts with a higher-priority instruction, follow the higher-priority instruction and report the limitation.
+
+## README and documentation links
+
+Whenever `README.md` is updated, update its **Table of contents** in the same change:
+
+- List every `##` and `###` section with the same hierarchy and order; remove entries for sections that no longer exist.
+- Link headings as `#user-content-<slug>`, never `#<slug>`, both inside the README and from other documents (`README.md#user-content-<slug>`). On 25/10/2026 it was verified on GitHub (mobile and desktop) that `#<slug>` changes the URL but does not scroll the page, while `#user-content-<slug>` jumps to the heading.
+- Use GitHub's slug: lowercase, punctuation removed (accents kept), spaces turned into `-`; e.g. `Perceptual summary — desktop screenshot` → `perceptual-summary--desktop-screenshot`.
+- Before finishing, check that every relative link and anchor in the changed documents points to an existing file and heading.
 
 ## Review checklist
 

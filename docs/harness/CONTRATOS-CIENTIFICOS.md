@@ -276,6 +276,6 @@ Esse manifesto é **proposta**, não recurso já comprovado no original.
 3. Se for desejável corrigir PSNR, adotar comparação ponto-superfície ou mudar ICP, criar **nova metodologia versionada**, um ADR e métricas separadas; **não sobrescrever** resultados históricos como se fossem equivalentes.
 4. Validar PR em ambiente real, com revisão humana, antes de declarar este conjunto de contratos **aprovado/verificado**.
 
-**Leituras vinculadas:** [guia de Harness](README.md), [testes e regressões](step-by-step/03-testes-e-regressoes.md), [plano de validação científica](../implementation/step-by-step/10-limitacoes-evolucao.md).
+**Leituras vinculadas:** [guia de Harness](README.md), [testes e regressões](step-by-step/03-testes-e-regressoes.md), [plano de validação científica](../implementation/README.md).
 
 **Autoria técnica de referência:** código-fonte de [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). Este documento caracteriza a metodologia observada e propõe verificações para o projeto derivado; não declara que o original seja uma referência científica publicada ou validada externamente.

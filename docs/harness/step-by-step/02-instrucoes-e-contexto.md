@@ -1,6 +1,6 @@
 # 02 — Criar contexto e instruções do agente no primeiro dia
 
-> **Projeto novo:** definir antes da geração extensa de código. **Mesh Comparison: ✅ documentação de domínio; ❌ instruções específicas para agentes na raiz auditada.**
+> **Projeto novo:** definir antes da geração extensa de código. **Mesh Comparison: ✅ documentação de domínio; ✅ [`AGENTS.md`](../../../AGENTS.md) na raiz (ausente na auditoria de 18/10/2026, adicionado depois).**
 
 ## Finalidade
 
@@ -39,14 +39,14 @@ Os comandos exatos devem ser definidos para a stack real. Texto de prompt **não
 | Item | Estado | Evidência |
 | --- | :---: | --- |
 | README com utilização e limitações | ✅ | [README](../../../README.md) |
-| Passo a passo técnico de implementação | ✅ | [docs/implementation/step-by-step](../../implementation/step-by-step/) |
+| Documentação técnica de implementação | ✅ | [docs/implementation](../../implementation/README.md); os tutoriais passo a passo foram removidos em 24/10/2026 |
 | Documentação de evolução de harness | ✅ | [docs/harness](../README.md) |
-| Instruções de agente `AGENTS.md`/`CLAUDE.md` | ❌ | Não encontrados na raiz na auditoria registrada em 18/10/2026 |
+| Instruções de agente `AGENTS.md`/`CLAUDE.md` | ✅ | Ausentes na auditoria de 18/10/2026; [`AGENTS.md`](../../../AGENTS.md) foi adicionado depois e é a fonte única de regras (o `CLAUDE.md` foi removido em 24/10/2026) |
 | ADRs e políticas de domínio especializadas para o agente | ❓ | Necessitam inventário e validação |
 
 ### Adaptar o que existe sem jogar fora o código
 
-Criar o `AGENTS.md` apontando para [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [perceptual](../../../src/meshcomparison/perceptual/pipeline.py). Declarar que mudanças em ICP, escala, unidades, definições de distância, câmeras e LPIPS/PSNR/SSIM exigem revisão metodológica, novos testes e registro de comparação com resultados anteriores.
+Manter o `AGENTS.md` (já versionado e com referência obrigatória aos [contratos científicos](../CONTRATOS-CIENTIFICOS.md)) apontando para [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [perceptual](../../../src/meshcomparison/perceptual/pipeline.py). Declarar que mudanças em ICP, escala, unidades, definições de distância, câmeras e LPIPS/PSNR/SSIM exigem revisão metodológica, novos testes e registro de comparação com resultados anteriores.
 
 ## Critérios de aceite
 

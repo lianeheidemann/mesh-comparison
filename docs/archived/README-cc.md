@@ -34,18 +34,18 @@ Mesh Comparison measures how close a **reconstructed 3D mesh** is to a **ground-
 
 ## Contents
 
-- [Quick start](#quick-start)
-- [Input meshes](#input-meshes)
-- [Metrics at a glance](#metrics-at-a-glance)
-- [Pipelines and outputs](#pipelines-and-outputs)
-- [Example results](#example-results)
-- [Options](#options)
-- [Documentation](#documentation)
-- [Installation details and technologies](#installation-details-and-technologies)
-- [Project layout](#project-layout)
-- [Development](#development)
-- [Troubleshooting](#troubleshooting)
-- [License and credits](#license-and-credits)
+- [Quick start](#user-content-quick-start)
+- [Input meshes](#user-content-input-meshes)
+- [Metrics at a glance](#user-content-metrics-at-a-glance)
+- [Pipelines and outputs](#user-content-pipelines-and-outputs)
+- [Example results](#user-content-example-results)
+- [Options](#user-content-options)
+- [Documentation](#user-content-documentation)
+- [Installation details and technologies](#user-content-installation-details-and-technologies)
+- [Project layout](#user-content-project-layout)
+- [Development](#user-content-development)
+- [Troubleshooting](#user-content-troubleshooting)
+- [License and credits](#user-content-license-and-credits)
 
 ## Quick start
 
@@ -58,7 +58,7 @@ run_percept_eval.bat
 
 The launchers compare `gt.stl` (ground truth) with `mod.stl` (reconstruction) and write everything under `output/`. Re-running replaces files with the same names.
 
-On Linux or macOS, call the scripts directly (see [Options](#options) for custom paths):
+On Linux or macOS, call the scripts directly (see [Options](#user-content-options) for custom paths):
 
 ```bash
 python mesh_eval_pipeline.py --gt gt.stl --rm mod.stl --out output
@@ -170,7 +170,7 @@ All documentation is in Portuguese; read the conceptual guide before the tutoria
 
 - [Documentation index](../README.md)
 - [Understanding mesh evaluation](https://github.com/lianeheidemann/mesh-comparison-article/tree/main/avaliacao-geometrica) — criteria, geometric and perceptual metrics, limitations.
-- [Implementation tutorial](../implementation/README.md) — step-by-step guide to building the pipelines.
+- [Implementation documentation](../implementation/README.md) — current tests and validation plan (the step-by-step tutorial was removed).
 - [Current results](../results/README.md) — recorded metrics and visualizations.
 
 ## Installation details and technologies
@@ -187,7 +187,7 @@ If `meshEval` already exists, activate it instead. Verify the imports before run
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
 ```
 
-The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build matching your CUDA version from the official PyTorch instructions. See the [environment preparation guide](../implementation/step-by-step/01-preparacao-ambiente.md) for validation details.
+The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build matching your CUDA version from the official PyTorch instructions. Validation details were in the environment preparation guide (removed; see the [current README](../../README.md#user-content-installation)).
 
 <details>
 <summary>Technologies</summary>
@@ -247,7 +247,7 @@ GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, the tests
 
 - **`pyrender` fails to create an offscreen context** — a working offscreen OpenGL setup is required. On headless Linux, install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl` (as the CI does).
 - **CUDA not available** — expected on CPU-only installs; LPIPS then runs on CPU, just slower.
-- **Cannot load an `.fbx` file** — convert it to STL/PLY/OBJ first (see [Input meshes](#input-meshes)).
+- **Cannot load an `.fbx` file** — convert it to STL/PLY/OBJ first (see [Input meshes](#user-content-input-meshes)).
 
 ## License and credits
 

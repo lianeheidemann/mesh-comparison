@@ -35,9 +35,9 @@ Um harness útil precisa continuar confiável após novos commits, mudanças de 
 | Evidência | Estado | Observação |
 | --- | :---: | --- |
 | Resultado de métricas e saídas exemplares | ✅ | [README e resultados](../../../README.md) |
-| Histórico de escolhas/etapas de desenvolvimento | ✅ | [Documentação de implementação](../../implementation/step-by-step/) |
+| Histórico de escolhas/etapas de desenvolvimento | 🟡 | [Documentação de implementação](../../implementation/README.md) e histórico do Git; os tutoriais passo a passo foram removidos em 24/10/2026 |
 | Testes e lint declarados no CI | ✅ | [Workflow](../../../.github/workflows/ci.yml) |
-| Regressão científica sistemática | 🟡 | Ainda há cenários pendentes na [etapa 10](../../implementation/step-by-step/10-limitacoes-evolucao.md) |
+| Regressão científica sistemática | 🟡 | Ainda há cenários pendentes no [plano de validação](../../implementation/README.md) |
 | Avaliação documentada de sessões de agente | ❓ | Evidências não confirmadas no repositório auditado |
 | Proteção de branch e aprovação obrigatória | ❓ | Precisa verificar configurações e um PR real |
 | Harness operacional supervisionado | ❓ | Só classificar assim após cumprir os critérios nesta série |

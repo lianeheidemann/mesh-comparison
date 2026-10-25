@@ -42,7 +42,7 @@ Escalation conditions:
 | Entradas, saídas e comandos dos pipelines | ✅ | Oferecem ferramentas e tarefas testáveis |
 | CI automatizada | ✅ | Feedback para alterações em PR |
 | Documentação de domínio | ✅ | Contexto para ler antes de editar |
-| `AGENTS.md` versionado | ❌ | Criar na [etapa 02](02-instrucoes-e-contexto.md) |
+| `AGENTS.md` versionado | ✅ | [`AGENTS.md`](../../../AGENTS.md) na raiz; ver [etapa 02](02-instrucoes-e-contexto.md) |
 | Loop de agente com falha → correção → revalidação registrada | ❓ | Demonstrar em PR de teste, não apenas afirmar que ocorre |
 | Permissões/escopo/limites do agente documentados | ❓ | Configurar e testar sob supervisão |
 

@@ -27,7 +27,7 @@ ruff check .
 pytest -q
 ```
 
-Para conferir os pontos de entrada por importação, use o comando indicado no [guia de preparação do ambiente](../../implementation/step-by-step/01-preparacao-ambiente.md).
+Para conferir os pontos de entrada por importação, use o mesmo comando do CI: `python -c "import meshcomparison.geometry.pipeline, meshcomparison.perceptual.pipeline, meshcomparison.gui.worker"`.
 
 Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambiente e ponto de entrada. O `environments/environment-lock.yml` é um snapshot Windows CPU **anterior à GUI**; `environments/requirements-windows-cu128.txt` é um snapshot pip distinto, com pins da GUI e PyTorch CUDA 12.8. Nenhum deles é um lock universal para Linux/macOS.
 
@@ -41,7 +41,7 @@ Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambi
 | Saídas de avaliação e métricas de exemplo | ✅ | [README principal](../../../README.md) e [`examples/output/`](../../../examples/output/); `output/` é pasta local ignorada pelo Git |
 | Baseline sistemática com hashes e comparação de cenários | 🟡 | Exemplos existem; validação ampla documentada como pendente |
 | Reprodutibilidade de toda a renderização entre plataformas | ❓ | Não comprovada; requer validação específica |
-| Interface gráfica PySide6/PyVistaQt | ✅ | [Código](../../../src/meshcomparison/gui/) e [guia desktop](../../gui/README.md); funcionamento precisa ser testado em SO real |
+| Interface gráfica PySide6/PyVistaQt | ✅ | [Código](../../../src/meshcomparison/gui/) e [instruções de uso no README](../../../README.md#user-content-validate-on-windows); funcionamento precisa ser testado em SO real |
 
 ### Verificação prática deste projeto
 
@@ -57,7 +57,7 @@ run_perceptual("data/samples/gt.stl", "data/samples/mod.stl", "output/harness-ba
                num_views=10, save_views=(1, 5, 10), width=320, height=240, device="cpu")
 ```
 
-Também é possível executar o mesmo fluxo pela interface (`python -m meshcomparison.gui`), que usa os parâmetros fixos descritos no [guia desktop](../../gui/README.md).
+Também é possível executar o mesmo fluxo pela interface (`python -m meshcomparison.gui`), que usa os parâmetros fixos de `RunConfig` ([`src/meshcomparison/gui/config.py`](../../../src/meshcomparison/gui/config.py)), descritos na seção [Parameters](../../../README.md#user-content-parameters) do README.
 
 Separar essas saídas das anteriores. Não comparar a mediana de 10 vistas com resultados anteriores de 100 vistas como se os experimentos fossem equivalentes. Executar e registrar resultados reais antes de afirmar que tudo passou.
 

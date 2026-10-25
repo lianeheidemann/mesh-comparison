@@ -1,4 +1,6 @@
-Validação sistemática e plano de evolução
+# Implementação — validação sistemática e plano de evolução
+
+Este documento reúne o que já está testado no pacote `src/meshcomparison/`, o que ainda precisa ser validado e as evoluções previstas. A estrutura dos módulos está resumida na [visão geral da documentação](../README.md#user-content-entrada-rápida-para-a-versão-atual).
 
 ## 1. O que já está testado
 
@@ -6,15 +8,19 @@ Os testes abaixo **existem no repositório**; isso não equivale a afirmar que f
 
 | Componente | Evidência existente | Limite |
 | --- | --- | --- |
-| Erros geométricos entre pontos | [`tests/test_geometry.py`](../../../tests/test_geometry.py): nuvens idênticas e deslocamento de um ponto | Não exercita pipeline de malhas completo nem superfície contínua |
-| MSE, amostragem e transformação de caixa | [`tests/test_common.py`](../../../tests/test_common.py) | Não comprova convergência robusta de ICP em todas as situações |
-| Device CPU/CUDA e avisos | [`tests/test_device.py`](../../../tests/test_device.py) com simulações (*mocks*) | Não confirma GPU real nem execução de LPIPS em CUDA |
-| PSNR e máscaras | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py) | Não confirma renderização/LPIPS/SSIM em cenário multivista completo |
-| Preparo comum e exportação alinhada | [`tests/test_prepare.py`](../../../tests/test_prepare.py) | Não cobre todas as condições geométricas nem a convergência robusta de ICP |
-| Configuração e worker da GUI | [`tests/test_gui_config.py`](../../../tests/test_gui_config.py), [`tests/test_worker.py`](../../../tests/test_worker.py) | Worker exercitado em subprocesso para geometria; não abre janela nem valida Qt/PyVistaQt |
-| Leitura de resultados para o viewer | [`tests/test_outputs.py`](../../../tests/test_outputs.py) | Não valida a interação real com o viewer 3D |
+| Erros geométricos entre pontos | [`tests/test_geometry.py`](../../tests/test_geometry.py): nuvens idênticas e deslocamento de um ponto | Não exercita pipeline de malhas completo nem superfície contínua |
+| MSE, amostragem e transformação de caixa | [`tests/test_common.py`](../../tests/test_common.py) | Não comprova convergência robusta de ICP em todas as situações |
+| Device CPU/CUDA e avisos | [`tests/test_device.py`](../../tests/test_device.py) com simulações (*mocks*) | Não confirma GPU real nem execução de LPIPS em CUDA |
+| PSNR e máscaras | [`tests/test_perceptual.py`](../../tests/test_perceptual.py) | Não confirma renderização/LPIPS/SSIM em cenário multivista completo |
+| Preparo comum e exportação alinhada | [`tests/test_prepare.py`](../../tests/test_prepare.py) | Não cobre todas as condições geométricas nem a convergência robusta de ICP |
+| Configuração e worker da GUI | [`tests/test_gui_config.py`](../../tests/test_gui_config.py), [`tests/test_worker.py`](../../tests/test_worker.py) | Worker exercitado em subprocesso para geometria; não abre janela nem valida Qt/PyVistaQt |
+| Leitura de resultados para o viewer | [`tests/test_outputs.py`](../../tests/test_outputs.py) | Não valida a interação real com o viewer 3D |
+| Escala do heatmap (percentil 95) | [`tests/test_heatmap.py`](../../tests/test_heatmap.py) | Não valida a imagem renderizada do heatmap |
+| Reuso do renderer offscreen | [`tests/test_rendering.py`](../../tests/test_rendering.py): renderer reutilizado igual a renders avulsos | Ignorado (*skip*) sem OpenGL offscreen; não compara com o renderer do código original |
+| Galeria de imagens da GUI | [`tests/test_gallery.py`](../../tests/test_gallery.py): pareamento GT/RM por vista e ordenação | Lógica sem Qt; não abre a janela |
+| Schema dos CSVs | [`tests/test_output_schema.py`](../../tests/test_output_schema.py): executa os pipelines em subprocesso e compara colunas com `examples/output/metrics/` | Verifica estrutura, não valores científicos |
 
-O [workflow de CI](../../../.github/workflows/ci.yml) chama Ruff, pytest e uma verificação de importação dos pipelines, mas **não executa os pipelines completos com renderização**, nem faz teste gráfico da GUI.
+O [workflow de CI](../../.github/workflows/ci.yml) chama Ruff, pytest e uma verificação de importação dos pipelines e do worker. Pelo pytest, `test_output_schema.py` e `test_worker.py` executam os pipelines em subprocesso com configuração reduzida (320 × 240 px; 2 vistas perceptuais em CPU) para verificar a estrutura das saídas; o CI **não** valida valores científicos, não roda a configuração padrão (100 vistas, 1600 × 1200 px), não usa CUDA e não faz teste gráfico da GUI.
 
 ## 2. O que ainda precisa ser implementado e comprovado
 
@@ -58,9 +64,9 @@ Potenciais evoluções: amostragem uniforme de superfície, análise topológica
 
 ## 5. Ajustes recentes da implementação
 
-O preparo compartilhado dos pipelines agora está em [`common/prepare.py`](../../../src/meshcomparison/common/prepare.py); a camada GUI foi separada em painéis, supervisor, worker de processo filho e carregador de saídas. A mensagem de progresso do pipeline perceptual também usa agora o número real de vistas (`num_views`). Esses testes cobrem partes isoladas do contrato; não substituem a validação end-to-end e a inspeção da janela em um ambiente gráfico real.
+O preparo compartilhado dos pipelines agora está em [`common/prepare.py`](../../src/meshcomparison/common/prepare.py); a camada GUI foi separada em painéis, supervisor, worker de processo filho e carregador de saídas. A mensagem de progresso do pipeline perceptual também usa agora o número real de vistas (`num_views`). Esses testes cobrem partes isoladas do contrato; não substituem a validação end-to-end e a inspeção da janela em um ambiente gráfico real.
 
-## Critérios para concluir esta etapa
+## Critérios de conclusão
 
 - [ ] Casos geométricos controlados (identidade, transformação, deformação, incompletude e densidade) automatizados.
 - [ ] Teste integrado de pelo menos uma execução completa dos pipelines com saídas verificadas.
@@ -68,4 +74,4 @@ O preparo compartilhado dos pipelines agora está em [`common/prepare.py`](../..
 - [ ] Metodologia, parâmetros, tolerâncias e comandos de reprodução registrados.
 - [ ] Resultados comparáveis e exceções conhecidos sem mascarar falhas.
 
-Retorne ao [índice de implementação](../README.md), ao [guia de Harness](../../harness/README.md) ou à [visão geral da documentação](../../README.md).
+Retorne à [visão geral da documentação](../README.md), ao [guia de Harness](../harness/README.md) ou ao [README principal](../../README.md).

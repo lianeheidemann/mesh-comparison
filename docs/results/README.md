@@ -1,11 +1,5 @@
 # Resultados de exemplo — registro histórico
 
-> **Escopo:** resultados previamente registrados e versionados em `examples/output/`. A reorganização do código em `src/meshcomparison/` e a GUI PySide6/PyVistaQt **não foram revalidadas por esta publicação**; não trate os números abaixo como benchmark de um novo commit.
-
-Este relatório registra a execução de exemplo dos pipelines geométrico e perceptual com `data/samples/gt.stl` como referência (GT) e `data/samples/mod.stl` como malha avaliada (RM). Os resultados foram gerados localmente e estão disponíveis na pasta [`examples/output/`](../../examples/output/).
-
-Os dois pipelines concluíram **a execução histórica registrada** sem erros. Para verificar os pipelines da branch atual no seu próprio computador, siga [Validate on Windows](../../README.md#validate-on-windows): o procedimento separa as saídas geométrica e perceptual e compara os novos CSVs com estes exemplos. Este registro não substitui os testes sistemáticos com malhas controladas descritos na [etapa 10](../implementation/step-by-step/10-limitacoes-evolucao.md).
-
 ## Resumo da execução
 
 - O pipeline geométrico e o pipeline perceptual foram executados com os arquivos de exemplo.

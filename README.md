@@ -296,7 +296,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import c
 
 - **`pyrender` fails to create an offscreen context**: a working offscreen OpenGL setup is required. On headless Linux, install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl` (as the CI does).
 - **CUDA not available**: expected on CPU-only installs; LPIPS then runs on CPU, just slower.
-- **Cannot load an `.fbx` file**: FBX is rejected and is not converted by this application. Convert it outside Mesh Comparison to STL, OBJ, PLY, or another supported `trimesh` format, then load the converted file.
+- **`.fbx` files are not supported**: convert them to STL, OBJ or PLY first.
 
 ## Interface
 

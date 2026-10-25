@@ -209,11 +209,7 @@ mesh-comparison/
 ├── environments/              # Conda and Windows CUDA dependency files
 ├── assets/                    # Interface screenshots and previews
 ├── docs/
-│   ├── harness/
-│   │   ├── README.md          # Agent Harness roadmap and status
-│   │   ├── CONTRATOS-CIENTIFICOS.md  # Mandatory scientific contracts
-│   │   ├── REFERENCIAS.md
-│   │   └── step-by-step/
+│   ├── harness/               # Agent Harness, scientific contracts and roadmap
 │   ├── implementation/        # Existing tests, validation plan and evolution
 │   ├── results/               # Recorded example run
 │   ├── archived/              # Historical READMEs (not current instructions)

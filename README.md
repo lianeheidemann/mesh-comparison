@@ -25,7 +25,7 @@
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/PyVistaQt-3B4A5A?style=flat-square"><img src="https://img.shields.io/badge/PyVistaQt-61778E?style=flat-square" alt="PyVistaQt"></picture>
 </p>
 
-Mesh Comparison is a **Python desktop application** for comparing a ground-truth mesh (GT) with a reconstructed mesh (RM). Its interface provides 3D visualization, geometric deviation metrics, heatmaps, and perceptual comparison across multiple camera views. A planned study will compare meshes produced by different image-to-3D AI tools from the same reference image; the application currently evaluates **one GT/RM pair per run**.
+Mesh Comparison is a **Python desktop application** for comparing a ground-truth mesh (GT) with a reconstructed mesh (RM). Its interface provides 3D visualization, geometric deviation metrics, heatmaps, and perceptual comparison across multiple camera views. It evaluates **one GT/RM pair per run**.
 
 <p align="center">
   <img src="assets/interface/evaluate-meshe-preview-v1.webp">
@@ -33,9 +33,7 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 
 ### Table of contents
 
-- [Single-view 3D reconstruction: evaluation context](#user-content-single-view-3d-reconstruction-evaluation-context)
-  - [Planned comparison across generative 3D models](#user-content-planned-comparison-across-generative-3d-models)
-  - [Evaluation criteria](#user-content-brief-overview-of-evaluation-criteria)
+- [Evaluation criteria](#user-content-evaluation-criteria)
 - [Example results](#user-content-example-results)
   - [Geometric metric snapshot](#user-content-geometric-metric-snapshot)
   - [Perceptual summary — desktop screenshot](#user-content-perceptual-summary--desktop-screenshot)
@@ -64,44 +62,7 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 
 The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially.
 
-## Single-view 3D reconstruction: evaluation context
-
-**Single-view 3D reconstruction** attempts to infer a 3D object from **one 2D image**. In the planned controlled comparison, the original 3D mesh is available as **ground truth (GT)**; a single image rendered from that GT is supplied unchanged to several external generative AI image-to-3D tools (for example, **[Meshy](https://www.meshy.ai/pt-PT)** and **[Tripo AI](https://www.tripo3d.ai/pt)**). Each tool returns a **reconstructed mesh (RM)**. Mesh Comparison is used downstream to evaluate each generated mesh against the same GT.
-
-### Planned comparison across generative 3D models
-
-```text
-Known original mesh (GT)
-          |
-          v
-Render ONE reference image (same 2D input for all generators)
-          |
-          +------------------------+----------------------+
-          |                        |                      |
-          v                        v                      v
-     Meshy image-to-3D        Tripo AI image-to-3D       Other AI models
-          |                        |                      |
-          v                        v                      v
-     Generated mesh A         Generated mesh B        Generated mesh C
-          |                        |                      |
-          +------------------------+----------------------+
-                                   |
-                                   v
-                Evaluate EACH reconstructed mesh against GT
-                                   |
-                  +----------------+----------------+
-                  |                                 |
-                  v                                 v
-       Geometric comparison                 Perceptual comparison
-       ICP (when needed),                   Matched multi-view renders;
-       Chamfer, Hausdorff, RMSE,            PSNR, SSIM, LPIPS
-       and distance heatmaps
-                                   |
-                                   v
-          Compare metric results under a consistent protocol
-```
-
-### Brief overview of evaluation criteria
+## Evaluation criteria
 
 | Criterion | Methods | Assesses |
 | --- | --- | --- |
@@ -110,7 +71,7 @@ Render ONE reference image (same 2D input for all generators)
 | **Localized deviations** | Distance heatmap | **Where** the surfaces diverge |
 | **Perceptual similarity** | PSNR, SSIM (higher is better), LPIPS (lower is better) | Visual similarity under matched camera views |
 
-**Project boundary:** Mesh Comparison **does not generate meshes from images**; it evaluates **one supplied GT/RM pair per run**. Evaluating several AI-generated RMs this way is a proposed workflow, **not an automated benchmark or a completed comparative study**. Results are comparable only with the same source image, GT, preparation, cameras and parameters.
+Mesh Comparison **does not generate meshes from images**; it evaluates a supplied GT/RM pair. Results are comparable only with the same GT, preparation, cameras and parameters.
 
 ## Example results
 

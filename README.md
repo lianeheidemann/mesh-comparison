@@ -103,20 +103,14 @@ Render ONE reference image (same 2D input for all generators)
 
 ### Brief overview of evaluation criteria
 
-| Evaluation criterion | Methods | What it helps assess |
+| Criterion | Methods | Assesses |
 | --- | --- | --- |
-| **Geometric fidelity** | Chamfer Distance, Hausdorff Distance, RMSE | How closely the generated surface approximates the GT; lower distances are generally better, under the same units and sampling protocol. |
-| **Alignment** | Conditional ICP | Accounts for pose differences before measuring shape, where appropriate. Alignment is a preparation step, **not** a standalone quality score; it must not conceal meaningful scale or shape errors. |
-| **Localized deviations** | Geometric distance heatmaps | Shows **where** surfaces diverge, not just how much they differ on average. |
-| **Perceptual / rendered similarity** | PSNR, SSIM, LPIPS from matched camera views | Compares visual outputs under consistent viewpoints and rendering conditions. Generally, higher PSNR/SSIM and lower LPIPS indicate greater similarity. |
+| **Geometric fidelity** | Chamfer, Hausdorff, RMSE (lower is better) | How closely the RM surface approximates the GT |
+| **Alignment** | Conditional ICP | Pose correction before measuring; a preparation step, **not** a quality score |
+| **Localized deviations** | Distance heatmap | **Where** the surfaces diverge |
+| **Perceptual similarity** | PSNR, SSIM (higher is better), LPIPS (lower is better) | Visual similarity under matched camera views |
 
-**Fair-comparison protocol (planned):** use the **same source image and GT** for every generator, standardize preprocessing and mesh preparation, hold camera positions, rendering conditions, metric parameters and sampling strategy constant, and record tool/model versions and generation settings. If a generator is stochastic, repeated outputs may be needed to characterize variation. Report individual metrics and relevant qualitative findings; do not claim one model is categorically superior based on a single score, an unvalidated weighted ranking, or one test object.
-
-**Project boundary:** Mesh Comparison **does not generate 3D meshes from images** and does not accept the source photo in place of a GT/RM mesh. Image-to-3D generation happens **outside** the project. The existing application analyzes **one supplied GT/RM pair at a time**, so running the same evaluation separately for multiple AI-generated RMs is a proposed workflow, **not an automated benchmark or a completed comparative study**. The committed example meshes do not establish the reconstruction method used to create the RM.
-
-**Terminology:** *Single-view 3D reconstruction* names the task of reconstructing 3D geometry from one image. *One-shot* may be used informally, but *one-shot learning* has a distinct machine-learning meaning and is not a precise synonym.
-
-**Interpretation:** A single source image cannot directly reveal all hidden surfaces or resolve every depth ambiguity. A reconstruction that looks convincing from that view may differ substantially from the true geometry. Here, **multiple views are used for evaluation** after reconstruction; they are not additional images supplied to the upstream image-to-3D model. Metric values depend on the chosen alignment, scale, mesh sampling, camera settings, and rendering conditions.
+**Project boundary:** Mesh Comparison **does not generate meshes from images**; it evaluates **one supplied GT/RM pair per run**. Evaluating several AI-generated RMs this way is a proposed workflow, **not an automated benchmark or a completed comparative study**. Results are comparable only with the same source image, GT, preparation, cameras and parameters.
 
 ## Example results
 

@@ -170,7 +170,7 @@ All documentation is in Portuguese; read the conceptual guide before the tutoria
 
 - [Documentation index](../README.md)
 - [Understanding mesh evaluation](https://github.com/lianeheidemann/mesh-comparison-article/tree/main/avaliacao-geometrica) — criteria, geometric and perceptual metrics, limitations.
-- [Implementation tutorial](../implementation/README.md) — step-by-step guide to building the pipelines.
+- [Implementation documentation](../implementation/README.md) — current tests and validation plan (the step-by-step tutorial was removed).
 - [Current results](../results/README.md) — recorded metrics and visualizations.
 
 ## Installation details and technologies
@@ -187,7 +187,7 @@ If `meshEval` already exists, activate it instead. Verify the imports before run
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"
 ```
 
-The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build matching your CUDA version from the official PyTorch instructions. See the [environment preparation guide](../implementation/step-by-step/01-preparacao-ambiente.md) for validation details.
+The validated environment used CPU-only PyTorch. For GPU-accelerated LPIPS, install a PyTorch build matching your CUDA version from the official PyTorch instructions. Validation details were in the environment preparation guide (removed; see the [current README](../../README.md#installation)).
 
 <details>
 <summary>Technologies</summary>

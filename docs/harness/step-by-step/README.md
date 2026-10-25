@@ -18,8 +18,8 @@
 | --- | --- | --- | --- |
 | [00 — Planejamento e arquitetura](00-planejamento-e-arquitetura.md) | Escopo, critérios, invariantes, permissões, decisões e fluxo de PR | ✅ Objetivo, pipelines e documentação de domínio | 🟡 Contratos de regressão; ❓ ADRs e políticas de agente |
 | [01 — Ambiente e baseline](01-auditoria-e-linha-de-base.md) | Git, dependências/lock, comandos e primeira saída conhecida | ✅ Ambiente Conda declarado, pipelines modulares e resultados exemplares · 🟡 snapshots Windows distintos (lock CPU pré-GUI e pins pip CUDA 12.8 com GUI) | 🟡 Baseline sistemática; ❓ reprodução multiplataforma |
-| [02 — Instruções e contexto](02-instrucoes-e-contexto.md) | `AGENTS.md`, arquitetura, ADRs, templates e regras no primeiro dia | ✅ READMEs e documentação técnica | ❌ `AGENTS.md`/`CLAUDE.md` na raiz auditada; ❓ ADRs |
-| [03 — Testes e regressões](03-testes-e-regressoes.md) | Testes unitários, integração, smoke e regressão desde a primeira feature | ✅ pytest/ruff e testes unitários de métricas, device e configuração da GUI · verificação de importação no CI | 🟡 Casos científicos sistemáticos pendentes |
+| [02 — Instruções e contexto](02-instrucoes-e-contexto.md) | `AGENTS.md`, arquitetura, ADRs, templates e regras no primeiro dia | ✅ READMEs, documentação técnica e `AGENTS.md` na raiz | ❓ ADRs |
+| [03 — Testes e regressões](03-testes-e-regressoes.md) | Testes unitários, integração, smoke e regressão desde a primeira feature | ✅ pytest/ruff, testes unitários de métricas, preparo, device e GUI sem Qt · testes de schema e worker em subprocesso · verificação de importação no CI | 🟡 Casos científicos sistemáticos pendentes |
 | [04 — CI e proteção](04-ci-e-protecao.md) | Workflow em PR, checks obrigatórios e aprovação humana | ✅ GitHub Actions com Ruff, pytest e smoke tests | ❌ Pipeline completo não roda na CI; ❓ proteção da `main` |
 | [05 — Ciclo de agente](05-ciclo-assistido-e-seguranca.md) | Runtime supervisionado, escopo, ferramentas, feedback e handoff | ✅ Pipelines, documentação e CI podem servir como ferramentas/feedback | ❓ Loop de agente, permissões e checkpoints demonstrados |
 | [06 — Avaliação e manutenção](06-evidencias-e-aceite.md) | Evidências de PR, avaliações de tarefas e manutenção do processo | ✅ Documentação e métricas de exemplo já registradas | ❓ Evals do agente, integração supervisionada comprovada |
@@ -30,7 +30,7 @@
 Este checklist registra **a existência de componentes** no Mesh Comparison. Ele não afirma que um harness completo já está funcionando.
 
 - [x] README principal com propósito, instalação, comandos e saídas ([fonte](../../../README.md)).
-- [x] Guias de implementação preexistentes ([docs/implementation/step-by-step](../../implementation/step-by-step/)).
+- [x] Documentação de implementação ([docs/implementation](../../implementation/README.md)) com testes existentes e plano de validação; os tutoriais passo a passo antigos foram removidos em 24/10/2026.
 - [x] Ambiente Conda e dependências declaradas ([environment.yml](../../../environments/environment.yml)).
 - [x] Snapshot do ambiente Windows anterior à GUI ([environment-lock.yml](../../../environments/environment-lock.yml)) e snapshot pip separado com PySide6/PyVista/PyVistaQt e PyTorch CUDA 12.8 ([requirements-windows-cu128.txt](../../../environments/requirements-windows-cu128.txt)).
 - [x] Dois pipelines executáveis de domínio ([geométrico](../../../src/meshcomparison/geometry/pipeline.py), [perceptual](../../../src/meshcomparison/perceptual/pipeline.py)).
@@ -39,7 +39,7 @@ Este checklist registra **a existência de componentes** no Mesh Comparison. Ele
 - [x] Configuração de `pytest -q` no [GitHub Actions](../../../.github/workflows/ci.yml) e testes existentes em [`tests/`](../../../tests/), sem validação end-to-end completa.
 - [x] Configuração de smoke test de importação (pipelines e worker) no CI.
 - [x] Resultados de exemplo e métricas registrados no [README](../../../README.md), como execução histórica.
-- [x] GUI PySide6/PyVistaQt com [documentação de uso](../../gui/README.md) — execução gráfica em ambiente real ainda não comprovada nesta auditoria.
+- [x] GUI PySide6/PyVistaQt com [instruções de uso no README](../../../README.md#validate-on-windows) — execução gráfica em ambiente real ainda não comprovada nesta auditoria.
 - [x] Documentação de Agent Harness e [bibliografia](../REFERENCIAS.md), com diagrama de fluxo ([visão geral](../README.md)).
 
 ## Pontos a implementar, ampliar ou verificar

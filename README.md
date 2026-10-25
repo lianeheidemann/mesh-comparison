@@ -50,18 +50,17 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 - [Parameters](#parameters)
 - [Scope and limitations](#scope-and-limitations)
 - [Research resources](#research-resources)
-  - [Scientific references](#scientific-references)
-  - [Conferences and submission calendar](#conferences-and-submission-calendar)
 - [Development](#development)
   - [Agent Harness for Scientific Integrity](#agent-harness-for-scientific-integrity)
 - [Troubleshooting](#troubleshooting)
+- [Interface](#interface)
 - [License and credits](#license-and-credits)
 
 ---
 
 <img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines used by the desktop interface">
 
-The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially. The detailed module and GUI flow is in the [implementation guide](docs/implementation/README.md).
+The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially. The [documentation index](docs/README.md) summarizes the package modules; the [implementation guide](docs/implementation/README.md) lists the existing tests, pending validation and planned evolution.
 
 ## Single-view 3D reconstruction: evaluation context
 
@@ -213,18 +212,18 @@ mesh-comparison/
 │   │   ├── CONTRATOS-CIENTIFICOS.md  # Mandatory scientific contracts
 │   │   ├── REFERENCIAS.md
 │   │   └── step-by-step/
-│   ├── implementation/
-│   ├── gui/
-│   └── results/
+│   ├── implementation/        # Existing tests, validation plan and evolution
+│   ├── results/               # Recorded example run
+│   ├── archived/              # Historical READMEs (not current instructions)
+│   └── assets/
 ├── tests/                     # Automated tests
 ├── AGENTS.md                  # Repository-wide coding agent instructions
-├── CLAUDE.md                  # Claude Code instructions
 ├── pyproject.toml
 ├── LICENSE
 └── README.md
 ```
 
-The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface. The root-level [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) direct coding agents to the mandatory [scientific contracts](docs/harness/CONTRATOS-CIENTIFICOS.md), while [docs/harness/](docs/harness/README.md) documents the harness workflow.
+The `common/` module handles shared mesh preparation; `geometry/` computes geometric metrics; `perceptual/` evaluates rendered views; and `gui/` provides the desktop interface. The root-level [AGENTS.md](AGENTS.md) directs coding agents to the mandatory [scientific contracts](docs/harness/CONTRATOS-CIENTIFICOS.md), while [docs/harness/](docs/harness/README.md) documents the harness workflow.
 
 Use `data/samples/gt.stl` (GT) and `data/samples/mod.stl` (RM) to try the application. The interface saves new results to the selected output folder (default: `output/`); versioned example results are in `examples/output/`. Choose a new output folder for each experiment to avoid overwriting files.
 
@@ -262,7 +261,7 @@ python -m pip install -r environments/requirements-windows-cu128.txt
 python -m pip install -e . --no-deps
 ```
 
-The [environment preparation guide](docs/implementation/step-by-step/01-preparacao-ambiente.md) contains further setup details. The interface's **Compute device (LPIPS)** defaults to **Auto — prefer CUDA**, with CPU fallback. A CUDA-enabled PyTorch installation and compatible NVIDIA driver are required for LPIPS GPU acceleration; see the [official PyTorch installation selector](https://pytorch.org/get-started/locally/). The geometric pipeline is not accelerated by this LPIPS setting.
+The interface's **Compute device (LPIPS)** defaults to **Auto — prefer CUDA**, with CPU fallback. A CUDA-enabled PyTorch installation and compatible NVIDIA driver are required for LPIPS GPU acceleration; see the [official PyTorch installation selector](https://pytorch.org/get-started/locally/). The geometric pipeline is not accelerated by this LPIPS setting.
 
 ## Run
 
@@ -274,7 +273,7 @@ With the `meshEval` environment active, start the interface with:
 mesh-gui
 ```
 
-The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If the window does not open and Python reports `No module named 'PySide6'`, install the interface packages with `python -m pip install PySide6 pyvista pyvistaqt`, then try again. The GUI needs a desktop session. See the [desktop GUI guide](docs/gui/README.md) for choosing meshes and running an evaluation.
+The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If the window does not open and Python reports `No module named 'PySide6'`, install the interface packages with `python -m pip install PySide6 pyvista pyvistaqt`, then try again. The GUI needs a desktop session. See [Validate on Windows](#validate-on-windows) for choosing meshes and running an evaluation.
 
 ## Validate on Windows
 
@@ -288,7 +287,7 @@ mesh-gui
 
 In the interface, select `data/samples/gt.stl` for **Ground truth (GT)** and `data/samples/mod.stl` for **Reconstruction (RM)**. Choose a **new output folder**, keep both **Geometric** and **Perceptual** enabled, leave **Compute device (LPIPS)** on **Auto — prefer CUDA**, and click **Run evaluation**. The viewer shows the aligned meshes and heatmap; the **Results** tab shows perceptual statistics and images.
 
-When `torch.cuda.is_available()` is `True`, LPIPS can use CUDA; otherwise it uses CPU. Compare the generated CSVs in the output folder with the [recorded example metrics](examples/output/metrics/) under comparable settings. Small numerical differences, especially between CPU and GPU runs, are possible. See the [desktop guide](docs/gui/README.md) for more detail.
+When `torch.cuda.is_available()` is `True`, LPIPS can use CUDA; otherwise it uses CPU. Compare the generated CSVs in the output folder with the [recorded example metrics](examples/output/metrics/) under comparable settings. Small numerical differences, especially between CPU and GPU runs, are possible.
 
 ## Pipelines
 
@@ -325,9 +324,9 @@ The interface shows analysis parameters as **fixed values** configured in `RunCo
 - The application evaluates supplied GT/RM meshes; it does not generate a reconstructed mesh from a single image. A single-view reconstruction method must run separately.
 - Comparing Meshy, Tripo AI or other image-to-3D generators using identical inputs and recorded settings is a **proposed study**, not an already completed experiment or an automatic multi-model ranking feature.
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
-- The GitHub Actions workflow checks linting, the tests and that the pipelines import. It does not run offscreen rendering or validate CUDA execution.
+- The GitHub Actions workflow checks linting, the tests and that the pipelines import. Its subprocess tests run the pipelines with offscreen rendering at a reduced configuration (320 × 240 px, 2 perceptual views on CPU) to check output structure only; it does not validate metric values, the default 100-view configuration, CUDA execution or the GUI window.
 - LPIPS runs on CPU when CUDA is unavailable; results can depend on camera, framing, and pipeline settings.
-- Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/step-by-step/10-limitacoes-evolucao.md).
+- Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/README.md).
 
 ## Research resources
 
@@ -335,13 +334,13 @@ Scientific references (BibTeX and PDFs) and the conferences guide with the submi
 
 ## Development
 
-Implementation details are in the [technical guide](docs/implementation/README.md); the [desktop guide](docs/gui/README.md) covers the Qt/PyVista viewer; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
+The [documentation index](docs/README.md) describes the package structure; the [implementation guide](docs/implementation/README.md) covers existing tests and the validation plan; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
 
 ### Agent Harness for Scientific Integrity
 
 This project adopts an **Agent Harness** to guide AI-assisted development while safeguarding scientific integrity, methodological consistency, and reproducibility.
 
-Codex and Claude Code follow repository-level instructions defined in [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md), with the [Scientific Contracts (CC-01–CC-13)](docs/harness/CONTRATOS-CIENTIFICOS.md) serving as the mandatory methodological reference.
+Codex, Claude Code and other coding agents follow repository-level instructions defined in [AGENTS.md](AGENTS.md), with the [Scientific Contracts (CC-01–CC-13)](docs/harness/CONTRATOS-CIENTIFICOS.md) serving as the mandatory methodological reference.
 
 The harness establishes safeguards against unintended changes to geometric and perceptual metrics, alignment procedures, rendering parameters, and evaluation outputs. Methodological changes require explicit review and scientific validation. These safeguards support scientific validity but do not independently establish it; numerical equivalence and regression testing remain necessary.
 
@@ -354,7 +353,7 @@ ruff check .
 pytest
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import check of both pipelines and the worker. It does not run the rendering or CUDA parts of the pipelines.
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import check of both pipelines and the worker. The tests include subprocess runs of the pipelines at a reduced configuration that check CSV structure; CI does not validate metric values, CUDA or the GUI window.
 
 ## Troubleshooting
 
@@ -362,7 +361,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import c
 - **CUDA not available**: expected on CPU-only installs; LPIPS then runs on CPU, just slower.
 - **Cannot load an `.fbx` file**: FBX is rejected and is not converted by this application. Convert it outside Mesh Comparison to STL, OBJ, PLY, or another supported `trimesh` format, then load the converted file.
 
-## Interface 
+## Interface
 
 <img src="assets/interface/interface-v2.png">
 

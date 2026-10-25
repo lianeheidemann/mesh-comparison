@@ -51,7 +51,7 @@ A instalação `.[dev]` só funciona se o projeto tiver pacote Python e extras d
 | Execução de Ruff | ✅ | Etapa `ruff check .` |
 | Execução de pytest | ✅ | Etapa `pytest -q` da CI (configurada; checar um run para comprovar êxito) |
 | Smoke de importação | ✅ | Pipelines geométrico e perceptual e `meshcomparison.gui.worker` |
-| Teste completo com renderização no CI | ❌ | Workflow auditado **não** executa esses pipelines integralmente |
+| Teste completo com renderização no CI | 🟡 | O pytest executa os pipelines em subprocesso com configuração reduzida (estrutura dos CSVs); a configuração padrão e os valores científicos **não** são verificados |
 | Proteção obrigatória de PR/revisão | ❓ | É configuração remota, não comprovada pela presença de YAML |
 
 **Neste repositório:** preservar as etapas de CI e a instalação editável `pip install -e . --no-deps` já existentes, acrescentar regressões da etapa 03, testar jobs gráficos separados e configurar/provar regras de branch. Não aplicar `environments/environment-lock.yml` do Windows cegamente ao runner Linux.

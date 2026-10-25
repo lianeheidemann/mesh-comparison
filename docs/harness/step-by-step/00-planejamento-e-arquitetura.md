@@ -42,8 +42,8 @@ A estrutura é **sugestão**, não obrigação universal. Ajuste linguagem, SO, 
 | --- | :---: | --- |
 | Objetivo e arquitetura funcional descritos | ✅ | [README principal](../../../README.md), pipelines geométrico e perceptual |
 | Pipelines de domínio separados | ✅ | [Geometria](../../../src/meshcomparison/geometry/pipeline.py) e [percepção](../../../src/meshcomparison/perceptual/pipeline.py) |
-| Documentação de implementação | ✅ | [Documentação preexistente](../../implementation/step-by-step/) |
-| Contrato de métricas e regressões sistemáticas | 🟡 | [Plano de validação](../../implementation/step-by-step/10-limitacoes-evolucao.md) ainda declara lacunas |
+| Documentação de implementação | ✅ | [Guia de implementação](../../implementation/README.md) |
+| Contrato de métricas e regressões sistemáticas | 🟡 | [Plano de validação](../../implementation/README.md) ainda declara lacunas |
 | Autonomia, permissões e decisões do agente versionadas | ❌ | `AGENTS.md` ausente na `main` auditada |
 | ADRs e aprovações documentadas para alterações científicas | ❓ | Não comprovados na auditoria de 18/10/2026 |
 

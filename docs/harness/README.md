@@ -33,19 +33,19 @@ O fluxo operacional do Mesh Comparison é **GUI-first**: o usuário seleciona as
 | Elemento | Estado | Para que serve no harness | Evidência / ressalva |
 | --- | :---: | --- | --- |
 | Documentação técnica estruturada | ✅ | Contexto e mapa do repositório | [README principal](../../README.md) e [documentação](../README.md) |
-| Guias de implementação passo a passo | ✅ | Decomposição de tarefas e transferência de conhecimento | [Guias existentes](../implementation/step-by-step/) |
+| Documentação de implementação | 🟡 | Transferência de conhecimento e plano de evolução | [Guia de implementação](../implementation/README.md) com testes existentes e validação pendente; os tutoriais passo a passo foram removidos em 24/10/2026 |
 | Ambiente Conda declarado | ✅ | Instalação do projeto e execução de tarefas/testes | [environment.yml](../../environments/environment.yml) inclui GUI, mas deixa dependências sem pin; a validação limpa da branch atual ainda precisa ser registrada |
 | Dependências com versões registradas | 🟡 | Ajuda a reproduzir snapshots específicos | [environment-lock.yml](../../environments/environment-lock.yml) é um snapshot Windows CPU anterior à GUI; [requirements-windows-cu128.txt](../../environments/requirements-windows-cu128.txt) registra outro snapshot pip com GUI e PyTorch CUDA 12.8 |
-| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes unitários](../../tests/) para métricas de pontos, CPU/CUDA simulado, PSNR/máscaras e configuração Qt-free da GUI; **testes de schema end-to-end existentes, mas equivalência científica com o original ainda não comprovada** |
+| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes](../../tests/) para métricas de pontos, MSE/transformações, preparo e exportação alinhada, CPU/CUDA simulado, PSNR/máscaras, escala do heatmap, reuso do renderer, configuração/worker/galeria/saídas da GUI e schema dos CSVs (ver [inventário](../implementation/README.md)); **equivalência científica com o original ainda não comprovada** |
 | Lint com Ruff | ✅ | Verifica padrões de código | Etapa `ruff check .` no [CI](../../.github/workflows/ci.yml) |
-| GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes e verificação de importação dos pipelines |
+| GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes (incluindo execução dos pipelines em subprocesso com configuração reduzida) e verificação de importação dos pipelines e do worker |
 | Pipelines de processamento | ✅ | Processamento científico acionado pela GUI | [Geometria](../../src/meshcomparison/geometry/pipeline.py) e [avaliação perceptual](../../src/meshcomparison/perceptual/pipeline.py); a interface inicia processos internos via [runner](../../src/meshcomparison/gui/runner.py), sem expor execução independente ao usuário |
-| Instruções específicas para agentes | ✅ | Definem regras de atuação, comandos e limites | [AGENTS.md](../../AGENTS.md) e [CLAUDE.md](../../CLAUDE.md) existentes nesta branch; leitura dos contratos CC-01–CC-13 obrigatória |
+| Instruções específicas para agentes | ✅ | Definem regras de atuação, comandos e limites | [AGENTS.md](../../AGENTS.md), comum a Codex, Claude Code e demais agentes (o antigo `CLAUDE.md` foi removido em 24/10/2026); leitura dos contratos CC-01–CC-13 obrigatória |
 | Ciclo autônomo de correção e validação | ❓ | Permite ao agente testar, diagnosticar, corrigir e revalidar | Não demonstrado por arquivos auditados; CI **não** equivale a agente autônomo |
-| Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/step-by-step/10-limitacoes-evolucao.md) separa casos unitários existentes dos cenários de malhas e renderização ainda pendentes |
+| Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/README.md) separa casos unitários existentes dos cenários de malhas e renderização ainda pendentes |
 | Proteção de branch e revisões obrigatórias | ❓ | Impede merge sem critérios e aprovação | Configuração remota do GitHub não auditada |
 | Rastro de tarefas/execuções de agente | ❓ | Documenta decisões, evidências e falhas | Não demonstrado no escopo verificado |
-| Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [Código](../../src/meshcomparison/gui/main_window.py) e [guia de uso](../gui/README.md); teste gráfico real ainda não documentado |
+| Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [Código](../../src/meshcomparison/gui/main_window.py) e [instruções de uso no README](../../README.md#validate-on-windows); teste gráfico real ainda não documentado |
 
 > Os ícones registram **evidência de arquivos/configuração**, não porcentagens de conclusão. Há testes unitários reais no diretório `tests/`, mas eles não asseguram que todos os cenários científicos estejam testados; a execução e o resultado de cada workflow também devem ser conferidos no GitHub Actions.
 
@@ -61,8 +61,7 @@ Fluxo recomendado: **solicitação com critérios de aceitação → agente com 
 
 ### Instruções e contratos científicos já versionados
 
-- [AGENTS.md](../../AGENTS.md): regras gerais obrigatórias para Codex, Claude Code e demais agentes; define planejamento, limites de alterações, validação e aprovação humana.
-- [CLAUDE.md](../../CLAUDE.md): instruções de entrada para Claude Code, remetendo ao `AGENTS.md` e aos contratos.
+- [AGENTS.md](../../AGENTS.md): regras gerais obrigatórias para Codex, Claude Code e demais agentes (arquivo único de instruções desde a remoção do `CLAUDE.md`); define planejamento, limites de alterações, validação e aprovação humana.
 - [CONTRATOS-CIENTIFICOS.md](CONTRATOS-CIENTIFICOS.md): **referência metodológica obrigatória** (CC-01–CC-13), baseada no [código original de Thiago Figueiro Ribeiro](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). Registra normalização, distâncias entre vértices, ICP, heatmap, câmeras, PSNR legado, SSIM, LPIPS, CSVs e proveniência.
 
 **Regra:** alterações metodológicas exigem aprovação humana, ADR, baseline comparativa e testes; otimizações de interface e desempenho não devem alterar silenciosamente resultados científicos. A existência dos documentos não comprova a execução de testes de equivalência nem garante, por si só, a obediência dos agentes.
@@ -71,7 +70,7 @@ Fluxo recomendado: **solicitação com critérios de aceitação → agente com 
 
 Não existe uma certificação universal de “harness completo”. Neste projeto, adotamos a seguinte **definição operacional de pronto**, sem exigir um orquestrador novo:
 
-1. **Instruções versionadas — arquivos presentes:** `AGENTS.md` e `CLAUDE.md` já estabelecem regras, comandos e limites; verificar sua aplicação em tarefas reais.
+1. **Instruções versionadas — arquivos presentes:** `AGENTS.md` já estabelece regras, comandos e limites; verificar sua aplicação em tarefas reais.
 2. **Contexto navegável — parcial:** contratos científicos CC-01–CC-13 já documentados; mapa de arquitetura e ADRs ainda precisam ser avaliados.
 3. **Ambiente verificável**: dependências consistentes, entradas de teste pequenas e execução das avaliações **pela interface gráfica** em ambientes suportados; testes automatizados podem chamar componentes internos sem constituir outro fluxo de uso.
 4. **Critérios objetivos**: testes unitários, integração, propriedades geométricas, regressão de renderização e tolerâncias explícitas.
@@ -85,7 +84,7 @@ Não existe uma certificação universal de “harness completo”. Neste projet
 | Camada | Ferramentas / artefatos | Responsabilidade |
 | --- | --- | --- |
 | Motor de execução do agente | Codex ou Claude Code | Decidir chamadas de ferramentas **sob permissões definidas**; não é parte do pipeline científico |
-| Orientação | [AGENTS.md](../../AGENTS.md), [CLAUDE.md](../../CLAUDE.md), [contratos científicos](CONTRATOS-CIENTIFICOS.md) e ADRs | Instruções versionadas e referência metodológica |
+| Orientação | [AGENTS.md](../../AGENTS.md), [contratos científicos](CONTRATOS-CIENTIFICOS.md) e ADRs | Instruções versionadas e referência metodológica |
 | Execução | Interface desktop PySide6/PyVistaQt; pipelines internos acionados pela GUI | Executar avaliações GT × RM e produzir artefatos pela interface; Python/pytest permanecem ferramentas internas de desenvolvimento e validação |
 | Verificação | Ruff, pytest, cenários de malhas e validações de saída | Detectar erros e regressões |
 | Integração | Git, PR, GitHub Actions, regras de branch | Impedir integração de mudanças não verificadas |

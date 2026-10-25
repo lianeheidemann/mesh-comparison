@@ -80,7 +80,7 @@ Both scripts load meshes with `trimesh`. They **do not read FBX directly**: conv
 | PSNR | Perceptual | Pixel-level fidelity between rendered views, in dB. | Higher |
 | SSIM | Perceptual | Structural similarity of rendered views (0–1). | Higher |
 
-Geometric distances are reported both **normalized** (by the ground-truth bounding-box diagonal) and in the **original ground-truth units**. For a plain-language explanation of each metric and its limits, see [Understanding mesh evaluation](../avaliacao-geometrica/README.md).
+Geometric distances are reported both **normalized** (by the ground-truth bounding-box diagonal) and in the **original ground-truth units**. For a plain-language explanation of each metric and its limits, see [Understanding mesh evaluation](https://github.com/lianeheidemann/mesh-comparison-article/tree/main/avaliacao-geometrica).
 
 ## Pipelines and outputs
 
@@ -169,7 +169,7 @@ Run `python <script> --help` for the full list.
 All documentation is in Portuguese; read the conceptual guide before the tutorial.
 
 - [Documentation index](../README.md)
-- [Understanding mesh evaluation](../avaliacao-geometrica/README.md) — criteria, geometric and perceptual metrics, limitations.
+- [Understanding mesh evaluation](https://github.com/lianeheidemann/mesh-comparison-article/tree/main/avaliacao-geometrica) — criteria, geometric and perceptual metrics, limitations.
 - [Implementation tutorial](../implementation/README.md) — step-by-step guide to building the pipelines.
 - [Current results](../results/README.md) — recorded metrics and visualizations.
 

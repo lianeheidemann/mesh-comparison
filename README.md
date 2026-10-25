@@ -215,7 +215,6 @@ mesh-comparison/
 │   │   └── step-by-step/
 │   ├── implementation/
 │   ├── gui/
-│   ├── avaliacao-geometrica/
 │   └── results/
 ├── tests/                     # Automated tests
 ├── AGENTS.md                  # Repository-wide coding agent instructions

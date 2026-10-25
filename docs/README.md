@@ -55,4 +55,4 @@ O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e u
 
 **Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
 
-**Para validar no Windows:** siga a seção [Validate on Windows](../README.md#validate-on-windows) do README inicial para CUDA/PyTorch, `mesh-gui` e comparação dos CSVs dos dois pipelines. Utilize diretórios separados para as saídas de cada pipeline.
+**Para validar no Windows:** siga a seção [Validate on Windows](../README.md#validate-on-windows) do README inicial para CUDA/PyTorch, `mesh-gui` e comparação dos CSVs dos dois pipelines. Use uma nova pasta de saída para cada experimento: os dois pipelines gravam na pasta escolhida e ambos exportam o mesmo `aligned/rm_aligned.ply`.

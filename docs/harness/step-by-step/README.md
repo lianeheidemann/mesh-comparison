@@ -20,7 +20,7 @@
 | [01 — Ambiente e baseline](01-auditoria-e-linha-de-base.md) | Git, dependências/lock, comandos e primeira saída conhecida | ✅ Ambiente Conda declarado, pipelines modulares e resultados exemplares · 🟡 snapshots Windows distintos (lock CPU pré-GUI e pins pip CUDA 12.8 com GUI) | 🟡 Baseline sistemática; ❓ reprodução multiplataforma |
 | [02 — Instruções e contexto](02-instrucoes-e-contexto.md) | `AGENTS.md`, arquitetura, ADRs, templates e regras no primeiro dia | ✅ READMEs, documentação técnica e `AGENTS.md` na raiz | ❓ ADRs |
 | [03 — Testes e regressões](03-testes-e-regressoes.md) | Testes unitários, integração, smoke e regressão desde a primeira feature | ✅ pytest/ruff, testes unitários de métricas, preparo, device e GUI sem Qt · testes de schema e worker em subprocesso · verificação de importação no CI | 🟡 Casos científicos sistemáticos pendentes |
-| [04 — CI e proteção](04-ci-e-protecao.md) | Workflow em PR, checks obrigatórios e aprovação humana | ✅ GitHub Actions com Ruff, pytest e smoke tests | ❌ Pipeline completo não roda na CI; ❓ proteção da `main` |
+| [04 — CI e proteção](04-ci-e-protecao.md) | Workflow em PR, checks obrigatórios e aprovação humana | ✅ GitHub Actions com Ruff, pytest e smoke tests | 🟡 Pipelines rodam no pytest só em configuração reduzida (estrutura dos CSVs); ❓ proteção da `main` |
 | [05 — Ciclo de agente](05-ciclo-assistido-e-seguranca.md) | Runtime supervisionado, escopo, ferramentas, feedback e handoff | ✅ Pipelines, documentação e CI podem servir como ferramentas/feedback | ❓ Loop de agente, permissões e checkpoints demonstrados |
 | [06 — Avaliação e manutenção](06-evidencias-e-aceite.md) | Evidências de PR, avaliações de tarefas e manutenção do processo | ✅ Documentação e métricas de exemplo já registradas | ❓ Evals do agente, integração supervisionada comprovada |
 | [07 — Modelo reutilizável](07-modelo-reutilizavel.md) | Estrutura de repositório, contrato de tarefa e checklist para novos projetos | ✅ Este documento pode ser reutilizado | Não é uma funcionalidade implantada automaticamente |
@@ -45,7 +45,7 @@ Este checklist registra **a existência de componentes** no Mesh Comparison. Ele
 ## Pontos a implementar, ampliar ou verificar
 
 - [ ] Especificar um contrato de tarefa/invariantes e ADRs para mudanças críticas.
-- [ ] Criar e validar `AGENTS.md` (e integração Claude Code se necessária).
+- [ ] Validar a aplicação do [`AGENTS.md`](../../../AGENTS.md) (já versionado) em tarefas reais.
 - [ ] Executar e registrar baseline de testes, hashes e métricas em ambiente limpo.
 - [ ] **Ampliar** testes unitários já existentes (identidade e deslocamento entre pontos, transformações de caixa) para testes end-to-end com malhas idênticas, transladadas, escaladas, deformadas, incompletas e com densidades distintas.
 - [ ] Criar verificações end-to-end para outputs geométricos e perceptuais sem mudar a metodologia silenciosamente.

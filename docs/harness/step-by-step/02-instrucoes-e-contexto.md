@@ -1,6 +1,6 @@
 # 02 — Criar contexto e instruções do agente no primeiro dia
 
-> **Projeto novo:** definir antes da geração extensa de código. **Mesh Comparison: ✅ documentação de domínio; ❌ instruções específicas para agentes na raiz auditada.**
+> **Projeto novo:** definir antes da geração extensa de código. **Mesh Comparison: ✅ documentação de domínio; ✅ [`AGENTS.md`](../../../AGENTS.md) na raiz (ausente na auditoria de 18/10/2026, adicionado depois).**
 
 ## Finalidade
 
@@ -46,7 +46,7 @@ Os comandos exatos devem ser definidos para a stack real. Texto de prompt **não
 
 ### Adaptar o que existe sem jogar fora o código
 
-Criar o `AGENTS.md` apontando para [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [perceptual](../../../src/meshcomparison/perceptual/pipeline.py). Declarar que mudanças em ICP, escala, unidades, definições de distância, câmeras e LPIPS/PSNR/SSIM exigem revisão metodológica, novos testes e registro de comparação com resultados anteriores.
+Manter o `AGENTS.md` (já versionado e com referência obrigatória aos [contratos científicos](../CONTRATOS-CIENTIFICOS.md)) apontando para [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [perceptual](../../../src/meshcomparison/perceptual/pipeline.py). Declarar que mudanças em ICP, escala, unidades, definições de distância, câmeras e LPIPS/PSNR/SSIM exigem revisão metodológica, novos testes e registro de comparação com resultados anteriores.
 
 ## Critérios de aceite
 

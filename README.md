@@ -37,6 +37,8 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
   - [Planned comparison across generative 3D models](#planned-comparison-across-generative-3d-models)
   - [Evaluation criteria](#brief-overview-of-evaluation-criteria)
 - [Example results](#example-results)
+  - [Geometric metric snapshot](#geometric-metric-snapshot)
+  - [Perceptual summary — desktop screenshot](#perceptual-summary--desktop-screenshot)
 - [Technologies](#technologies)
 - [Workspace layout](#workspace-layout)
 - [Requirements](#requirements)

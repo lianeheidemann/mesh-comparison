@@ -6,7 +6,7 @@ Esta é a navegação da documentação para a versão atual do projeto, organiz
 | --- | --- | --- |
 | [Avaliação de malhas 3D](https://github.com/lianeheidemann/mesh-comparison-article/tree/main/avaliacao-geometrica) | Conceitos, métricas geométricas e perceptuais, aplicações e limitações (movido para o repositório privado `mesh-comparison-article`) | Antes de interpretar métricas |
 | [Implementação e evolução](implementation/README.md) | Testes existentes, lacunas de validação e plano de evolução | Ao estudar ou alterar o código |
-| [Interface desktop](../README.md#run) | Instalação, execução e validação da GUI PySide6/PyVistaQt (seções do README principal) | Para inspecionar GT, RM, heatmap e relatórios |
+| [Interface desktop](../README.md#user-content-run) | Instalação, execução e validação da GUI PySide6/PyVistaQt (seções do README principal) | Para inspecionar GT, RM, heatmap e relatórios |
 | [Resultados de exemplo](results/README.md) | Métricas e imagens de uma execução previamente registrada | Para consultar um conjunto específico de resultados |
 | [Referências e chamadas](https://github.com/lianeheidemann/mesh-comparison-article) | Movidas para o repositório privado `mesh-comparison-article` (`references/` e `conferences/`) | Para consultar fontes e oportunidades de publicação |
 | [Agent Harness](harness/README.md) | Estado do desenvolvimento assistido por agentes, guardrails e roteiro reutilizável | Para organizar futuras implementações via LLM |
@@ -34,7 +34,7 @@ flowchart LR
     OUT --> VIEW["GUI: visualizador 3D, galeria e resultados"]
 ```
 
-Na GUI, os pipelines selecionados são executados em processos filhos sequencialmente; a API Python chama os mesmos módulos diretamente. A estrutura dos módulos está resumida abaixo; o [guia de implementação](implementation/README.md) registra testes e validação pendente, e a seção [Validate on Windows](../README.md#validate-on-windows) do README principal descreve como operar a interface.
+Na GUI, os pipelines selecionados são executados em processos filhos sequencialmente; a API Python chama os mesmos módulos diretamente. A estrutura dos módulos está resumida abaixo; o [guia de implementação](implementation/README.md) registra testes e validação pendente, e a seção [Validate on Windows](../README.md#user-content-validate-on-windows) do README principal descreve como operar a interface.
 
 ## Entrada rápida para a versão atual
 
@@ -51,8 +51,8 @@ Depois de preparar `meshEval` e instalar o pacote em modo editável, abra a inte
 python -m meshcomparison.gui
 ```
 
-O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e um ambiente com interface gráfica. Veja a [instalação](../README.md#installation) no README principal. O CI atual executa `ruff check .`, `pytest -q` e uma verificação de importação dos pipelines e do worker. Alguns testes rodam os pipelines em subprocesso com configuração reduzida, apenas para verificar a estrutura das saídas; o CI não testa a janela interativa, não valida valores científicos nem a configuração padrão de 100 vistas.
+O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e um ambiente com interface gráfica. Veja a [instalação](../README.md#user-content-installation) no README principal. O CI atual executa `ruff check .`, `pytest -q` e uma verificação de importação dos pipelines e do worker. Alguns testes rodam os pipelines em subprocesso com configuração reduzida, apenas para verificar a estrutura das saídas; o CI não testa a janela interativa, não valida valores científicos nem a configuração padrão de 100 vistas.
 
 **Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
 
-**Para validar no Windows:** siga a seção [Validate on Windows](../README.md#validate-on-windows) do README inicial para CUDA/PyTorch, `mesh-gui` e comparação dos CSVs dos dois pipelines. Use uma nova pasta de saída para cada experimento: os dois pipelines gravam na pasta escolhida e ambos exportam o mesmo `aligned/rm_aligned.ply`.
+**Para validar no Windows:** siga a seção [Validate on Windows](../README.md#user-content-validate-on-windows) do README inicial para CUDA/PyTorch, `mesh-gui` e comparação dos CSVs dos dois pipelines. Use uma nova pasta de saída para cada experimento: os dois pipelines gravam na pasta escolhida e ambos exportam o mesmo `aligned/rm_aligned.ply`.

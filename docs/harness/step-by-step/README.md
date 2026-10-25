@@ -39,7 +39,7 @@ Este checklist registra **a existência de componentes** no Mesh Comparison. Ele
 - [x] Configuração de `pytest -q` no [GitHub Actions](../../../.github/workflows/ci.yml) e testes existentes em [`tests/`](../../../tests/), sem validação end-to-end completa.
 - [x] Configuração de smoke test de importação (pipelines e worker) no CI.
 - [x] Resultados de exemplo e métricas registrados no [README](../../../README.md), como execução histórica.
-- [x] GUI PySide6/PyVistaQt com [instruções de uso no README](../../../README.md#validate-on-windows) — execução gráfica em ambiente real ainda não comprovada nesta auditoria.
+- [x] GUI PySide6/PyVistaQt com [instruções de uso no README](../../../README.md#user-content-validate-on-windows) — execução gráfica em ambiente real ainda não comprovada nesta auditoria.
 - [x] Documentação de Agent Harness e [bibliografia](../REFERENCIAS.md), com diagrama de fluxo ([visão geral](../README.md)).
 
 ## Pontos a implementar, ampliar ou verificar

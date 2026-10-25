@@ -33,30 +33,30 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 
 ### Table of contents
 
-- [Single-view 3D reconstruction: evaluation context](#single-view-3d-reconstruction-evaluation-context)
-  - [Planned comparison across generative 3D models](#planned-comparison-across-generative-3d-models)
-  - [Evaluation criteria](#brief-overview-of-evaluation-criteria)
-- [Example results](#example-results)
-  - [Geometric metric snapshot](#geometric-metric-snapshot)
-  - [Perceptual summary — desktop screenshot](#perceptual-summary--desktop-screenshot)
-- [Technologies](#technologies)
-- [Workspace layout](#workspace-layout)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Run](#run)
-  - [Desktop interface](#desktop-interface)
-- [Validate on Windows](#validate-on-windows)
-- [Pipelines](#pipelines)
-  - [Geometric evaluation](#geometric-evaluation)
-  - [Perceptual evaluation](#perceptual-evaluation)
-- [Parameters](#parameters)
-- [Scope and limitations](#scope-and-limitations)
-- [Research resources](#research-resources)
-- [Development](#development)
-  - [Agent Harness for Scientific Integrity](#agent-harness-for-scientific-integrity)
-- [Troubleshooting](#troubleshooting)
-- [Interface](#interface)
-- [License and credits](#license-and-credits)
+- [Single-view 3D reconstruction: evaluation context](#user-content-single-view-3d-reconstruction-evaluation-context)
+  - [Planned comparison across generative 3D models](#user-content-planned-comparison-across-generative-3d-models)
+  - [Evaluation criteria](#user-content-brief-overview-of-evaluation-criteria)
+- [Example results](#user-content-example-results)
+  - [Geometric metric snapshot](#user-content-geometric-metric-snapshot)
+  - [Perceptual summary — desktop screenshot](#user-content-perceptual-summary--desktop-screenshot)
+- [Technologies](#user-content-technologies)
+- [Workspace layout](#user-content-workspace-layout)
+- [Requirements](#user-content-requirements)
+- [Installation](#user-content-installation)
+- [Run](#user-content-run)
+  - [Desktop interface](#user-content-desktop-interface)
+- [Validate on Windows](#user-content-validate-on-windows)
+- [Pipelines](#user-content-pipelines)
+  - [Geometric evaluation](#user-content-geometric-evaluation)
+  - [Perceptual evaluation](#user-content-perceptual-evaluation)
+- [Parameters](#user-content-parameters)
+- [Scope and limitations](#user-content-scope-and-limitations)
+- [Research resources](#user-content-research-resources)
+- [Development](#user-content-development)
+  - [Agent Harness for Scientific Integrity](#user-content-agent-harness-for-scientific-integrity)
+- [Troubleshooting](#user-content-troubleshooting)
+- [Interface](#user-content-interface)
+- [License and credits](#user-content-license-and-credits)
 
 ---
 
@@ -271,7 +271,7 @@ With the `meshEval` environment active, start the interface with:
 mesh-gui
 ```
 
-The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If the window does not open and Python reports `No module named 'PySide6'`, install the interface packages with `python -m pip install PySide6 pyvista pyvistaqt`, then try again. The GUI needs a desktop session. See [Validate on Windows](#validate-on-windows) for choosing meshes and running an evaluation.
+The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If the window does not open and Python reports `No module named 'PySide6'`, install the interface packages with `python -m pip install PySide6 pyvista pyvistaqt`, then try again. The GUI needs a desktop session. See [Validate on Windows](#user-content-validate-on-windows) for choosing meshes and running an evaluation.
 
 ## Validate on Windows
 

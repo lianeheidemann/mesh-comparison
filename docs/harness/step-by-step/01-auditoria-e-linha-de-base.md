@@ -41,7 +41,7 @@ Para um **novo** repositório, substitua nomes e comandos pelo seu próprio ambi
 | Saídas de avaliação e métricas de exemplo | ✅ | [README principal](../../../README.md) e [`examples/output/`](../../../examples/output/); `output/` é pasta local ignorada pelo Git |
 | Baseline sistemática com hashes e comparação de cenários | 🟡 | Exemplos existem; validação ampla documentada como pendente |
 | Reprodutibilidade de toda a renderização entre plataformas | ❓ | Não comprovada; requer validação específica |
-| Interface gráfica PySide6/PyVistaQt | ✅ | [Código](../../../src/meshcomparison/gui/) e [instruções de uso no README](../../../README.md#validate-on-windows); funcionamento precisa ser testado em SO real |
+| Interface gráfica PySide6/PyVistaQt | ✅ | [Código](../../../src/meshcomparison/gui/) e [instruções de uso no README](../../../README.md#user-content-validate-on-windows); funcionamento precisa ser testado em SO real |
 
 ### Verificação prática deste projeto
 
@@ -57,7 +57,7 @@ run_perceptual("data/samples/gt.stl", "data/samples/mod.stl", "output/harness-ba
                num_views=10, save_views=(1, 5, 10), width=320, height=240, device="cpu")
 ```
 
-Também é possível executar o mesmo fluxo pela interface (`python -m meshcomparison.gui`), que usa os parâmetros fixos de `RunConfig` ([`src/meshcomparison/gui/config.py`](../../../src/meshcomparison/gui/config.py)), descritos na seção [Parameters](../../../README.md#parameters) do README.
+Também é possível executar o mesmo fluxo pela interface (`python -m meshcomparison.gui`), que usa os parâmetros fixos de `RunConfig` ([`src/meshcomparison/gui/config.py`](../../../src/meshcomparison/gui/config.py)), descritos na seção [Parameters](../../../README.md#user-content-parameters) do README.
 
 Separar essas saídas das anteriores. Não comparar a mediana de 10 vistas com resultados anteriores de 100 vistas como se os experimentos fossem equivalentes. Executar e registrar resultados reais antes de afirmar que tudo passou.
 

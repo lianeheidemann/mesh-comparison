@@ -45,7 +45,7 @@ O fluxo operacional do Mesh Comparison é **GUI-first**: o usuário seleciona as
 | Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/README.md) separa casos unitários existentes dos cenários de malhas e renderização ainda pendentes |
 | Proteção de branch e revisões obrigatórias | ❓ | Impede merge sem critérios e aprovação | Configuração remota do GitHub não auditada |
 | Rastro de tarefas/execuções de agente | ❓ | Documenta decisões, evidências e falhas | Não demonstrado no escopo verificado |
-| Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [Código](../../src/meshcomparison/gui/main_window.py) e [instruções de uso no README](../../README.md#validate-on-windows); teste gráfico real ainda não documentado |
+| Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [Código](../../src/meshcomparison/gui/main_window.py) e [instruções de uso no README](../../README.md#user-content-validate-on-windows); teste gráfico real ainda não documentado |
 
 > Os ícones registram **evidência de arquivos/configuração**, não porcentagens de conclusão. Há testes unitários reais no diretório `tests/`, mas eles não asseguram que todos os cenários científicos estejam testados; a execução e o resultado de cada workflow também devem ser conferidos no GitHub Actions.
 

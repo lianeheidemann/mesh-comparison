@@ -48,6 +48,15 @@ Before changing any methodology covered by CC-01–CC-13 — e.g., using point-t
 
 If the scientific contracts and a user request conflict, explain the conflict and ask for a methodological decision rather than silently overriding the contracts. If an instruction in this file conflicts with a higher-priority instruction, follow the higher-priority instruction and report the limitation.
 
+## README and documentation links
+
+Whenever `README.md` is updated, update its **Table of contents** in the same change:
+
+- List every `##` and `###` section with the same hierarchy and order; remove entries for sections that no longer exist.
+- Link headings as `#user-content-<slug>`, never `#<slug>`, both inside the README and from other documents (`README.md#user-content-<slug>`). On 25/10/2026 it was verified on GitHub (mobile and desktop) that `#<slug>` changes the URL but does not scroll the page, while `#user-content-<slug>` jumps to the heading.
+- Use GitHub's slug: lowercase, punctuation removed (accents kept), spaces turned into `-`; e.g. `Perceptual summary — desktop screenshot` → `perceptual-summary--desktop-screenshot`.
+- Before finishing, check that every relative link and anchor in the changed documents points to an existing file and heading.
+
 ## Review checklist
 
 - [ ] Read CC-01–CC-13 and identified impacted contracts

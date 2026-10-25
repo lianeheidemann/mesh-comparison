@@ -1,6 +1,6 @@
 # Implementação — validação sistemática e plano de evolução
 
-Este documento reúne o que já está testado no pacote `src/meshcomparison/`, o que ainda precisa ser validado e as evoluções previstas. A estrutura dos módulos está resumida na [visão geral da documentação](../README.md#entrada-rápida-para-a-versão-atual).
+Este documento reúne o que já está testado no pacote `src/meshcomparison/`, o que ainda precisa ser validado e as evoluções previstas. A estrutura dos módulos está resumida na [visão geral da documentação](../README.md#user-content-entrada-rápida-para-a-versão-atual).
 
 ## 1. O que já está testado
 

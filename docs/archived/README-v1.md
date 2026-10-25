@@ -92,7 +92,7 @@ The general environment file creates `meshEval` with Python 3.12 and installs th
 conda env create -f environment-lock.yml
 ```
 
-If `meshEval` already exists, activate it instead of creating it again. The environment preparation guide that recorded the validation details has been removed; see the [current README](../../README.md#installation). Verify imports before running the pipelines:
+If `meshEval` already exists, activate it instead of creating it again. The environment preparation guide that recorded the validation details has been removed; see the [current README](../../README.md#user-content-installation). Verify imports before running the pipelines:
 
 ```bat
 python -c "import numpy, pandas, trimesh, pyrender, open3d, matplotlib, imageio, scipy, skimage, torch, torchvision, lpips; print('OK: libraries loaded')"

@@ -7,6 +7,7 @@ import imageio.v2 as imageio
 import numpy as np
 import pandas as pd
 
+from ..analysis.plots import plot_perceptual_views
 from ..common.device import get_device_info
 from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
@@ -31,6 +32,7 @@ OUTPUT_SUBDIRS = {
     "renders_pairs": ("renders", "pairs"),
     "metrics": ("metrics",),
     "aligned": ("aligned",),
+    "figures": ("figures",),
 }
 
 
@@ -227,8 +229,10 @@ def run_pipeline(gt_path, rm_path, out_dir,
 
     per_view_csv = os.path.join(paths["metrics"], "per_view_metrics.csv")
     summary_csv = os.path.join(paths["metrics"], "metrics_perceptual.csv")
-    pd.DataFrame(per_view_rows).to_csv(per_view_csv, index=False)
+    per_view_df = pd.DataFrame(per_view_rows)
+    per_view_df.to_csv(per_view_csv, index=False)
     summary_df.to_csv(summary_csv, index=False)
+    figure_path = plot_perceptual_views(per_view_df, os.path.join(paths["figures"], "perceptual_views.png"))
 
     print(f"[8/{TOTAL_STEPS}] Saving aligned mesh and metadata...")
     aligned_path = export_aligned(prepared, paths["aligned"])
@@ -246,6 +250,8 @@ def run_pipeline(gt_path, rm_path, out_dir,
     print(f"Per-view metrics: {per_view_csv}")
     print(f"Summary metrics:  {summary_csv}")
     print(f"Run metadata:     {meta_csv}")
+    if figure_path:
+        print(f"Figure:           {figure_path}")
 
     print("\nMetric summary:")
     print(summary_df.to_string(index=False))

@@ -1,4 +1,4 @@
-"""Qt-free grouping of a run's images into GT/RM pairs for the results gallery."""
+"""Qt-free grouping of a run's images (GT/RM pairs and metric figures) for the results galleries."""
 import glob
 import os
 import re
@@ -40,4 +40,22 @@ def collect_image_entries(out_dir):
             pair.append(("RM aligned", rm_path))
         entries.append((f"Perceptual view {number}", pair))
 
+    return entries
+
+
+FIGURES = (  # (file under <run>/figures, title), in display order
+    ("geometric_metrics.png", "Geometric metrics per region"),
+    ("fscore_curve.png", "F(τ) curve"),
+    ("perceptual_views.png", "Perceptual metrics per view"),
+    ("sampling_uncertainty.png", "Sampling spread"),
+)
+
+
+def collect_figure_entries(out_dir):
+    """``[(title, [("", path)]), ...]`` for the metric figures under ``out_dir/figures``, in ``FIGURES`` order."""
+    entries = []
+    for name, title in FIGURES:
+        path = os.path.join(out_dir, "figures", name)
+        if os.path.isfile(path):
+            entries.append((title, [("", path)]))
     return entries

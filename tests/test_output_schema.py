@@ -14,7 +14,8 @@ TAU_COLUMNS = [f"{kind}_tau{t}pct" for t in (1, 2, 5) for kind in ("precision", 
 GEOMETRY_COLUMNS = [
     "region", "gt_surface_fraction", "chamfer_mean_normalized", "chamfer_mean_gt_units", "hd95_normalized",
     "hd95_gt_units", *TAU_COLUMNS, "fscore_auc", "normal_consistency",
-    "gt_file", "rm_file", "alignment_triggered", "mse_threshold_normalized", "pre_alignment_mse_normalized",
+    "gt_file", "rm_file", "gt_scene_meshes", "rm_scene_meshes", "alignment_triggered", "mse_threshold_normalized",
+    "pre_alignment_mse_normalized",
     "post_alignment_mse_normalized", "icp_scale", "n_samples", "seed_gt", "seed_rm", "input_azimuth_deg",
     "input_elevation_deg", "camera_azimuth_deg", "camera_elevation_deg", "heatmap_vmax_gt_units",
     "gt_bbox_diagonal_original_units", *TRANSFORM_COLUMNS,
@@ -54,6 +55,8 @@ def test_geometric_outputs_schema(tmp_path):
     curve = pd.read_csv(tmp_path / "metrics" / "fscore_curve.csv")
     assert list(curve.columns) == CURVE_COLUMNS
     assert len(curve) == 20 and curve["fscore"].is_monotonic_increasing
+    assert metrics[["gt_scene_meshes", "rm_scene_meshes"]].isna().all().all()  # single-mesh STL files: no note
+    assert sorted(p.name for p in (tmp_path / "figures").iterdir()) == ["fscore_curve.png", "geometric_metrics.png"]
 
 
 def test_geometric_regions_with_input_view(tmp_path):
@@ -80,3 +83,4 @@ def test_perceptual_outputs_schema(tmp_path):
     assert _columns(metrics / "metrics_perceptual.csv") == SUMMARY_COLUMNS
     assert _columns(metrics / "run_metadata.csv") == METADATA_COLUMNS
     assert pd.read_csv(metrics / "metrics_perceptual.csv")["metric"].tolist() == ["lpips", "psnr", "ssim"]
+    assert [p.name for p in (tmp_path / "figures").iterdir()] == ["perceptual_views.png"]

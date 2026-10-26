@@ -3,8 +3,9 @@ import os
 import numpy as np
 import pandas as pd
 
+from ..analysis.plots import plot_fscore_curve, plot_region_metrics
 from ..common.distances import surface_distances
-from ..common.io import ensure_dirs
+from ..common.io import describe_scene, ensure_dirs, scene_summary
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
 from ..common.sampling import N_SAMPLES, SEED_GT, SEED_RM, sample_surface
 from .heatmap import ROBUST_PERCENTILE, colorize_gt_heatmap, save_heatmap_figure
@@ -19,6 +20,7 @@ OUTPUT_SUBDIRS = {
     "heatmaps": ("heatmaps",),
     "metrics": ("metrics",),
     "aligned": ("aligned",),
+    "figures": ("figures",),
 }
 
 
@@ -49,6 +51,14 @@ def _render_views_and_heatmap(prepared, d_heat, paths, azimuth_deg, elevation_de
     return files
 
 
+def _scene_note(path):
+    """Scene summary when the file holds several meshes or ignored geometry, else "" (a plain single mesh)."""
+    description = describe_scene(path)
+    if len(description["meshes"]) > 1 or description["dropped"]:
+        return scene_summary(description)
+    return ""
+
+
 def _metrics_rows(gt_path, rm_path, prepared, results, mse_threshold_normalized, azimuth_deg, elevation_deg,
                   input_azimuth_deg, input_elevation_deg, heatmap_vmax):
     """One row per region of ``metrics_geometry.csv``: metrics first, then the run settings (repeated per row)."""
@@ -56,6 +66,8 @@ def _metrics_rows(gt_path, rm_path, prepared, results, mse_threshold_normalized,
     run = {
         "gt_file": os.path.abspath(gt_path),
         "rm_file": os.path.abspath(rm_path),
+        "gt_scene_meshes": _scene_note(gt_path),
+        "rm_scene_meshes": _scene_note(rm_path),
         "alignment_triggered": prepared.alignment_triggered,
         "mse_threshold_normalized": mse_threshold_normalized,
         "pre_alignment_mse_normalized": prepared.pre_mse_norm,
@@ -143,11 +155,15 @@ def run_pipeline(gt_path, rm_path, out_dir,
     aligned_path = export_aligned(prepared, paths["aligned"])
 
     csv_path = os.path.join(paths["metrics"], "metrics_geometry.csv")
-    pd.DataFrame(_metrics_rows(gt_path, rm_path, prepared, results, mse_threshold_normalized, azimuth_deg,
-                               elevation_deg, input_azimuth_deg, input_elevation_deg, heatmap_vmax)).to_csv(
-        csv_path, index=False)
+    metrics_df = pd.DataFrame(_metrics_rows(gt_path, rm_path, prepared, results, mse_threshold_normalized,
+                                            azimuth_deg, elevation_deg, input_azimuth_deg, input_elevation_deg,
+                                            heatmap_vmax))
+    metrics_df.to_csv(csv_path, index=False)
     curve_csv_path = os.path.join(paths["metrics"], "fscore_curve.csv")
-    pd.DataFrame(_curve_rows(results)).to_csv(curve_csv_path, index=False)
+    curve_df = pd.DataFrame(_curve_rows(results))
+    curve_df.to_csv(curve_csv_path, index=False)
+    plot_fscore_curve(curve_df, os.path.join(paths["figures"], "fscore_curve.png"))
+    plot_region_metrics(metrics_df, os.path.join(paths["figures"], "geometric_metrics.png"))
 
     print("\nDone.")
     print(f"GT render:        {files['gt_render']}")
@@ -157,3 +173,4 @@ def run_pipeline(gt_path, rm_path, out_dir,
     print(f"Aligned RM mesh:  {aligned_path}")
     print(f"Metrics CSV:      {csv_path}")
     print(f"F(tau) curve CSV: {curve_csv_path}")
+    print(f"Figures:          {paths['figures']}")

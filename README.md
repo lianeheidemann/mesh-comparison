@@ -122,7 +122,7 @@ Reference versions are listed in [requirements-windows-cu128.txt](environments/r
 mesh-gui
 ```
 
-(or `python -m meshcomparison.gui`). Select the GT and RM (STL, OBJ, PLY, OFF, GLB/GLTF), a new output folder, the pipelines and the LPIPS device (Auto prefers CUDA), optionally the **Input view**, and click **Run evaluation**. The 3D view shows the aligned meshes and heatmap; **Results** shows the geometric and perceptual summaries and the saved images.
+(or `python -m meshcomparison.gui`). Select the GT and RM (STL, OBJ, PLY, OFF, GLB/GLTF), a new output folder, the pipelines and the LPIPS device (Auto prefers CUDA), optionally the **Input view**, and click **Run evaluation**. The 3D view shows the aligned meshes and heatmap. **Results** has four tabs: *Geometric summary* (Chamfer, HD95, precision/recall @1 %, F-score @1/2/5 %, AUC-F and normal consistency per region, plus sampling, alignment with the MSE before/after it, the input view and a warning when the GT or RM file is a multi-mesh scene), *Perceptual summary* (LPIPS, PSNR, SSIM over the views), *Images* (GT/RM renders, heatmap, saved view pairs) and *Figures* (the plots below).
 
 Fixed parameters (`RunConfig`, `src/meshcomparison/gui/config.py`): ICP threshold `1e-4`, render `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views 1, 33, 66), camera margin `1.05`, radius factor `1.45`, 100 000 samples per mesh, τ = 1/2/5 %.
 
@@ -132,7 +132,7 @@ Fixed parameters (`RunConfig`, `src/meshcomparison/gui/config.py`): ICP threshol
 python scripts/plot_metrics.py --run output [--uncertainty] [--perceptual-metrics lpips,psnr,ssim]
 ```
 
-Writes to `output/figures/`: F(τ) curves, per-region metrics, per-view perceptual metrics with the mean and its 95 % bootstrap interval, and, with `--uncertainty`, the metric spread over seeds and sample counts.
+Each run already writes `figures/geometric_metrics.png`, `figures/fscore_curve.png` and `figures/perceptual_views.png` (per-view metrics with the mean and its 95 % bootstrap interval; LPIPS left out when it was not computed). The script regenerates them from the CSVs and, with `--uncertainty`, adds the metric spread over seeds and sample counts.
 
 ### Validation studies
 
@@ -155,13 +155,14 @@ Flags meshes that are not a clean single object (base or scenery, holes, hidden 
 
 | File (in the output folder) | Content |
 | --- | --- |
-| `metrics/metrics_geometry.csv` | One row per region: Chamfer, HD95, precision/recall/F-score per τ, AUC-F, normal consistency; run settings (files, pre/post-alignment MSE, ICP scale, seeds, input view, camera, heatmap scale, final transform) |
+| `metrics/metrics_geometry.csv` | One row per region: Chamfer, HD95, precision/recall/F-score per τ, AUC-F, normal consistency; run settings (files, scene meshes when a file holds several or ignored geometry, pre/post-alignment MSE, ICP scale, seeds, input view, camera, heatmap scale, final transform) |
 | `metrics/fscore_curve.csv` | F(τ), precision and recall per region, τ = 0.5–10 % |
 | `metrics/per_view_metrics.csv` | LPIPS, PSNR, SSIM, camera and crop per view |
 | `metrics/metrics_perceptual.csv` | min, p25, median, p75, max, mean of the finite per-view values |
 | `metrics/run_metadata.csv` | Perceptual run settings and final transform |
 | `aligned/rm_aligned.ply` | Aligned RM in GT units |
 | `renders/`, `heatmaps/` | Orthographic renders, selected view pairs, heatmap image and coloured mesh |
+| `figures/` | Per-region metrics, F(τ) curve, perceptual metrics per view (PNG) |
 
 ## Limitations
 
@@ -170,7 +171,7 @@ Flags meshes that are not a clean single object (base or scenery, holes, hidden 
 - The input view uses an orthographic camera and a z-up convention that must match the dataset.
 - Alignment starts from 28 orientations (axis permutations and principal axes) and keeps the best fit ([ADR 0005](docs/adr/0005-icp-global-start.md)); on the sample GT it recovers any rotation, scale and translation ([ICP study](docs/results/icp/README.md)). For symmetric objects or reconstructions far from the GT, the best-fitting orientation may not be the intended one: check `icp_scale` and the heatmap.
 - Validation so far uses synthetic cases and one sample pair, whose GT is itself not a clean benchmark GT (`check_gt.py` reports separate parts, holes and enclosed faces); benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
-- The GUI changes (Geometric summary tab, Input view panel) have unit tests for their logic but have not been checked in a running window.
+- The results tabs were rendered with Qt's offscreen platform (Linux); the 3D view and the Input view panel have unit tests for their logic but have not been checked in a running window.
 
 ## Development
 
@@ -187,7 +188,7 @@ CI (`.github/workflows/ci.yml`) runs Ruff, pytest (pipelines in subprocesses at 
 - **`No module named 'PySide6'`:** `python -m pip install PySide6 pyvista pyvistaqt`.
 - **CUDA not available:** LPIPS runs on CPU, more slowly.
 - **`.fbx` files:** not supported; convert to GLB (keeps textures), OBJ or PLY, e.g. in Blender.
-- **GLB/GLTF scenes:** cameras, lights, lines and animation are ignored, but every triangle mesh of the scene (ground, props) is loaded; the log lists them by name. Remove extra nodes before evaluating ([GT guide](docs/gt/README.md)).
+- **GLB/GLTF scenes:** cameras, lights, lines and animation are ignored, but every triangle mesh of the scene (ground, props) is loaded; the log and the Geometric summary tab list them by name. Remove extra nodes before evaluating ([GT guide](docs/gt/README.md)).
 
 ## License and credits
 

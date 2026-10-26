@@ -9,7 +9,8 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
 
-from .gallery import collect_image_entries
+from .gallery import collect_figure_entries, collect_image_entries
+from .outputs import geometry_notes
 
 
 SUMMARY_COLUMNS = (  # (CSV column, header) in reading order
@@ -23,9 +24,14 @@ METRIC_LABELS = {
 GEOMETRY_ROWS = (  # (metrics_geometry.csv column, label, tooltip, format)
     ("chamfer_mean_gt_units", "Chamfer (GT units)", "lower is better; mean surface-sample distance", "{:.4g}"),
     ("hd95_gt_units", "HD95 (GT units)", "lower is better; 95th-percentile symmetric distance", "{:.4g}"),
+    ("precision_tau1pct", "Precision @1%", "higher is better; share of RM samples within 1% of the GT surface "
+     "(accuracy)", "{:.4f}"),
+    ("recall_tau1pct", "Recall @1%", "higher is better; share of GT samples within 1% of the RM surface "
+     "(completeness)", "{:.4f}"),
     ("fscore_tau1pct", "F-score @1%", "higher is better; tolerance 1% of the GT diagonal", "{:.4f}"),
     ("fscore_tau2pct", "F-score @2%", "higher is better; tolerance 2% of the GT diagonal", "{:.4f}"),
     ("fscore_tau5pct", "F-score @5%", "higher is better; tolerance 5% of the GT diagonal", "{:.4f}"),
+    ("fscore_auc", "AUC-F", "higher is better; area under the F-score curve for τ from 0.5% to 10%", "{:.4f}"),
     ("normal_consistency", "Normal consistency", "higher is better; mean |cos| between matched surface normals",
      "{:.4f}"),
 )
@@ -100,11 +106,17 @@ def _make_geometry_table(df):
     return _finish_table(table)
 
 
-def _make_page(table, hint_text):
+def _make_page(table, hint_text, warnings=()):
     page = QWidget()
     layout = QVBoxLayout(page)
     layout.setContentsMargins(12, 12, 12, 12)
     layout.setSpacing(10)
+    for text in warnings:
+        warning = QLabel(f"⚠ {text}")
+        warning.setWordWrap(True)
+        warning.setStyleSheet("background: #fff3cd; color: #664d03; border: 1px solid #ffda6a; "
+                              "border-radius: 4px; padding: 6px;")
+        layout.addWidget(warning)
     layout.addWidget(table)
     hint = QLabel(hint_text)
     hint.setObjectName("hint")
@@ -121,26 +133,20 @@ def _make_summary_page(df):
 
 
 def _make_geometry_page(df):
-    first = df.iloc[0]
-    if bool(first["alignment_triggered"]):
-        alignment = f"Similarity ICP applied; uniform scale factor {first['icp_scale']:.4f}."
-    else:
-        alignment = "ICP not applied (pre-alignment MSE at or below the threshold)."
-    regions = ("Visible / hidden: GT regions seen from the input view (share of the GT surface)."
-               if len(df) > 1 else "Set an input view to split the metrics into visible / hidden regions.")
-    return _make_page(_make_geometry_table(df),
-                      f"Metrics on {int(first['n_samples']):,} area-uniform surface samples per mesh, after "
-                      f"alignment. {alignment} {regions}")
+    notes, warnings = geometry_notes(df)
+    return _make_page(_make_geometry_table(df), "\n".join(notes), warnings)
 
 
 class ImageGallery(QWidget):
-    """GT/RM image pairs shown side by side; the default "All" mode stacks every pair vertically."""
+    """Images in rows of ``columns`` (GT/RM pairs side by side; figures at full width with ``columns=1``); the
+    default "All" mode stacks every entry vertically."""
 
     ALL_LABEL = "All"
     MARGIN = 12
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, columns=2):
         super().__init__(parent)
+        self.columns = columns
         self._entries = []
         self._cells = []  # (QLabel, image path) of the images currently on screen
 
@@ -203,19 +209,21 @@ class ImageGallery(QWidget):
             header = QLabel(f"<b>{title}</b>")
             self.content_layout.addWidget(header)
             row = QHBoxLayout()
+            row.setContentsMargins(0, 0, 0, 0)
             row.setSpacing(10)
             for caption, path in images:
                 column = QVBoxLayout()
-                caption_label = QLabel(caption)
-                caption_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                if caption:
+                    caption_label = QLabel(caption)
+                    caption_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    column.addWidget(caption_label)
                 image_label = QLabel()
                 image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                column.addWidget(caption_label)
                 column.addWidget(image_label)
                 row.addLayout(column, 1)
                 self._cells.append((image_label, path))
-            if len(images) == 1:
-                row.addStretch(1)  # a lone image keeps the width of one pair column
+            if len(images) < self.columns:
+                row.addStretch(self.columns - len(images))  # a lone image keeps the width of one column
             holder = QWidget()
             holder.setLayout(row)
             self.content_layout.addWidget(holder)
@@ -223,11 +231,14 @@ class ImageGallery(QWidget):
         self._fit()
 
     def _fit(self):
-        """Scale each image to half the viewport width (and to the viewport height when only one pair is shown)."""
+        """Scale each image to its share of the viewport width (and to the viewport height when one entry is shown)."""
         if not self._cells:
             return
         viewport = self.scroll.viewport().size()
-        width = max(120, (viewport.width() - 2 * self.MARGIN - 10) // 2 - 4)
+        bar = self.scroll.verticalScrollBar()
+        available = viewport.width() - (0 if bar.isVisible() else bar.sizeHint().width())  # room for a late bar
+        spacing = 10 * (self.columns - 1)
+        width = max(120, (available - 2 * self.MARGIN - spacing) // self.columns - 4)
         height = None if self.selector.currentData() is None else max(120, viewport.height() - 90)
         for label, path in self._cells:
             reader = QImageReader(path)
@@ -250,6 +261,7 @@ class ResultsView(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.gallery = ImageGallery()
+        self.figures = ImageGallery(columns=1)
         self._out_dir = None
         self.open_button = QPushButton("Open output folder")
         self.open_button.setEnabled(False)
@@ -265,7 +277,7 @@ class ResultsView(QTabWidget):
         pages = [self.widget(i) for i in range(self.count())]
         self.clear()
         for page in pages:
-            if page is not self.gallery:
+            if page is not self.gallery and page is not self.figures:
                 page.deleteLater()
 
     def _placeholder(self):
@@ -294,6 +306,12 @@ class ResultsView(QTabWidget):
         if entries:
             self.gallery.set_entries(entries)
             self.addTab(self.gallery, "Images")
+            added = True
+
+        figures = collect_figure_entries(out_dir)
+        if figures:
+            self.figures.set_entries(figures)
+            self.addTab(self.figures, "Figures")
             added = True
 
         if not added:

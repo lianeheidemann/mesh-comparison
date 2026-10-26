@@ -1,4 +1,4 @@
-from meshcomparison.gui.gallery import collect_image_entries
+from meshcomparison.gui.gallery import collect_figure_entries, collect_image_entries
 
 
 def _touch(root, *parts):
@@ -38,3 +38,15 @@ def test_entries_sort_views_numerically_and_handle_missing_rm(tmp_path):
 
 def test_entries_empty_for_empty_output(tmp_path):
     assert collect_image_entries(str(tmp_path)) == []
+
+
+def test_figure_entries_follow_display_order_and_skip_missing(tmp_path):
+    _touch(tmp_path, "figures", "perceptual_views.png")
+    _touch(tmp_path, "figures", "fscore_curve.png")
+    _touch(tmp_path, "figures", "sampling_uncertainty.csv")  # data, not a figure
+
+    entries = collect_figure_entries(str(tmp_path))
+
+    assert [title for title, _ in entries] == ["F(τ) curve", "Perceptual metrics per view"]
+    assert all(len(images) == 1 and images[0][0] == "" for _, images in entries)
+    assert collect_figure_entries(str(tmp_path / "missing")) == []

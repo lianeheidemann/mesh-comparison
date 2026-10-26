@@ -51,3 +51,10 @@ def test_figures_are_written(tmp_path):
 def test_perceptual_figure_skips_missing_metrics(tmp_path):
     per_view = pd.DataFrame({"azimuth_deg": [0, 180], "ssim": [0.9, 0.8]})
     assert plot_perceptual_views(per_view, tmp_path / "v.png", metrics=("lpips", "ssim")).is_file()
+
+
+def test_perceptual_figure_skips_metrics_without_finite_values(tmp_path):
+    per_view = pd.DataFrame({"azimuth_deg": [0, 180], "lpips": [np.nan, np.nan], "ssim": [0.9, 0.8]})
+    assert plot_perceptual_views(per_view, tmp_path / "v.png").is_file()
+    assert plot_perceptual_views(per_view[["azimuth_deg", "lpips"]], tmp_path / "none.png") is None
+    assert not (tmp_path / "none.png").exists()

@@ -20,10 +20,10 @@ flowchart LR
     GUI["GUI PySide6 → worker por pipeline"] --> PREP
     PREP --> GEO["Geometria: Chamfer, HD95, F-score, AUC-F, normal consistency, regiões visível/oculta, heatmap"]
     PREP --> PER["Percepção: renderizações multivista, LPIPS, PSNR, SSIM"]
-    GEO --> OUT["CSV · PLY · PNG"]
+    GEO --> OUT["CSV · PLY · PNG · figuras"]
     PER --> OUT
-    OUT --> VIEW["GUI: visualizador 3D e resultados"]
-    OUT --> FIG["scripts/plot_metrics.py: gráficos"]
+    OUT --> VIEW["GUI: visualizador 3D, tabelas, imagens e figuras"]
+    OUT --> FIG["scripts/plot_metrics.py: regenera as figuras e a dispersão de amostragem"]
 ```
 
 ## Módulos (`src/meshcomparison/`)
@@ -34,6 +34,6 @@ flowchart LR
 | `geometry/` | Métricas (`metrics.py`), visibilidade pela vista de entrada (`visibility.py`), heatmap, renderização e pipeline |
 | `perceptual/` | Câmeras, máscaras e crop, LPIPS/PSNR/SSIM e pipeline multivista |
 | `analysis/` | Verificação das GTs (`gt_check.py`), estudos de validação (`robustness.py`: perturbações, baseline por vértice, dispersão de amostragem, recuperação de transformações pelo ICP) e gráficos (`plots.py`) |
-| `gui/` | Janela, painéis, configuração (`RunConfig`), execução em subprocesso, leitura das saídas e visualizador PyVistaQt |
+| `gui/` | Janela, painéis, configuração (`RunConfig`), execução em subprocesso, leitura das saídas (`outputs.py`, `gallery.py`), abas de resultados (`results_view.py`: tabelas, imagens, figuras) e visualizador PyVistaQt |
 
-Scripts em `scripts/`: `check_gt.py` (verificação das GTs), `plot_metrics.py` (gráficos de uma execução), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).
+Scripts em `scripts/`: `check_gt.py` (verificação das GTs), `plot_metrics.py` (regenera as figuras de uma execução; `--uncertainty` acrescenta a dispersão de amostragem), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).

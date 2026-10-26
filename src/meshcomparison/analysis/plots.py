@@ -76,8 +76,11 @@ def plot_region_metrics(metrics, path):
 
 
 def plot_perceptual_views(per_view, path, metrics=("lpips", "psnr", "ssim"), n_boot=2000, seed=0):
-    """Each metric against the view azimuth, with its mean over the views and a 95 % bootstrap interval."""
-    metrics = [m for m in metrics if m in per_view.columns]
+    """Each metric against the view azimuth, with its mean over the views and a 95 % bootstrap interval. Metrics
+    without any finite value (LPIPS when its weights are unavailable) are left out; ``None`` if none remains."""
+    metrics = [m for m in metrics if m in per_view.columns and np.isfinite(per_view[m]).any()]
+    if not metrics:
+        return None
     fig, axes = plt.subplots(len(metrics), 1, figsize=(7, 2.4 * len(metrics)), sharex=True, squeeze=False)
     for ax, metric in zip(axes[:, 0], metrics):
         mean, low, high = bootstrap_mean_ci(per_view[metric], n_boot=n_boot, seed=seed)

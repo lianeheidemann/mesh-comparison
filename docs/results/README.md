@@ -108,6 +108,22 @@ Cada imagem já mostra GT e RM lado a lado.
   <img src="../../examples/output/renders/pairs/pair_view066.png" width="100%" alt="Comparação perceptual da vista 66">
 </p>
 
+## Métricas `evaluation-v2` do mesmo par (execução posterior)
+
+O registro acima é **anterior** ao protocolo [evaluation-v2](../adr/0001-evaluation-v2.md) e não contém seus arquivos. Os valores abaixo vêm de uma execução separada do pipeline geométrico com o mesmo par (`gt.stl` × `mod.stl`), feita em 26/10/2026 em Linux (Python 3.13, NumPy 2.5, Trimesh 5.2). Os parâmetros são 100 000 amostras por malha, sementes `0`/`1` e ICP não acionado; as métricas legadas dessa execução ficaram idênticas às registradas acima.
+
+| Métrica v2 (superfície inteira) | Normalizado | Unidades da GT |
+| --- | ---: | ---: |
+| Chamfer | 0,0038869 | 0,0146744 |
+| HD95 | 0,0213188 | 0,0804864 |
+| F-score @1 % / @2 % / @5 % | 0,9073 / 0,9521 / 0,9980 | — |
+| AUC-F (τ de 0,5 % a 10 %) | 0,9804 | — |
+| Normal consistency | 0,9445 | — |
+
+**Leitura:** o Chamfer v2 (0,0039) é cerca de duas vezes o legado (0,0019). Na métrica legada, os vértices que coincidem nas duas malhas contribuem com distância zero; isso depende da triangulação, não da superfície (ver o [estudo de robustez](robustness/README.md)).
+
+**Regiões, só como ilustração:** este par não tem imagem de entrada. Com uma vista hipotética em azimute −135° e elevação 25,264°, 39,1 % da superfície da GT fica visível (Chamfer 0,0060; F@1 % 0,824) e 60,9 % fica oculta (Chamfer 0,0025; F@1 % 0,963). Neste par, o erro se concentra no lado visível dessa vista.
+
 ## Arquivos de saída
 
 - [`metrics_geometry.csv`](../../examples/output/metrics/metrics_geometry.csv): métricas geométricas agregadas.

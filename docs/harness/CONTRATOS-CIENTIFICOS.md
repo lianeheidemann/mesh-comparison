@@ -4,7 +4,7 @@
 >
 > **Referência de origem:** [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison), `main` em `86d0959f943735ba058ed16b82b3c2836034aad9`; arquivos [mesh_eval_pipeline.py](https://github.com/ThiagoFigueiroRibeiro/MeshComparison/blob/86d0959f943735ba058ed16b82b3c2836034aad9/mesh_eval_pipeline.py) e [percept_eval_pipeline.py](https://github.com/ThiagoFigueiroRibeiro/MeshComparison/blob/86d0959f943735ba058ed16b82b3c2836034aad9/percept_eval_pipeline.py).
 >
-> **Adaptação inspecionada:** `lianeheidemann/mesh-comparison`, branch `single-view-3d-reconstruction`, commit `d600f68dae3d083803fc5c53842051856a8c32f8` (19/10/2026). Reavaliar o documento quando o código mudar.
+> **Adaptação inspecionada:** `lianeheidemann/mesh-comparison`, branch `single-view-3d-reconstruction`, commit `d600f68dae3d083803fc5c53842051856a8c32f8` (19/10/2026), para CC-01 a CC-13. As seções CC-14 a CC-18 (`evaluation-v2`) foram adicionadas no branch `evaluation-v2` (26/10/2026). Reavaliar o documento quando o código mudar.
 >
 > **Convenção:** **ORIGINAL** = comportamento identificado no código-fonte de origem; **ATUAL** = presente na implementação inspecionada; **VALIDAR** = critério recomendado, ainda sem execução/comprovação aqui; **MUDANÇA METODOLÓGICA** = exige aprovação, comparação de resultados e ADR.
 
@@ -14,6 +14,7 @@ O código de origem **avalia** a diferença entre uma malha de referência (**GT
 
 1. **Geometria:** distâncias Euclidianas entre **vértices e seus vértices vizinhos mais próximos**; normalização e alinhamento condicional por ICP com escala; heatmap direcional.
 2. **Percepção:** renderizações ortográficas de GT e RM alinhada sob as mesmas câmeras; LPIPS, PSNR e SSIM por vista; estatísticas agregadas.
+3. **`evaluation-v2` (seção 5A, CC-14 a CC-18):** métricas sobre amostras de superfície, PSNR padrão e regiões visível/oculta, calculadas **ao lado** do legado.
 
 **Invariante principal:** otimização, paralelização, GUI ou refatoração não autorizam substituir distâncias entre vértices por distâncias ponto-superfície, substituir o ICP com escala, alterar a definição de PSNR, ou modificar câmeras/máscaras sem tratar isso como **nova versão metodológica**.
 
@@ -301,10 +302,10 @@ AUC-F  = trapézio de F(τ) / (0.100 - 0.005)
 | T-01 | GT = RM, mesma geometria/vértices | Distâncias geométricas ~0, MSE pré-ICP ~0 e ICP não acionado | **VALIDAR end-to-end** |
 | T-02 | RM transladada/rotacionada de modo conhecido | Gatilho conforme MSE pré, transformação RM→GT documentada, métricas pós computadas | **VALIDAR** |
 | T-03 | RM com escala diferente | Preservar escala no pré-ICP; registrar possível correção pelo ICP de similaridade | **VALIDAR** |
-| T-04 | Permutação da ordem dos mesmos vértices | Métricas de vizinho mais próximo equivalentes dentro de tolerância | **VALIDAR** |
-| T-05 | Densidade não uniforme/ausência de superfície | Documentar a sensibilidade de métricas entre vértices e direção dos erros | **VALIDAR** |
-| T-06 | Deformação localizada | Heatmap GT→RM e métricas geométricas respondem de forma coerente | **VALIDAR** |
-| T-07 | Imagens RGB e máscara sintéticas | PSNR calculado pela **fórmula legada**, inclusive casos `Inf/NaN` | **VALIDAR** |
+| T-04 | Permutação da ordem dos mesmos vértices | Métricas de vizinho mais próximo equivalentes dentro de tolerância | **Coberto (sintético):** `tests/test_robustness.py`, igualdade exata (legado e v2) |
+| T-05 | Densidade não uniforme/ausência de superfície | Documentar a sensibilidade de métricas entre vértices e direção dos erros | **Parcial:** testes sintéticos e [estudo de robustez](../results/robustness/README.md) em uma GT; falta benchmark |
+| T-06 | Deformação localizada | Heatmap GT→RM e métricas geométricas respondem de forma coerente | **Parcial:** métricas no estudo de robustez; heatmap **VALIDAR** |
+| T-07 | Imagens RGB e máscara sintéticas | PSNR calculado pela **fórmula legada**, inclusive casos `Inf/NaN` | **Coberto (sintético):** `tests/test_perceptual.py`, erro conhecido e casos-limite |
 | T-08 | Mesmo par renderizado, mesmos parâmetros | Contratos de câmeras, PNGs e métricas perceptuais dentro de tolerâncias justificadas | **VALIDAR** |
 | T-09 | Saídas originais vs. refatoradas | Comparar valores e schemas sob **entradas/parâmetros/versões idênticos** | **VALIDAR** |
 | T-10 | Dados inválidos/sem máscara/GT degenerada | Falha visível e sem resultados apresentados como sucesso | **VALIDAR** |
@@ -338,6 +339,7 @@ AUC-F  = trapézio de F(τ) / (0.100 - 0.005)
 | `percept_eval_pipeline.py:rgba_to_rgb_mask, crop_to_union_mask, masked_*` | `perceptual/image_metrics.py` |
 | `percept_eval_pipeline.py:run_pipeline` | `perceptual/pipeline.py` |
 | Renderer recriado por vista no original | `common/rendering.py:OrthoRenderer` (reuso do contexto; equivalência a comprovar) |
+| — (novo, `evaluation-v2`, sem equivalente no original) | `geometry/metrics_v2.py`, `geometry/visibility.py`, `common/rendering.py:render_ortho_depth`, `perceptual/image_metrics.py:masked_psnr_standard`, `analysis/robustness.py`, `scripts/robustness_study.py` |
 
 ## 9. Processo de aprovação da versão metodológica
 

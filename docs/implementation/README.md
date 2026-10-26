@@ -28,14 +28,16 @@ O [workflow de CI](../../.github/workflows/ci.yml) chama Ruff, pytest e uma veri
 
 | Caso de teste | Resultado esperado / objetivo | Prioridade |
 | --- | --- | --- |
-| Malhas 3D idênticas | Métricas geométricas próximas de zero, sem alinhamento desnecessário | Alta |
+| Malhas 3D idênticas | Métricas geométricas próximas de zero, sem alinhamento desnecessário (v2: valor igual ao piso de amostragem, já medido no [estudo de robustez](../results/robustness/README.md)) | Alta |
 | Translação e rotação controladas | MSE pré/pós-ICP e transformação coerentes | Alta |
-| Escala uniforme | Distinguibilidade entre diferenças dimensionais e alinhamento com escala | Alta |
-| Diferenças de densidade de vértices | Compreender viés das métricas por vizinhos entre vértices | Alta |
-| Buracos e superfícies incompletas | Avaliar robustez, correspondências e localização dos erros | Alta |
-| Deformação localizada | Heatmap e métricas coerentes com regiões modificadas | Alta |
+| Escala uniforme | Distinguibilidade entre diferenças dimensionais e alinhamento com escala (`icp_scale` já é registrado no CSV v2) | Alta |
+| Diferenças de densidade de vértices | **Parcial:** viés das métricas por vértice mostrado com re-triangulação em casos sintéticos e numa GT de exemplo; falta repetir nas malhas do benchmark | Alta |
+| Buracos e superfícies incompletas | **Parcial:** remoção controlada de área (cobertura/F-score) em casos sintéticos e numa GT; falta caso com ICP e malhas reais | Alta |
+| Deformação localizada | **Parcial:** saliência gaussiana no estudo de robustez; falta verificar o heatmap | Alta |
+| Regiões visível/oculta | Conferir a convenção de eixos (z para cima) e a câmera de entrada de cada conjunto de dados; comparar câmera ortográfica × perspectiva | Alta |
+| Variação entre sementes de amostragem | Medir o desvio de CD, HD95, F@τ e normal consistency nas malhas reais (CV < 1 % na peça de exemplo) | Alta |
 | Renderização offscreen | Gerar PNGs consistentes com câmeras e parâmetros documentados | Alta |
-| LPIPS/PSNR/SSIM em múltiplas vistas | Validar contratos, máscaras, valores-limite e estabilidade | Alta |
+| LPIPS/PSNR/SSIM em múltiplas vistas | Validar contratos, máscaras, valores-limite e estabilidade; rodar o estudo de robustez com `--lpips` (os pesos da AlexNet precisam estar acessíveis) | Alta |
 | Abertura, execução e cancelamento via GUI | Teste manual documentado ou teste Qt automatizado em ambiente compatível | Média |
 | CUDA disponível vs CPU-only | Verificar device real, avisos, metadados e equivalência metodológica | Média |
 

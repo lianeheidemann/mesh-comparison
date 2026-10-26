@@ -114,7 +114,7 @@ The images below are sample outputs from the geometric and perceptual pipelines.
 | Symmetric Hausdorff distance | 0.308021 | Lower is better |
 | Symmetric RMSE | 0.0322591 | Lower is better |
 
-These values describe this example run.
+These values describe this example run and are the **legacy** vertex metrics; the [evaluation-v2](#user-content-evaluation-protocol-v2) values for the same pair are in the [example report](docs/results/README.md).
 
 ### Perceptual summary — desktop screenshot
 
@@ -174,9 +174,11 @@ Versions are taken from the [Windows CUDA environment snapshot](environments/req
 mesh-comparison/
 ├── src/meshcomparison/
 │   ├── common/                # Shared I/O, alignment and rendering utilities
-│   ├── geometry/              # Geometric evaluation and heatmaps
+│   ├── geometry/              # Geometric evaluation (legacy and evaluation-v2), visibility and heatmaps
 │   ├── perceptual/            # Multi-view perceptual evaluation
+│   ├── analysis/              # Metric robustness study (invariance and sensitivity)
 │   └── gui/                   # Desktop interface and pipeline execution
+├── scripts/                   # Experiment scripts (robustness_study.py)
 ├── data/samples/              # Sample GT and RM meshes
 ├── examples/output/           # Versioned example results
 │   ├── aligned/
@@ -186,9 +188,10 @@ mesh-comparison/
 ├── environments/              # Conda and Windows CUDA dependency files
 ├── assets/                    # Interface screenshots and previews
 ├── docs/
+│   ├── adr/                   # Architecture decision records (evaluation-v2, robustness study)
 │   ├── harness/               # Agent Harness, scientific contracts and roadmap
 │   ├── implementation/        # Existing tests, validation plan and evolution
-│   ├── results/               # Recorded example run
+│   ├── results/               # Recorded example run and robustness study
 │   ├── archived/              # Historical READMEs (not current instructions)
 │   └── assets/
 ├── tests/                     # Automated tests
@@ -258,7 +261,7 @@ python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
 mesh-gui
 ```
 
-In the interface, select `data/samples/gt.stl` for **Ground truth (GT)** and `data/samples/mod.stl` for **Reconstruction (RM)**. Choose a **new output folder**, keep both **Geometric** and **Perceptual** enabled, leave **Compute device (LPIPS)** on **Auto — prefer CUDA**, and click **Run evaluation**. The viewer shows the aligned meshes and heatmap; the **Results** tab shows perceptual statistics and images.
+In the interface, select `data/samples/gt.stl` for **Ground truth (GT)** and `data/samples/mod.stl` for **Reconstruction (RM)**. Choose a **new output folder**, keep both **Geometric** and **Perceptual** enabled, leave **Compute device (LPIPS)** on **Auto — prefer CUDA**, and click **Run evaluation**. Optionally, enable **Input view** and enter the azimuth and elevation of the input image to split the geometric metrics into visible and hidden regions. The viewer shows the aligned meshes and heatmap; the **Results** tab shows the **Geometric summary** (evaluation-v2), the **Perceptual summary** and the images.
 
 Compare the generated CSVs in the output folder with the [recorded example metrics](examples/output/metrics/) under comparable settings. Small numerical differences, especially between CPU and GPU runs, are possible.
 
@@ -266,11 +269,11 @@ Compare the generated CSVs in the output folder with the [recorded example metri
 
 ### Geometric evaluation
 
-The geometric pipeline (`src/meshcomparison/geometry/`) uses the shared preparation function in `src/meshcomparison/common/prepare.py` to normalize both meshes using the ground-truth bounding-box diagonal and conditionally run similarity ICP (rotation, translation, and uniform scale) when pre-alignment normalized MSE exceeds the threshold. It measures symmetric nearest-vertex distances, writes one shared-view render per mesh and a ground-truth vertex-distance heatmap.
+The geometric pipeline (`src/meshcomparison/geometry/`) uses the shared preparation function in `src/meshcomparison/common/prepare.py` to normalize both meshes using the ground-truth bounding-box diagonal and conditionally run similarity ICP (rotation, translation, and uniform scale) when pre-alignment normalized MSE exceeds the threshold. It measures the legacy symmetric nearest-vertex distances and, on area-uniform surface samples, the [evaluation-v2](#user-content-evaluation-protocol-v2) metrics (optionally split by the input view), and writes one shared-view render per mesh and a ground-truth vertex-distance heatmap.
 
 Main outputs (relative to the output folder; the committed sample run is in `examples/output/`):
 
-- `output/metrics/metrics_geometry.csv`: pre/post-alignment MSE, mean Chamfer distance, symmetric Hausdorff distance, symmetric RMSE, alignment status, and transform metadata. Distance metrics are reported both normalized and in the original ground-truth units.
+- `output/metrics/metrics_geometry.csv` (legacy, unchanged): pre/post-alignment MSE, mean Chamfer distance, symmetric Hausdorff distance, symmetric RMSE, alignment status, and transform metadata. Distance metrics are reported both normalized and in the original ground-truth units.
 - `output/metrics/metrics_geometry_v2.csv`: [evaluation-v2](#user-content-evaluation-protocol-v2) Chamfer, HD95, precision/recall/F-score per tolerance, one row per region (`all`, and `visible`/`hidden` when an input view is set), plus sampling seeds, input view, ICP scale factor, normal consistency and AUC-F.
 - `output/metrics/fscore_curve_v2.csv`: F(τ), precision and recall per region for τ = 0.5 %–10 % of the GT diagonal.
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh, exported in the input ground-truth scale.
@@ -279,7 +282,7 @@ Main outputs (relative to the output folder; the committed sample run is in `exa
 
 ### Perceptual evaluation
 
-The perceptual pipeline (`src/meshcomparison/perceptual/`) uses the same shared mesh preparation and conditional ICP alignment, then renders the meshes across a rotating set of camera azimuths. It computes masked LPIPS, PSNR, and SSIM per view and summarizes their distributions; the number of views and saved views are listed under [Parameters](#user-content-parameters).
+The perceptual pipeline (`src/meshcomparison/perceptual/`) uses the same shared mesh preparation and conditional ICP alignment, then renders the meshes across a rotating set of camera azimuths. It computes masked LPIPS, legacy and standard PSNR, and SSIM per view and summarizes their distributions; the number of views and saved views are listed under [Parameters](#user-content-parameters).
 
 Main outputs:
 
@@ -299,11 +302,12 @@ The evaluation-v2 sampling (100 000 points, seeds `0`/`1`) and tolerances (1 %, 
 
 - STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
 - CI checks code and output structure only, not metric values, CUDA or the GUI window; see [Development](#user-content-development).
-- Basic unit tests already cover identical vertex clouds, a simple point offset and bounding-box scale/translation, plus perceptual helper and GUI-configuration behavior. **Systematic end-to-end validation on controlled meshes** (deformations, incomplete surfaces, different sampling densities and rendering regression) is still pending; see the [validation plan](docs/implementation/README.md).
+- Unit tests cover identical vertex clouds, a simple point offset and bounding-box scale/translation, perceptual helpers and GUI configuration, plus the evaluation-v2 metrics on synthetic cases (known offsets, outliers, regions, tilted planes, re-triangulation, noise, bumps and missing surface). The [robustness study](docs/results/robustness/README.md) has so far been run on **one** sample GT and without LPIPS; validation on the benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and rendering regression are still pending; see the [validation plan](docs/implementation/README.md).
+- evaluation-v2 limitations ([ADR 0001](docs/adr/0001-evaluation-v2.md)): the input view uses an orthographic camera and a z-up convention that must match the dataset; ICP is local; sampling has a floor (non-zero Chamfer and F@1 % < 1 for the same surface when the sample spacing approaches τ).
 
 ## Development
 
-The [documentation index](docs/README.md) describes the package structure; the [implementation guide](docs/implementation/README.md) covers existing tests and the validation plan; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
+The [documentation index](docs/README.md) describes the package structure; the [ADRs](docs/adr/) record the evaluation-v2 decisions; the [implementation guide](docs/implementation/README.md) covers existing tests and the validation plan; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
 
 ### Agent Harness for Scientific Integrity
 

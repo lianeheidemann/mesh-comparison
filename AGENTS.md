@@ -6,7 +6,7 @@ These repository-wide instructions apply to Codex, Claude Code, and other coding
 
 The project compares an existing ground-truth mesh (GT) against an existing reconstructed mesh (RM). It does **not** itself reconstruct a 3D mesh from a single image. The original implementation is [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison), inspected at commit `86d0959f943735ba058ed16b82b3c2836034aad9`. Do not claim the methodology has been independently scientifically validated or that refactoring preserves numerical equivalence without executing suitable tests.
 
-The contracts CC-01 through CC-13 cover loading, normalization, nearest-vertex metrics, conditional similarity ICP, heatmap, orthographic cameras, perceptual masks, legacy PSNR, SSIM, LPIPS, statistics, outputs, and provenance.
+The contracts CC-01 through CC-13 cover loading, normalization, nearest-vertex metrics, conditional similarity ICP, heatmap, orthographic cameras, perceptual masks, legacy PSNR, SSIM, LPIPS, statistics, outputs, and provenance. CC-14 through CC-18 cover the versioned `evaluation-v2` protocol, computed alongside the legacy metrics: surface sampling, Chamfer/HD95/F-score, standard PSNR, visible/hidden regions, normal consistency, the F(τ) curve and the robustness study ([ADR 0001](docs/adr/0001-evaluation-v2.md), [ADR 0002](docs/adr/0002-robustness-study.md)). The invariants below protect the legacy metrics; the v2 definitions are equally binding and change only through a new ADR.
 
 ## Non-negotiable invariants
 
@@ -57,7 +57,7 @@ The companion manuscript discloses AI-assisted development of this software, so 
 
 ## Changes requiring explicit human approval
 
-Before changing any methodology covered by CC-01–CC-13 — e.g., using point-to-surface distances, altering ICP scaling, switching PSNR definitions, modifying view/mask semantics or metric aggregation — **stop and request approval**. Propose a versioned alternative, an Architecture Decision Record (ADR), regression/baseline comparisons, migration/compatibility considerations and documentation updates. Never overwrite legacy metrics under the same name while changing their meaning.
+Before changing any methodology covered by CC-01–CC-18 — e.g., using point-to-surface distances, altering ICP scaling, switching PSNR definitions, modifying view/mask semantics or metric aggregation — **stop and request approval**. Propose a versioned alternative, an Architecture Decision Record (ADR), regression/baseline comparisons, migration/compatibility considerations and documentation updates. Never overwrite legacy metrics under the same name while changing their meaning.
 
 If the scientific contracts and a user request conflict, explain the conflict and ask for a methodological decision rather than silently overriding the contracts. If an instruction in this file conflicts with a higher-priority instruction, follow the higher-priority instruction and report the limitation.
 
@@ -72,7 +72,7 @@ Whenever `README.md` is updated, update its **Table of contents** in the same ch
 
 ## Review checklist
 
-- [ ] Read CC-01–CC-13 and identified impacted contracts
+- [ ] Read CC-01–CC-18 and identified impacted contracts
 - [ ] Verified baseline and current code paths
 - [ ] Preserved definitions/units/cameras/outputs or obtained explicit approval
 - [ ] Reused existing tests; added targeted regression coverage if needed

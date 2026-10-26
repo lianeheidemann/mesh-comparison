@@ -42,6 +42,10 @@ Cinco pares de sementes por N (média ± desvio padrão):
 
 O **LPIPS não foi calculado** nesta execução, porque os pesos da AlexNet não puderam ser baixados no ambiente. O PSNR e o SSIM não dependem dele. O PSNR cai nas vistas em torno de 150°–190°, a mesma faixa em que o SSIM é mínimo.
 
+## Alinhamento
+
+O ICP não foi acionado neste par. A recuperação de transformações conhecidas e o raio de convergência estão na [validação do ICP](icp/README.md).
+
 ## Registro anterior
 
 `examples/output/` guarda uma execução da **versão anterior** (métricas entre vértices; PSNR dividido por N, 4,77 dB abaixo do atual). Esses números não são comparáveis com os acima; as renderizações da GT e da RM continuam válidas como ilustração.

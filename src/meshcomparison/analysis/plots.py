@@ -110,3 +110,21 @@ def plot_sampling_uncertainty(spread, path):
         ax.grid(alpha=0.3)
     fig.suptitle(f"Sampling spread: mean ± std over {spread['seed_pair'].nunique()} seed pairs", fontsize=10)
     return _save(fig, path)
+
+
+def plot_icp_recovery(sweep, path, success_chamfer=0.01):
+    """Rotation error and post-alignment Chamfer against the applied rotation angle, one line per rotation axis."""
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6))
+    for axis_label, group in sweep.groupby("axis", sort=False):
+        axes[0].plot(group["angle_deg"], group["rotation_error_deg"], marker="o", label=f"axis {axis_label}")
+        axes[1].plot(group["angle_deg"], group["chamfer"], marker="o", label=f"axis {axis_label}")
+    axes[0].set_ylabel("Rotation error after ICP (degrees)")
+    axes[1].set_ylabel("Chamfer after ICP (fraction of GT diagonal)")
+    axes[1].axhline(success_chamfer, color="grey", ls="--", lw=1, label=f"success: Chamfer < {success_chamfer:g}")
+    axes[1].set_yscale("log")
+    for ax in axes:
+        ax.set_xlabel("Applied rotation (degrees)")
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=8)
+    fig.suptitle("Similarity ICP: recovery of a known rotation (scale and translation also applied)", fontsize=10)
+    return _save(fig, path)

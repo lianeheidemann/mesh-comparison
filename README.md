@@ -137,7 +137,7 @@ Writes to `output/figures/`: F(τ) curves, per-region metrics, per-view perceptu
 python scripts/robustness_study.py --gt data/samples/gt.stl --out output/robustness [--views 8] [--lpips]
 ```
 
-Checks invariance to re-triangulation and sensitivity to noise, local bumps and missing surface, against a vertex-to-vertex baseline ([results](docs/results/robustness/README.md)).
+Checks invariance to re-triangulation and sensitivity to noise, local bumps and missing surface, against a vertex-to-vertex baseline ([results](docs/results/robustness/README.md)). `python scripts/icp_study.py --gt data/samples/gt.stl --out output/icp` measures how far the ICP recovers known rotations ([results](docs/results/icp/README.md)).
 
 ## Outputs
 
@@ -155,7 +155,8 @@ Checks invariance to re-triangulation and sensitivity to noise, local bumps and 
 
 - STL has no physical units; distances are in the GT's units.
 - Metrics are Monte Carlo estimates over surface samples. With point-to-surface distances they do not drift with the sample count; at 10⁵ samples the seed spread is about 1 % for Chamfer and HD95 and ≤ 0.1 % for the scores (sample pair).
-- The input view uses an orthographic camera and a z-up convention that must match the dataset; ICP is local and may fail for large rotations.
+- The input view uses an orthographic camera and a z-up convention that must match the dataset.
+- ICP is local: on the sample GT it recovers rotations up to about 45°–60° (scale error < 0.1 %) and fails beyond, leaving a plausible-looking Chamfer of 2.5–3.1 % of the diagonal. Bring each model's output into the GT frame (axis convention) before evaluating ([ICP study](docs/results/icp/README.md)).
 - Validation so far uses synthetic cases and one sample pair; benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
 
 ## Development

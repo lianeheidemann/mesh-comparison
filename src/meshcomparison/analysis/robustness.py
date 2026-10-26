@@ -12,9 +12,10 @@ import numpy as np
 import pandas as pd
 import trimesh
 
-from ..common.distances import nn_distances
+from ..common.alignment import similarity_icp_align
+from ..common.distances import nn_distances, symmetric_surface_mse
 from ..common.sampling import N_SAMPLES, SEED_GT, SEED_RM, sample_surface
-from ..geometry.metrics import TAUS, compute_metrics, tau_key
+from ..geometry.metrics import TAUS, compute_metrics, icp_scale, tau_key
 from ..perceptual.image_metrics import crop_to_union_mask, masked_lpips, masked_psnr, masked_ssim, summarize_stats
 
 
@@ -180,3 +181,47 @@ def sampling_uncertainty(gt, rm, sizes=SAMPLING_SIZES, n_seeds=5, taus=TAUS):
             row.update({f"fscore_{tau_key(t)}": m[f"fscore_{tau_key(t)}"] for t in taus})
             rows.append(row)
     return pd.DataFrame(rows)
+
+
+def similarity_transform(angle_deg, axis=(0.0, 0.0, 1.0), scale=1.0, translation=(0.0, 0.0, 0.0)):
+    """4 x 4 matrix of ``x -> scale * R(axis, angle) x + translation`` (rotation about the origin)."""
+    transform = trimesh.transformations.rotation_matrix(np.deg2rad(angle_deg), np.asarray(axis, dtype=np.float64))
+    transform[:3, :3] *= scale
+    transform[:3, 3] = translation
+    return transform
+
+
+def icp_recovery(gt, applied, mse_threshold=1e-4, n_samples=N_SAMPLES):
+    """Apply the known similarity ``applied`` to the normalized ``gt`` to build the RM, align it back exactly as
+    ``common/prepare.py`` does, and report how well the inverse was recovered: rotation error (degrees), relative
+    scale error, translation error and the post-alignment surface metrics (ideal: 0, 0, 0 and Chamfer 0, F 1)."""
+    rm = gt.copy()
+    rm.apply_transform(applied)
+    gt_points, gt_normals = sample_surface(gt, n_samples, SEED_GT, return_normals=True)
+    rm_points = sample_surface(rm, n_samples, SEED_RM)
+    pre_mse = symmetric_surface_mse(gt_points, rm_points, gt, rm)
+    triggered = pre_mse > mse_threshold
+    recovered = np.eye(4)
+    if triggered:
+        recovered, _, _ = similarity_icp_align(rm_points, gt_points)
+    rm_aligned = rm.copy()
+    rm_aligned.apply_transform(recovered)
+
+    residual = recovered @ applied  # identity when the alignment undoes the applied transform
+    residual_scale = icp_scale(residual)
+    rotation = residual[:3, :3] / residual_scale
+    cos_angle = np.clip((np.trace(rotation) - 1.0) / 2.0, -1.0, 1.0)
+    rm_points_aligned, rm_normals = sample_surface(rm_aligned, n_samples, SEED_RM, return_normals=True)
+    m = compute_metrics(gt_points, rm_points_aligned, TAUS, gt_normals=gt_normals, rm_normals=rm_normals,
+                        gt_mesh=gt, rm_mesh=rm_aligned)["all"]
+    return {
+        "pre_alignment_mse": pre_mse,
+        "alignment_triggered": bool(triggered),
+        "rotation_error_deg": float(np.degrees(np.arccos(cos_angle))),
+        "scale_error": residual_scale - 1.0,
+        "translation_error": float(np.linalg.norm(residual[:3, 3])),
+        "icp_scale": icp_scale(recovered),
+        "chamfer": m["chamfer_mean"],
+        "hd95": m["hd95"],
+        "fscore_tau1pct": m["fscore_tau1pct"],
+    }

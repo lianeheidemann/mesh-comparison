@@ -3,11 +3,11 @@
 | Documento | Conteúdo |
 | --- | --- |
 | [README principal](../README.md) | Visão geral, métricas, instalação, uso, saídas e limitações |
-| [ADRs](adr/) | Definição e justificativa das métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície, [0002](adr/0002-robustness-study.md) normal consistency, F(τ) e estudo de robustez, [0003](adr/0003-single-metric-standard.md) padrão único, [0004](adr/0004-point-to-surface.md) distâncias ponto-superfície |
+| [ADRs](adr/) | Definição e justificativa das métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície, [0002](adr/0002-robustness-study.md) normal consistency, F(τ) e estudo de robustez, [0003](adr/0003-single-metric-standard.md) padrão único, [0004](adr/0004-point-to-surface.md) distâncias ponto-superfície, [0005](adr/0005-icp-global-start.md) inicialização global do ICP |
 | [Implementação e validação](implementation/README.md) | Testes existentes e validação pendente |
 | [Resultados de exemplo](results/README.md) | Métricas e gráficos do par de exemplo |
 | [Estudo de robustez](results/robustness/README.md) | Invariância à triangulação e sensibilidade das métricas; roteiro do artigo |
-| [Validação do ICP](results/icp/README.md) | Recuperação de rotação, escala e translação conhecidas; raio de convergência |
+| [Validação do ICP](results/icp/README.md) | Recuperação de rotação, escala e translação conhecidas, antes e depois da inicialização global |
 | [Agent Harness](harness/README.md) | Desenvolvimento assistido por agentes: estado, fluxo e referências |
 | [Artigo e referências](https://github.com/lianeheidemann/mesh-comparison-article) | Repositório privado `mesh-comparison-article` |
 

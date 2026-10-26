@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import trimesh
 
-from meshcomparison.common.alignment import initial_similarity_from_bboxes
+from meshcomparison.common.alignment import axis_rotations, initial_similarity, principal_axis_rotations
 from meshcomparison.common.distances import maybe_subsample, surface_distances, symmetric_surface_mse
 from meshcomparison.common.sampling import sample_surface
 from meshcomparison.common.transforms import apply_transform_points
@@ -44,9 +44,23 @@ def test_maybe_subsample_limits_size(cloud):
     assert maybe_subsample(cloud, max_points=1000) is cloud
 
 
-def test_bbox_similarity_aligns_scaled_shifted_cloud(cloud):
-    moved = cloud * 2.0 + np.array([1.0, -2.0, 3.0])
-    T = initial_similarity_from_bboxes(moved, cloud)
-    back = apply_transform_points(moved, T)
-    assert np.allclose(back.min(axis=0), cloud.min(axis=0), atol=1e-6)
-    assert np.allclose(back.max(axis=0), cloud.max(axis=0), atol=1e-6)
+def test_axis_rotations_are_the_24_distinct_proper_rotations():
+    rotations = axis_rotations()
+    assert len(rotations) == 24
+    assert all(np.allclose(r @ r.T, np.eye(3)) and np.isclose(np.linalg.det(r), 1.0) for r in rotations)
+    assert len({tuple(r.ravel()) for r in rotations}) == 24
+
+
+def test_initial_similarity_undoes_a_known_rotation_scale_and_shift(cloud):
+    rotation = trimesh.transformations.rotation_matrix(1.0, [1, 2, 3])[:3, :3]
+    moved = 2.0 * cloud @ rotation.T + np.array([1.0, -2.0, 3.0])
+    T = initial_similarity(moved, cloud, rotation.T)
+    assert np.allclose(apply_transform_points(moved, T), cloud, atol=1e-9)
+
+
+def test_principal_axes_give_the_rotation_of_an_anisotropic_cloud():
+    points = np.random.default_rng(0).normal(size=(2000, 3)) * np.array([3.0, 2.0, 1.0])
+    rotation = trimesh.transformations.rotation_matrix(2.0, [1, -1, 0.5])[:3, :3]
+    moved = points @ rotation.T
+    errors = [np.linalg.norm(r - rotation.T) for r in principal_axis_rotations(moved, points)]
+    assert min(errors) < 1e-6

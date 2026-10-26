@@ -51,7 +51,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
 
 <img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines">
 
-1. **Preparation** (shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and run similarity ICP (rotation, translation, uniform scale) on them when the symmetric point-to-surface MSE exceeds `1e-4`.
+1. **Preparation** (shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and, when the symmetric point-to-surface MSE exceeds `1e-4`, run similarity ICP (rotation, translation, uniform scale) on them from the best of 28 starting orientations.
 2. **Geometric pipeline:** surface metrics, optionally split into GT regions visible/hidden from the input view, plus orthographic renders and a GT heatmap of the distance to the aligned RM surface.
 3. **Perceptual pipeline:** GT and aligned RM rendered from the same orthographic cameras (100 azimuths); LPIPS, PSNR and SSIM per view on the crop around the union of both masks.
 
@@ -156,7 +156,7 @@ Checks invariance to re-triangulation and sensitivity to noise, local bumps and 
 - STL has no physical units; distances are in the GT's units.
 - Metrics are Monte Carlo estimates over surface samples. With point-to-surface distances they do not drift with the sample count; at 10⁵ samples the seed spread is about 1 % for Chamfer and HD95 and ≤ 0.1 % for the scores (sample pair).
 - The input view uses an orthographic camera and a z-up convention that must match the dataset.
-- ICP is local: on the sample GT it recovers rotations up to about 45°–60° (scale error < 0.1 %) and fails beyond, leaving a plausible-looking Chamfer of 2.5–3.1 % of the diagonal. Bring each model's output into the GT frame (axis convention) before evaluating ([ICP study](docs/results/icp/README.md)).
+- Alignment starts from 28 orientations (axis permutations and principal axes) and keeps the best fit ([ADR 0005](docs/adr/0005-icp-global-start.md)); on the sample GT it recovers any rotation, scale and translation ([ICP study](docs/results/icp/README.md)). For symmetric objects or reconstructions far from the GT, the best-fitting orientation may not be the intended one: check `icp_scale` and the heatmap.
 - Validation so far uses synthetic cases and one sample pair; benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
 
 ## Development

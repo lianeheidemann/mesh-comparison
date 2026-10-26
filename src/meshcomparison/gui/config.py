@@ -53,7 +53,7 @@ def validate(cfg):
         if not path:
             errors.append(f"{label}: no file selected.")
         elif os.path.splitext(path)[1].lower() == ".fbx":
-            errors.append(f"{label}: FBX is not supported. Convert it to STL, OBJ or PLY first.")
+            errors.append(f"{label}: FBX is not supported. Convert it to GLB, OBJ or PLY first.")
         elif not os.path.isfile(path):
             errors.append(f"{label}: file not found: {path}")
     if not (cfg.run_geometry or cfg.run_perceptual):

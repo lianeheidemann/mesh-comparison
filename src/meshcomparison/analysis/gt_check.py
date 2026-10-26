@@ -10,7 +10,7 @@ import os
 import numpy as np
 import trimesh
 
-from ..common.io import load_mesh
+from ..common.io import describe_scene, load_mesh
 from ..common.sampling import sample_surface
 
 SUPPORTED_FORMATS = (".stl", ".obj", ".ply", ".off", ".glb", ".gltf")
@@ -99,6 +99,11 @@ def measure(path):
         "watertight": bool(merged.is_watertight),
         "has_texture": _has_texture(mesh),
     }
+    scene = describe_scene(path)
+    values["scene_meshes"] = "; ".join(f"{m['node']}: {m['triangles']} tri, {m['area_fraction']:.0%}"
+                                       for m in scene["meshes"])
+    values["extra_scene_meshes"] = ", ".join(m["node"] for m in scene["meshes"][1:])
+    values["dropped"] = ", ".join(f"{d['node']} ({d['type']})" for d in scene["dropped"])
     if len(merged.faces) and values["surface_area"] > 0:
         values.update(edge_statistics(merged))
         values.update(component_statistics(merged))
@@ -112,8 +117,10 @@ def assess(values):
         return "FAIL", ["no triangles or zero surface area"]
     reasons = []
     if values["secondary_area_fraction"] > MAX_SECONDARY_AREA:
+        several = values.get("extra_scene_meshes")
         reasons.append(f"{values['components']} separate parts; {values['secondary_area_fraction']:.0%} of the area "
-                       "is outside the largest (base, scenery or loose parts?)")
+                       "is outside the largest (base, scenery or loose parts?)"
+                       + (f"; scene meshes: {values['scene_meshes']}" if several else ""))
     if values["boundary_edge_fraction"] > MAX_BOUNDARY_EDGES:
         reasons.append(f"open surface: {values['boundary_edge_fraction']:.1%} boundary edges (holes?)")
     if values["internal_area_fraction"] > MAX_INTERNAL_AREA:

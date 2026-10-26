@@ -68,7 +68,7 @@ class MeshesPanel(QGroupBox):
         form.addRow("Ground truth (GT)", self.gt_field)
         form.addRow("Reconstruction (RM)", self.rm_field)
         form.addRow("Output folder", self.out_field)
-        note = QLabel("STL, OBJ, PLY, OFF, GLB/GLTF. FBX is not supported: convert it first.")
+        note = QLabel("STL, OBJ, PLY, OFF, GLB/GLTF (all meshes of a scene are used). FBX: convert it first.")
         note.setObjectName("hint")
         note.setWordWrap(True)
         form.addRow(note)

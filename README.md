@@ -182,7 +182,8 @@ CI (`.github/workflows/ci.yml`) runs Ruff, pytest (pipelines in subprocesses at 
 - **No offscreen OpenGL context:** on headless Linux install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl`.
 - **`No module named 'PySide6'`:** `python -m pip install PySide6 pyvista pyvistaqt`.
 - **CUDA not available:** LPIPS runs on CPU, more slowly.
-- **`.fbx` files:** not supported; convert to STL, OBJ or PLY.
+- **`.fbx` files:** not supported; convert to GLB (keeps textures), OBJ or PLY, e.g. in Blender.
+- **GLB/GLTF scenes:** cameras, lights, lines and animation are ignored, but every triangle mesh of the scene (ground, props) is loaded; the log lists them by name. Remove extra nodes before evaluating ([GT guide](docs/gt/README.md)).
 
 ## License and credits
 

@@ -43,6 +43,21 @@ A textura (`has_texture`) não gera aviso, mas afeta as métricas perceptuais: u
 
 **Exemplo:** a GT de exemplo (`data/samples/gt.stl`) recebe WARN. Ela tem 3 partes separadas (6 % da área fora da maior), 2,9 % de arestas de borda e 3,7 % de superfície encerrada. Serve para testar o software, mas não seria uma GT de benchmark sem limpeza.
 
+## GLB/GLTF com cena
+
+Um GLB/GLTF guarda uma **cena**, não só uma malha. O carregador (`common/io.py:load_mesh`) trata cada elemento assim:
+
+| Elemento | Tratamento |
+| --- | --- |
+| Câmeras, luzes | Ignoradas: não são geometria |
+| Linhas e pontos (auxiliares, *gizmos*) | Descartados e listados no log |
+| Esqueleto, animação, *morph targets* | Não aplicados: a malha entra na **pose de repouso** |
+| **Todas as malhas triangulares da cena** | **Entram juntas**, com as transformações da cena (inclusive chão, cenário e outros objetos) |
+
+Quando a cena tem mais de uma malha, o log mostra o nome e a área de cada uma (por exemplo, `Scene model.glb: ground 2 tri 86%, object 12 tri 14%`). O `check_gt.py` repete essa lista no aviso de partes separadas e nas colunas `scene_meshes` e `dropped`.
+
+Nada é removido automaticamente, porque decidir o que é cenário é uma escolha de quem prepara a GT. Remova os nós extras no Blender (*Outliner* → apagar o nó → exportar GLB) e registre isso em `cleanup_notes` no manifesto.
+
 ## Imagem de entrada
 
 Renderize a imagem de entrada a partir da própria GT, com uma **câmera conhecida**. A mesma imagem vai para todos os modelos:

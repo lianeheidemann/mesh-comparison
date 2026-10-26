@@ -6,7 +6,6 @@ pytest.importorskip("skimage")
 from meshcomparison.perceptual.image_metrics import (  # noqa: E402
     crop_to_union_mask,
     masked_psnr,
-    masked_psnr_standard,
     rgba_to_rgb_mask,
     summarize_stats,
 )
@@ -23,30 +22,24 @@ def test_masked_psnr_empty_mask_is_nan():
     assert np.isnan(masked_psnr(img, img, np.zeros((4, 4), dtype=bool)))
 
 
-def test_masked_psnr_legacy_formula_on_known_error():
-    # one masked pixel with error 0.1 in every channel: legacy E = 3 * 0.01 / 1, standard MSE = 0.01
+def test_masked_psnr_known_error_uses_the_mean_over_channels():
+    # one masked pixel with error 0.1 in every channel: MSE = 0.01 over the 3 values, PSNR = 20 dB
     gt = np.zeros((2, 2, 3), dtype=np.float32)
     rm = gt.copy()
     rm[0, 0] = 0.1
     mask = np.zeros((2, 2), dtype=bool)
     mask[0, 0] = True
-    assert masked_psnr(gt, rm, mask) == pytest.approx(10 * np.log10(1 / 0.03), rel=1e-5)
-    assert masked_psnr_standard(gt, rm, mask) == pytest.approx(20.0, rel=1e-5)
+    assert masked_psnr(gt, rm, mask) == pytest.approx(20.0, rel=1e-5)
 
 
-def test_masked_psnr_standard_is_legacy_plus_10log10_3():
-    rng = np.random.default_rng(1)
-    gt = rng.random((16, 16, 3)).astype(np.float32)
-    rm = rng.random((16, 16, 3)).astype(np.float32)
-    mask = rng.random((16, 16)) > 0.4
-    difference = masked_psnr_standard(gt, rm, mask) - masked_psnr(gt, rm, mask)
-    assert difference == pytest.approx(10 * np.log10(3), abs=1e-4)
-
-
-def test_masked_psnr_standard_limits():
-    img = np.random.default_rng(0).random((8, 8, 3)).astype(np.float32)
-    assert masked_psnr_standard(img, img.copy(), np.ones((8, 8), dtype=bool)) == np.inf
-    assert np.isnan(masked_psnr_standard(img, img, np.zeros((8, 8), dtype=bool)))
+def test_masked_psnr_ignores_pixels_outside_the_mask():
+    gt = np.zeros((2, 2, 3), dtype=np.float32)
+    rm = gt.copy()
+    rm[0, 0] = 0.1
+    rm[1, 1] = 1.0  # large error, but outside the mask
+    mask = np.zeros((2, 2), dtype=bool)
+    mask[0, 0] = mask[0, 1] = True  # error 0.1 on one of the two masked pixels: MSE = 0.005
+    assert masked_psnr(gt, rm, mask) == pytest.approx(10 * np.log10(1 / 0.005), rel=1e-5)
 
 
 def test_rgba_to_rgb_mask_zeroes_background():

@@ -1,5 +1,7 @@
 # Resultados de exemplo — registro histórico
 
+> As seções "Resumo da execução", "Métricas geométricas" e "Métricas perceptuais" e os arquivos em `examples/output/` foram gerados pela **versão anterior** dos pipelines (métricas geométricas entre vértices; PSNR com divisão por N). Eles **não** são comparáveis com as saídas atuais. Os valores da versão atual para o mesmo par estão em [Métricas da versão atual](#user-content-métricas-da-versão-atual-do-mesmo-par).
+
 ## Resumo da execução
 
 - O pipeline geométrico e o pipeline perceptual foram executados com os arquivos de exemplo.
@@ -108,11 +110,11 @@ Cada imagem já mostra GT e RM lado a lado.
   <img src="../../examples/output/renders/pairs/pair_view066.png" width="100%" alt="Comparação perceptual da vista 66">
 </p>
 
-## Métricas `evaluation-v2` do mesmo par (execução posterior)
+## Métricas da versão atual do mesmo par
 
-O registro acima é **anterior** ao protocolo [evaluation-v2](../adr/0001-evaluation-v2.md) e não contém seus arquivos. Os valores abaixo vêm de uma execução separada do pipeline geométrico com o mesmo par (`gt.stl` × `mod.stl`), feita em 26/10/2026 em Linux (Python 3.13, NumPy 2.5, Trimesh 5.2). Os parâmetros são 100 000 amostras por malha, sementes `0`/`1` e ICP não acionado; as métricas legadas dessa execução ficaram idênticas às registradas acima.
+Os valores abaixo vêm do pipeline geométrico atual ([ADR 0003](../adr/0003-single-metric-standard.md)) com o mesmo par (`gt.stl` × `mod.stl`), executado em 26/10/2026 em Linux (Python 3.13, NumPy 2.5, Trimesh 5.2). Parâmetros: 100 000 amostras por malha, sementes `0`/`1`. O MSE pré-alinhamento sobre as amostras foi 6,95 × 10⁻⁵, abaixo do limiar de 10⁻⁴, então o ICP não foi acionado.
 
-| Métrica v2 (superfície inteira) | Normalizado | Unidades da GT |
+| Métrica (superfície inteira) | Normalizado | Unidades da GT |
 | --- | ---: | ---: |
 | Chamfer | 0,0038869 | 0,0146744 |
 | HD95 | 0,0213188 | 0,0804864 |
@@ -120,7 +122,7 @@ O registro acima é **anterior** ao protocolo [evaluation-v2](../adr/0001-evalua
 | AUC-F (τ de 0,5 % a 10 %) | 0,9804 | — |
 | Normal consistency | 0,9445 | — |
 
-**Leitura:** o Chamfer v2 (0,0039) é cerca de duas vezes o legado (0,0019). Na métrica legada, os vértices que coincidem nas duas malhas contribuem com distância zero; isso depende da triangulação, não da superfície (ver o [estudo de robustez](robustness/README.md)).
+**Leitura:** o Chamfer atual (0,0039) é cerca de duas vezes o da versão anterior (0,0019). Na métrica por vértice, os vértices que coincidem nas duas malhas contribuem com distância zero; isso depende da triangulação, não da superfície (ver o [estudo de robustez](robustness/README.md)).
 
 **Regiões, só como ilustração:** este par não tem imagem de entrada. Com uma vista hipotética em azimute −135° e elevação 25,264°, 39,1 % da superfície da GT fica visível (Chamfer 0,0060; F@1 % 0,824) e 60,9 % fica oculta (Chamfer 0,0025; F@1 % 0,963). Neste par, o erro se concentra no lado visível dessa vista.
 

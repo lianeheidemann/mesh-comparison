@@ -17,11 +17,10 @@ SUMMARY_COLUMNS = (  # (CSV column, header) in reading order
 )
 METRIC_LABELS = {
     "lpips": ("LPIPS", "lower is better"),
-    "psnr": ("PSNR legacy (dB)", "higher is better; RGB squared errors summed and divided by N pixels"),
+    "psnr": ("PSNR (dB)", "higher is better"),
     "ssim": ("SSIM", "higher is better"),
-    "psnr_standard": ("PSNR standard (dB)", "higher is better; mean over the 3N channel values (evaluation-v2)"),
 }
-GEOMETRY_ROWS = (  # (metrics_geometry_v2.csv column, label, tooltip, format)
+GEOMETRY_ROWS = (  # (metrics_geometry.csv column, label, tooltip, format)
     ("chamfer_mean_gt_units", "Chamfer (GT units)", "lower is better; mean surface-sample distance", "{:.4g}"),
     ("hd95_gt_units", "HD95 (GT units)", "lower is better; 95th-percentile symmetric distance", "{:.4g}"),
     ("fscore_tau1pct", "F-score @1%", "higher is better; tolerance 1% of the GT diagonal", "{:.4f}"),
@@ -85,7 +84,7 @@ def _make_summary_table(df):
 
 
 def _make_geometry_table(df):
-    """evaluation-v2 geometric summary: one row per metric, one column per GT region present in the CSV."""
+    """Geometric summary: one row per metric, one column per GT region present in the CSV."""
     by_region = {row["region"]: row for row in df.to_dict("records")}
     regions = [r for r in REGION_HEADERS if r in by_region]
     headers = ["Metric"] + [
@@ -118,8 +117,7 @@ def _make_page(table, hint_text):
 def _make_summary_page(df):
     return _make_page(_make_summary_table(df),
                       "LPIPS: lower is better · PSNR: higher is better · SSIM: higher is better. "
-                      "Statistics over all rendered views. On the same pixels, "
-                      "PSNR standard = PSNR legacy + 10·log10(3) ≈ +4.77 dB.")
+                      "Statistics over all rendered views.")
 
 
 def _make_geometry_page(df):
@@ -131,8 +129,8 @@ def _make_geometry_page(df):
     regions = ("Visible / hidden: GT regions seen from the input view (share of the GT surface)."
                if len(df) > 1 else "Set an input view to split the metrics into visible / hidden regions.")
     return _make_page(_make_geometry_table(df),
-                      f"evaluation-v2 on {int(first['n_samples']):,} area-uniform surface samples per mesh, after "
-                      f"alignment. {alignment} {regions} Legacy vertex metrics: metrics/metrics_geometry.csv.")
+                      f"Metrics on {int(first['n_samples']):,} area-uniform surface samples per mesh, after "
+                      f"alignment. {alignment} {regions}")
 
 
 class ImageGallery(QWidget):
@@ -247,7 +245,7 @@ class ImageGallery(QWidget):
 
 class ResultsView(QTabWidget):
     PERCEPTUAL_CSV = os.path.join("metrics", "metrics_perceptual.csv")
-    GEOMETRY_V2_CSV = os.path.join("metrics", "metrics_geometry_v2.csv")
+    GEOMETRY_CSV = os.path.join("metrics", "metrics_geometry.csv")
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -282,9 +280,10 @@ class ResultsView(QTabWidget):
         self._out_dir = out_dir
         self.open_button.setEnabled(os.path.isdir(out_dir))
         added = False
-        geometry = os.path.join(out_dir, self.GEOMETRY_V2_CSV)
-        if os.path.isfile(geometry):
-            self.addTab(_make_geometry_page(pd.read_csv(geometry)), "Geometric summary")
+        geometry = os.path.join(out_dir, self.GEOMETRY_CSV)
+        geometry_df = pd.read_csv(geometry) if os.path.isfile(geometry) else None
+        if geometry_df is not None and "region" in geometry_df.columns:  # folders of older versions lack it
+            self.addTab(_make_geometry_page(geometry_df), "Geometric summary")
             added = True
         summary = os.path.join(out_dir, self.PERCEPTUAL_CSV)
         if os.path.isfile(summary):

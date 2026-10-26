@@ -43,11 +43,11 @@ A estrutura é **sugestão**, não obrigação universal. Ajuste linguagem, SO, 
 | Objetivo e arquitetura funcional descritos | ✅ | [README principal](../../../README.md), pipelines geométrico e perceptual |
 | Pipelines de domínio separados | ✅ | [Geometria](../../../src/meshcomparison/geometry/pipeline.py) e [percepção](../../../src/meshcomparison/perceptual/pipeline.py) |
 | Documentação de implementação | ✅ | [Guia de implementação](../../implementation/README.md) |
-| Contrato de métricas e regressões sistemáticas | 🟡 | [Plano de validação](../../implementation/README.md) ainda declara lacunas |
+| Definição das métricas e regressões sistemáticas | 🟡 | Definições nos [ADRs](../../adr/); o [plano de validação](../../implementation/README.md) ainda declara lacunas |
 | Autonomia, permissões e decisões do agente versionadas | 🟡 | [`AGENTS.md`](../../../AGENTS.md) versionado com regras e limites (ausente na auditoria de 18/10/2026); autonomia/permissões efetivas não demonstradas |
-| ADRs e aprovações documentadas para alterações científicas | ❓ | Não comprovados na auditoria de 18/10/2026 |
+| ADRs para alterações de métricas | ✅ | [ADRs 0001–0003](../../adr/) (ausentes na auditoria de 18/10/2026) |
 
-**Para este projeto existente:** reconstruir o contrato a partir dos pipelines e resultados atuais, registrando decisões e seus limites antes de permitir novas modificações por agentes.
+**Para este projeto existente:** manter os ADRs atualizados a cada mudança de métrica, registrando decisões e seus limites antes de permitir novas modificações por agentes.
 
 ## Critérios de conclusão no projeto novo
 

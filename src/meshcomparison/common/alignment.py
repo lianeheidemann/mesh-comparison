@@ -25,7 +25,7 @@ def initial_similarity_from_bboxes(src_pts, tgt_pts):
     return T
 
 
-def similarity_icp_align(rm_vertices, gt_vertices,
+def similarity_icp_align(rm_points, gt_points,
                          coarse_dist=0.25,
                          fine_dist=0.05,
                          max_points=50000,
@@ -35,8 +35,8 @@ def similarity_icp_align(rm_vertices, gt_vertices,
     """
     import open3d as o3d
 
-    rm_pts = maybe_subsample(rm_vertices, max_points=max_points, seed=1)
-    gt_pts = maybe_subsample(gt_vertices, max_points=max_points, seed=2)
+    rm_pts = maybe_subsample(rm_points, max_points=max_points, seed=1)
+    gt_pts = maybe_subsample(gt_points, max_points=max_points, seed=2)
 
     src = to_o3d_pcd(rm_pts)
     tgt = to_o3d_pcd(gt_pts)

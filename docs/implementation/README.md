@@ -8,19 +8,18 @@ Os testes abaixo **existem no repositório**; isso não equivale a afirmar que f
 
 | Componente | Evidência existente | Limite |
 | --- | --- | --- |
-| Erros geométricos entre pontos | [`tests/test_geometry.py`](../../tests/test_geometry.py): nuvens idênticas e deslocamento de um ponto | Não exercita pipeline de malhas completo nem superfície contínua |
-| MSE, amostragem e transformação de caixa | [`tests/test_common.py`](../../tests/test_common.py) | Não comprova convergência robusta de ICP em todas as situações |
+| MSE, subamostragem e transformação de caixa | [`tests/test_common.py`](../../tests/test_common.py) | Não comprova convergência robusta de ICP em todas as situações |
 | Device CPU/CUDA e avisos | [`tests/test_device.py`](../../tests/test_device.py) com simulações (*mocks*) | Não confirma GPU real nem execução de LPIPS em CUDA |
-| PSNR e máscaras | [`tests/test_perceptual.py`](../../tests/test_perceptual.py) | Não confirma renderização/LPIPS/SSIM em cenário multivista completo |
-| Preparo comum e exportação alinhada | [`tests/test_prepare.py`](../../tests/test_prepare.py) | Não cobre todas as condições geométricas nem a convergência robusta de ICP |
+| PSNR e máscaras | [`tests/test_perceptual.py`](../../tests/test_perceptual.py): PSNR com erro conhecido, pixels fora da máscara, casos `Inf`/`NaN` | Não confirma renderização/LPIPS/SSIM em cenário multivista completo |
+| Preparo comum (MSE e ICP sobre amostras) e exportação alinhada | [`tests/test_prepare.py`](../../tests/test_prepare.py) | Não cobre todas as condições geométricas nem a convergência robusta de ICP |
 | Configuração e worker da GUI | [`tests/test_gui_config.py`](../../tests/test_gui_config.py), [`tests/test_worker.py`](../../tests/test_worker.py) | Worker exercitado em subprocesso para geometria; não abre janela nem valida Qt/PyVistaQt |
-| Leitura de resultados para o viewer | [`tests/test_outputs.py`](../../tests/test_outputs.py) | Não valida a interação real com o viewer 3D |
+| Leitura de resultados para o viewer | [`tests/test_outputs.py`](../../tests/test_outputs.py): escala e topo da legenda do heatmap lidos do CSV | Não valida a interação real com o viewer 3D |
 | Escala do heatmap (percentil 95) | [`tests/test_heatmap.py`](../../tests/test_heatmap.py) | Não valida a imagem renderizada do heatmap |
-| Reuso do renderer offscreen | [`tests/test_rendering.py`](../../tests/test_rendering.py): renderer reutilizado igual a renders avulsos | Ignorado (*skip*) sem OpenGL offscreen; não compara com o renderer do código original |
+| Reuso do renderer offscreen | [`tests/test_rendering.py`](../../tests/test_rendering.py): renderer reutilizado igual a renders avulsos | Ignorado (*skip*) sem OpenGL offscreen |
 | Galeria de imagens da GUI | [`tests/test_gallery.py`](../../tests/test_gallery.py): pareamento GT/RM por vista e ordenação | Lógica sem Qt; não abre a janela |
-| Métricas `evaluation-v2` (CC-14 a CC-17) | [`tests/test_metrics_v2.py`](../../tests/test_metrics_v2.py): amostragem reprodutível e proporcional à área, deslocamento paralelo conhecido (CD = HD95 = δ; F-score em degrau), HD95 robusto a *outliers*, precisão/cobertura, regiões, escala do ICP, visibilidade de um cubo; PSNR padrão em [`tests/test_perceptual.py`](../../tests/test_perceptual.py) | Casos sintéticos; não valida em malhas reais de TripoSR/SF3D/InstantMesh nem a convenção de eixos de cada conjunto de dados |
-| Normal consistency, curva F(τ) e estudo de robustez (CC-18) | [`tests/test_robustness.py`](../../tests/test_robustness.py): normais amostradas, NC = cos θ para planos inclinados, F(τ) monotônica e AUC em [0,1], permutação sem efeito, re-triangulação que altera o legado e não o v2, perturbações monotônicas, remoção que reduz a cobertura | Uma GT sintética por teste; os números do estudo em [`docs/results/robustness`](../results/robustness/README.md) usam uma única GT e não incluem LPIPS |
-| Schema dos CSVs | [`tests/test_output_schema.py`](../../tests/test_output_schema.py): executa os pipelines em subprocesso e compara colunas com `examples/output/metrics/` | Verifica estrutura, não valores científicos |
+| Métricas geométricas | [`tests/test_metrics.py`](../../tests/test_metrics.py): amostragem reprodutível e proporcional à área, deslocamento de um ponto, deslocamento paralelo conhecido (CD = HD95 = δ; F-score em degrau), HD95 robusto a *outliers*, precisão/cobertura, regiões, escala do ICP, visibilidade de um cubo | Casos sintéticos; não valida em malhas reais de TripoSR/SF3D/InstantMesh nem a convenção de eixos de cada conjunto de dados |
+| Normal consistency, curva F(τ) e estudo de robustez | [`tests/test_robustness.py`](../../tests/test_robustness.py): normais amostradas, NC = cos θ para planos inclinados, F(τ) monotônica e AUC em [0,1], permutação sem efeito, re-triangulação que altera o baseline por vértice e não as métricas de superfície, perturbações monotônicas, remoção que reduz a cobertura | Uma GT sintética por teste; os números do estudo em [`docs/results/robustness`](../results/robustness/README.md) usam uma única GT e não incluem LPIPS |
+| Schema dos CSVs | [`tests/test_output_schema.py`](../../tests/test_output_schema.py): executa os pipelines em subprocesso e confere arquivos, colunas e regiões | Verifica estrutura, não valores científicos |
 
 O [workflow de CI](../../.github/workflows/ci.yml) chama Ruff, pytest e uma verificação de importação dos pipelines e do worker. Pelo pytest, `test_output_schema.py` e `test_worker.py` executam os pipelines em subprocesso com configuração reduzida (320 × 240 px; 2 vistas perceptuais em CPU) para verificar a estrutura das saídas; o CI **não** valida valores científicos, não roda a configuração padrão (100 vistas, 1600 × 1200 px), não usa CUDA e não faz teste gráfico da GUI.
 
@@ -37,9 +36,9 @@ O [workflow de CI](../../.github/workflows/ci.yml) chama Ruff, pytest e uma veri
 | Regiões visível/oculta | Conferir a convenção de eixos (z para cima) e a câmera de entrada de cada conjunto de dados; comparar câmera ortográfica × perspectiva | Alta |
 | Variação entre sementes de amostragem | Medir o desvio de CD, HD95, F@τ e normal consistency nas malhas reais (CV < 1 % na peça de exemplo) | Alta |
 | Renderização offscreen | Gerar PNGs consistentes com câmeras e parâmetros documentados | Alta |
-| LPIPS/PSNR/SSIM em múltiplas vistas | Validar contratos, máscaras, valores-limite e estabilidade; rodar o estudo de robustez com `--lpips` (os pesos da AlexNet precisam estar acessíveis) | Alta |
+| LPIPS/PSNR/SSIM em múltiplas vistas | Validar máscaras, valores-limite e estabilidade; rodar o estudo de robustez com `--lpips` (os pesos da AlexNet precisam estar acessíveis) | Alta |
 | Abertura, execução e cancelamento via GUI | Teste manual documentado ou teste Qt automatizado em ambiente compatível | Média |
-| CUDA disponível vs CPU-only | Verificar device real, avisos, metadados e equivalência metodológica | Média |
+| CUDA disponível vs CPU-only | Verificar device real, avisos, metadados e diferenças numéricas do LPIPS | Média |
 
 Separe testes unitários rápidos dos testes de integração pesados. Controle SO, resolução, driver/renderizador, tolerâncias numéricas, parâmetros de câmera e versões de modelo. Um teste sintético que passa **não** demonstra equivalência de resultados entre GPU/CPU ou entre sistemas operacionais.
 
@@ -48,27 +47,29 @@ Separe testes unitários rápidos dos testes de integração pesados. Controle S
 O código seguinte usa a **função real** `compute_metrics` do pacote, após instalação editável:
 
 ```python
-# Verifica que nuvens de pontos idênticas têm distância geométrica nula
+# Verifica que amostras idênticas de uma superfície têm distância nula e F-score 1
 import numpy as np
+import trimesh
+from meshcomparison.common.sampling import sample_surface
 from meshcomparison.geometry.metrics import compute_metrics
 
-points = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]])
-result = compute_metrics(points, points.copy())
+points = sample_surface(trimesh.creation.box(), 10_000, seed=0)
+result = compute_metrics(points, points.copy())["all"]
 
 assert np.isclose(result["chamfer_mean"], 0.0)
-assert np.isclose(result["hausdorff"], 0.0)
-assert np.isclose(result["rmse"], 0.0)
+assert np.isclose(result["hd95"], 0.0)
+assert result["fscore_tau1pct"] == 1.0
 ```
 
-Isso verifica uma propriedade básica de **distâncias entre vértices**; não valida ICP nem avaliação de malhas tridimensionais inteiras.
+Isso verifica uma propriedade básica das **métricas sobre amostras**; não valida ICP nem avaliação de malhas tridimensionais inteiras.
 
-## 4. Melhoria de arquitetura: fazer depois de proteger as métricas
+## 4. Evolução das métricas e da arquitetura
 
-Potenciais evoluções: amostragem uniforme de superfície, análise topológica, escolha de ICP com/sem escala, PSNR RGB convencional e validação de renderização. A **separação em módulos já foi implementada** em `src/meshcomparison/`, portanto não deve continuar como uma tarefa pendente genérica. Alterações nas definições científicas exigem testes de regressão e documentação (ADR) antes de comparar novos CSVs com o histórico.
+Já implementados: amostragem uniforme de superfície, PSNR convencional, F-score/F(τ), normal consistency e regiões visível/oculta ([ADRs](../adr/)). Potenciais evoluções: análise topológica, escolha de ICP com/sem escala, câmera de entrada perspectiva e validação de renderização. Alterações nas definições das métricas exigem testes de regressão e um ADR antes de comparar novos CSVs com o histórico.
 
 ## 5. Ajustes recentes da implementação
 
-O preparo compartilhado dos pipelines agora está em [`common/prepare.py`](../../src/meshcomparison/common/prepare.py); a camada GUI foi separada em painéis, supervisor, worker de processo filho e carregador de saídas. A mensagem de progresso do pipeline perceptual também usa agora o número real de vistas (`num_views`). Esses testes cobrem partes isoladas do contrato; não substituem a validação end-to-end e a inspeção da janela em um ambiente gráfico real.
+O preparo compartilhado dos pipelines agora está em [`common/prepare.py`](../../src/meshcomparison/common/prepare.py); a camada GUI foi separada em painéis, supervisor, worker de processo filho e carregador de saídas. A mensagem de progresso do pipeline perceptual também usa agora o número real de vistas (`num_views`). Esses testes cobrem partes isoladas do comportamento; não substituem a validação end-to-end e a inspeção da janela em um ambiente gráfico real.
 
 ## Critérios de conclusão
 

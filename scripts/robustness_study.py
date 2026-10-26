@@ -24,7 +24,7 @@ from meshcomparison.analysis.robustness import (  # noqa: E402
     subdivide,
 )
 from meshcomparison.common.io import load_mesh  # noqa: E402
-from meshcomparison.geometry.metrics_v2 import N_SAMPLES, SEED_GT, SEED_RM  # noqa: E402
+from meshcomparison.common.sampling import N_SAMPLES, SEED_GT, SEED_RM  # noqa: E402
 
 DENSE_VERTICES = 20_000  # minimum vertex count of the base mesh used for the perturbations
 
@@ -58,11 +58,11 @@ def sensitivity_rows(base, views, lpips_model, device):
 
 
 PANELS = (  # (title, [(column, label)])
-    ("Distances (lower is better)", [("legacy_chamfer", "Chamfer legacy (vertices)"), ("v2_chamfer", "Chamfer v2"),
-                                     ("legacy_hausdorff", "Hausdorff legacy"), ("v2_hd95", "HD95 v2")]),
-    ("Scores (higher is better)", [("v2_fscore_tau1pct", "F@1%"), ("v2_fscore_tau2pct", "F@2%"),
-                                   ("v2_fscore_auc", "AUC-F"), ("v2_normal_consistency", "Normal consistency")]),
-    ("Perceptual", [("perceptual_psnr_standard", "PSNR standard (dB)"), ("perceptual_ssim", "SSIM"),
+    ("Distances (lower is better)", [("vertex_chamfer", "Chamfer, vertex baseline"), ("chamfer", "Chamfer"),
+                                     ("vertex_hausdorff", "Hausdorff, vertex baseline"), ("hd95", "HD95")]),
+    ("Scores (higher is better)", [("fscore_tau1pct", "F@1%"), ("fscore_tau2pct", "F@2%"),
+                                   ("fscore_auc", "AUC-F"), ("normal_consistency", "Normal consistency")]),
+    ("Perceptual", [("perceptual_psnr", "PSNR (dB)"), ("perceptual_ssim", "SSIM"),
                     ("perceptual_lpips", "LPIPS")]),
 )
 

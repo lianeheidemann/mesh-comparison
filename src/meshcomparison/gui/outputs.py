@@ -3,12 +3,9 @@ import os
 from dataclasses import dataclass
 from typing import Optional
 
-import numpy as np
 import pandas as pd
 
-from ..common.distances import nn_distances
 from ..common.io import load_mesh
-from ..geometry.heatmap import ROBUST_PERCENTILE
 
 
 @dataclass
@@ -28,13 +25,6 @@ def _first_value(csv_path, column):
     return float(table[column].iloc[0]) if column in table else None
 
 
-def heatmap_range(gt, rm_aligned):
-    """Upper end of the heatmap colour scale in GT units, recomputed from the saved meshes (the pipeline
-    writes only the coloured mesh): the robust percentile of the GT-vertex to aligned-RM distances."""
-    distances, _ = nn_distances(gt.vertices, rm_aligned.vertices)
-    return float(np.nanpercentile(distances, ROBUST_PERCENTILE))
-
-
 def load_run_meshes(gt_path, out_dir, with_heatmap):
     """GT, aligned RM and (when the geometric pipeline ran) heatmap mesh with its scale and legend range."""
     metrics = os.path.join(out_dir, "metrics")
@@ -49,6 +39,6 @@ def load_run_meshes(gt_path, out_dir, with_heatmap):
             if scale is not None:
                 result.heatmap_scale = scale
                 break
-        if result.rm_aligned is not None:
-            result.heatmap_vmax = heatmap_range(result.gt, result.rm_aligned)
+        # upper end of the colour scale in GT units, as written by the geometric pipeline
+        result.heatmap_vmax = _first_value(os.path.join(metrics, "metrics_geometry.csv"), "heatmap_vmax_gt_units")
     return result

@@ -34,15 +34,14 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 | Ferramenta de testes integrada ao projeto | ✅ | `pytest` no [environment.yml](../../../environments/environment.yml) e [CI](../../../.github/workflows/ci.yml) |
 | Execução automatizada de pytest | ✅ | Etapa `pytest -q` do workflow (configurada; não equivale a run comprovadamente verde) |
 | Smoke de importação dos pipelines e do worker | ✅ | Uma chamada `python -c "import ..."` no workflow; o worker também é testado em `tests/test_worker.py` |
-| Testes de métricas geométricas de pontos | ✅ | [`tests/test_geometry.py`](../../../tests/test_geometry.py) testa nuvens idênticas, Chamfer, Hausdorff e RMSE para deslocamento simples |
 | Transformações de bbox, MSE e subsampling | ✅ | [`tests/test_common.py`](../../../tests/test_common.py); não comprova ICP end-to-end |
-| Helpers perceptuais (PSNR legado e padrão, máscaras, estatísticas) | ✅ | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py), incluindo erro conhecido e `PSNR_padrão − PSNR_legado = 10·log10(3)` |
-| Métricas `evaluation-v2` (CC-14–CC-18) | ✅ | [`tests/test_metrics_v2.py`](../../../tests/test_metrics_v2.py) e [`tests/test_robustness.py`](../../../tests/test_robustness.py): amostragem, deslocamento conhecido, HD95, F-score e F(τ), regiões, escala do ICP, visibilidade (requer OpenGL), normal consistency e invariância à re-triangulação |
+| Helpers perceptuais (PSNR, máscaras, estatísticas) | ✅ | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py), incluindo PSNR com erro conhecido e pixels fora da máscara |
+| Métricas geométricas | ✅ | [`tests/test_metrics.py`](../../../tests/test_metrics.py) e [`tests/test_robustness.py`](../../../tests/test_robustness.py): amostragem, deslocamento conhecido, HD95, F-score e F(τ), regiões, escala do ICP, visibilidade (requer OpenGL), normal consistency e invariância à re-triangulação |
 | Device e parâmetros de interface | ✅ | [`tests/test_device.py`](../../../tests/test_device.py) usa simulações; [`tests/test_gui_config.py`](../../../tests/test_gui_config.py) verifica comandos/configuração, **não uma janela real** |
 | Preparo comum, ICP condicional e exportação alinhada | ✅ | [`tests/test_prepare.py`](../../../tests/test_prepare.py): ICP não acionado abaixo do limiar, exportação na escala de entrada e colunas da transformação |
-| Escala do heatmap e leitura de saídas da GUI | ✅ | [`tests/test_heatmap.py`](../../../tests/test_heatmap.py) e [`tests/test_outputs.py`](../../../tests/test_outputs.py) verificam o percentil 95; [`tests/test_gallery.py`](../../../tests/test_gallery.py) verifica o pareamento GT/RM da galeria |
+| Escala do heatmap e leitura de saídas da GUI | ✅ | [`tests/test_heatmap.py`](../../../tests/test_heatmap.py) verifica o percentil 95 e [`tests/test_outputs.py`](../../../tests/test_outputs.py) a leitura da escala gravada no CSV; [`tests/test_gallery.py`](../../../tests/test_gallery.py) verifica o pareamento GT/RM da galeria |
 | Reuso do renderer offscreen | 🟡 | [`tests/test_rendering.py`](../../../tests/test_rendering.py) compara renderer reutilizado e renders avulsos; é ignorado sem OpenGL offscreen |
-| Integração por subprocesso (worker e schema dos CSVs) | 🟡 | [`tests/test_worker.py`](../../../tests/test_worker.py) e [`tests/test_output_schema.py`](../../../tests/test_output_schema.py) executam os pipelines com configuração reduzida e comparam colunas com `examples/output/metrics/` (colunas legadas inalteradas + colunas/arquivos v2); **não** comparam valores |
+| Integração por subprocesso (worker e schema dos CSVs) | 🟡 | [`tests/test_worker.py`](../../../tests/test_worker.py) e [`tests/test_output_schema.py`](../../../tests/test_output_schema.py) executam os pipelines com configuração reduzida e conferem arquivos, colunas e regiões; **não** comparam valores |
 | Cenários completos de malhas deformadas, incompletas e densidades distintas | 🟡 | Cobertos em casos sintéticos e no [estudo de robustez](../../results/robustness/README.md) (uma GT, sem ICP, sem LPIPS); falta repetir nas malhas do benchmark |
 | Regressão do fluxo multivista LPIPS/PSNR/SSIM | ❓ | Testes integrados com renderização e modelos reais ainda precisam ser demonstrados |
 
@@ -60,6 +59,6 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 - [ ] Unitário, integração e smoke test estão diferenciados.
 - [ ] Teste deliberadamente quebrado produz falha observável.
 - [ ] Entradas, tolerâncias e saídas foram documentadas.
-- [ ] Alterações em contrato exigem revisão e atualização explícita do baseline.
+- [ ] Alterações nas definições das métricas exigem ADR, revisão e atualização explícita do baseline.
 
 **Próxima etapa:** [04 — CI e proteção](04-ci-e-protecao.md).

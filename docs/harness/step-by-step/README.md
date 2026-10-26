@@ -16,7 +16,7 @@
 
 | Etapa | O que implantar desde o início | O que o Mesh Comparison já possui | Lacunas atuais |
 | --- | --- | --- | --- |
-| [00 — Planejamento e arquitetura](00-planejamento-e-arquitetura.md) | Escopo, critérios, invariantes, permissões, decisões e fluxo de PR | ✅ Objetivo, pipelines e documentação de domínio | 🟡 Contratos de regressão; ❓ ADRs e políticas de agente |
+| [00 — Planejamento e arquitetura](00-planejamento-e-arquitetura.md) | Escopo, critérios, invariantes, permissões, decisões e fluxo de PR | ✅ Objetivo, pipelines e documentação de domínio | 🟡 Regressões sistemáticas; ✅ ADRs; ❓ políticas de agente |
 | [01 — Ambiente e baseline](01-auditoria-e-linha-de-base.md) | Git, dependências/lock, comandos e primeira saída conhecida | ✅ Ambiente Conda declarado, pipelines modulares e resultados exemplares · 🟡 snapshots Windows distintos (lock CPU pré-GUI e pins pip CUDA 12.8 com GUI) | 🟡 Baseline sistemática; ❓ reprodução multiplataforma |
 | [02 — Instruções e contexto](02-instrucoes-e-contexto.md) | `AGENTS.md`, arquitetura, ADRs, templates e regras no primeiro dia | ✅ READMEs, documentação técnica e `AGENTS.md` na raiz | ❓ ADRs |
 | [03 — Testes e regressões](03-testes-e-regressoes.md) | Testes unitários, integração, smoke e regressão desde a primeira feature | ✅ pytest/ruff, testes unitários de métricas, preparo, device e GUI sem Qt · testes de schema e worker em subprocesso · verificação de importação no CI | 🟡 Casos científicos sistemáticos pendentes |

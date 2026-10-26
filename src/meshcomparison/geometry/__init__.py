@@ -1,1 +1,1 @@
-"""Geometric evaluation: alignment, vertex-distance metrics and deviation heatmap."""
+"""Geometric evaluation: surface-sample metrics, input-view regions and deviation heatmap."""

@@ -1,4 +1,4 @@
-# Visible/hidden classification of GT surface samples from the input-image view (z-buffer test, evaluation-v2).
+# Visible/hidden classification of GT surface samples from the input-image view (z-buffer test).
 import numpy as np
 
 from ..common.rendering import render_ortho_depth

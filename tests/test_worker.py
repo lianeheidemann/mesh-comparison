@@ -21,5 +21,5 @@ def test_geometry_worker_runs_from_the_gui_command(tmp_path):
     assert result.returncode == 0, result.stderr
     assert "[7/7]" in result.stdout
     metrics = pd.read_csv(tmp_path / "out" / "metrics" / "metrics_geometry.csv")
-    assert metrics["mean_chamfer_normalized"].iloc[0] > 0
+    assert metrics["chamfer_mean_normalized"].iloc[0] > 0
     assert (tmp_path / "out" / "heatmaps" / "gt_heatmap_colored.ply").is_file()

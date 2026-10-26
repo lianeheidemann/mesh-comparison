@@ -46,13 +46,13 @@ Os comandos exatos devem ser definidos para a stack real. Texto de prompt **não
 
 ### Adaptar o que existe sem jogar fora o código
 
-Manter o `AGENTS.md` (já versionado e com referência obrigatória aos [contratos científicos](../CONTRATOS-CIENTIFICOS.md)) apontando para [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py) e [perceptual](../../../src/meshcomparison/perceptual/pipeline.py). Declarar que mudanças em ICP, escala, unidades, definições de distância, câmeras e LPIPS/PSNR/SSIM exigem revisão metodológica, novos testes e registro de comparação com resultados anteriores.
+Manter o `AGENTS.md` (já versionado) apontando para [pipeline geométrico](../../../src/meshcomparison/geometry/pipeline.py), [perceptual](../../../src/meshcomparison/perceptual/pipeline.py) e os [ADRs](../../adr/). Mudanças em ICP, escala, unidades, definições de distância, câmeras e LPIPS/PSNR/SSIM são registradas em ADR, com novos testes e comparação com resultados anteriores.
 
 ## Critérios de aceite
 
 - [ ] O agente localiza as fontes de verdade em sessão nova, sem memória da conversa.
 - [ ] Instruções são curtas, versionadas e não contradizem arquitetura ou CI.
-- [ ] Mudanças em contratos e domínios críticos têm regra de revisão explícita.
+- [ ] Mudanças nas métricas e em domínios críticos têm regra de revisão explícita (ADR).
 - [ ] Um template de tarefa/PR define critérios de aceite e evidências.
 - [ ] Uma tarefa só de leitura confirma que arquivos e comandos citados existem.
 

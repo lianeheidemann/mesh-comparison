@@ -2,18 +2,19 @@
 """
 Metric-validation study, not part of the GUI pipelines.
 
-Perturbations are applied to a GT that is already normalized (bounding-box diagonal 1, as in CC-02), so every
-intensity is a fraction of the GT diagonal. Pairs are compared **without ICP**: the study isolates how each metric
-responds to a known change, not how registration behaves. All randomness uses fixed seeds.
+Perturbations are applied to a GT that is already normalized (bounding-box diagonal 1, as in the pipelines), so
+every intensity is a fraction of the GT diagonal. Besides the package metrics, a vertex-to-vertex baseline is
+computed for comparison (the earlier metric definition, kept here only as a reference). Pairs are compared
+**without ICP**: the study isolates how each metric responds to a known change, not how registration behaves.
+All randomness uses fixed seeds.
 """
 import numpy as np
 import trimesh
 
-from ..geometry.metrics import compute_metrics
-from ..geometry.metrics_v2 import N_SAMPLES, SEED_GT, SEED_RM, TAUS, compute_metrics_v2, sample_surface, tau_key
-from ..perceptual.image_metrics import (
-    crop_to_union_mask, masked_lpips, masked_psnr, masked_psnr_standard, masked_ssim, summarize_stats,
-)
+from ..common.distances import nn_distances
+from ..common.sampling import N_SAMPLES, SEED_GT, SEED_RM, sample_surface
+from ..geometry.metrics import TAUS, compute_metrics, tau_key
+from ..perceptual.image_metrics import crop_to_union_mask, masked_lpips, masked_psnr, masked_ssim, summarize_stats
 
 
 def normalized(mesh):
@@ -106,36 +107,45 @@ PERTURBATIONS = {  # name -> (function(mesh, intensity), intensities, unit)
 }
 
 
+def vertex_baseline(gt_vertices, rm_vertices):
+    """Vertex-to-nearest-vertex Chamfer (mean), symmetric Hausdorff and RMSE: the baseline the surface metrics
+    are compared against (it depends on the triangulation, which is what the invariance study shows)."""
+    d_gt2rm, _ = nn_distances(gt_vertices, rm_vertices)
+    d_rm2gt, _ = nn_distances(rm_vertices, gt_vertices)
+    return {
+        "vertex_chamfer": 0.5 * (np.mean(d_gt2rm) + np.mean(d_rm2gt)),
+        "vertex_hausdorff": max(np.max(d_gt2rm), np.max(d_rm2gt)),
+        "vertex_rmse": np.sqrt(0.5 * (np.mean(d_gt2rm ** 2) + np.mean(d_rm2gt ** 2))),
+    }
+
+
 def geometric_metrics(gt, rm, n_samples=N_SAMPLES):
-    """Legacy vertex metrics and evaluation-v2 surface metrics of ``rm`` against ``gt`` (no ICP)."""
-    legacy = compute_metrics(np.asarray(gt.vertices), np.asarray(rm.vertices))
+    """Vertex baseline and surface-sample metrics of ``rm`` against ``gt`` (no ICP)."""
     gt_points, gt_normals = sample_surface(gt, n_samples, SEED_GT, return_normals=True)
     rm_points, rm_normals = sample_surface(rm, n_samples, SEED_RM, return_normals=True)
-    v2 = compute_metrics_v2(gt_points, rm_points, TAUS, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
+    m = compute_metrics(gt_points, rm_points, TAUS, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
     row = {
-        "legacy_chamfer": legacy["chamfer_mean"],
-        "legacy_hausdorff": legacy["hausdorff"],
-        "legacy_rmse": legacy["rmse"],
-        "v2_chamfer": v2["chamfer_mean"],
-        "v2_hd95": v2["hd95"],
+        **vertex_baseline(np.asarray(gt.vertices), np.asarray(rm.vertices)),
+        "chamfer": m["chamfer_mean"],
+        "hd95": m["hd95"],
     }
     for tau in TAUS:
-        row[f"v2_fscore_{tau_key(tau)}"] = v2[f"fscore_{tau_key(tau)}"]
-    row["v2_fscore_auc"] = v2["fscore_auc"]
-    row["v2_normal_consistency"] = v2["normal_consistency"]
+        row[f"fscore_{tau_key(tau)}"] = m[f"fscore_{tau_key(tau)}"]
+    row["fscore_auc"] = m["fscore_auc"]
+    row["normal_consistency"] = m["normal_consistency"]
     return row
 
 
 def perceptual_metrics(gt, rm, num_views=8, width=320, height=240, elevation_deg=25.264, lpips_model=None,
                        device="cpu"):
-    """Mean over finite values (CC-11) of PSNR legacy/standard, SSIM and LPIPS (NaN without a model) over
+    """Mean over finite values (as in the perceptual summary) of PSNR, SSIM and LPIPS (NaN without a model) over
     ``num_views`` views, with the cameras, masks and crops of the perceptual pipeline."""
     from ..perceptual.cameras import make_view_renderer
     from ..perceptual.pipeline import _render_view, _scene_framing
 
     azimuths = np.linspace(0.0, 360.0, num_views, endpoint=False)
     center, diag = _scene_framing([gt, rm])
-    values = {"psnr": [], "psnr_standard": [], "ssim": [], "lpips": []}
+    values = {"psnr": [], "ssim": [], "lpips": []}
     with make_view_renderer(gt, rm, width=width, height=height) as renderer:
         for azimuth in azimuths:
             view = _render_view(renderer, gt, rm, azimuth, center, diag, elevation_deg, 1.45, 1.05)
@@ -144,7 +154,6 @@ def perceptual_metrics(gt, rm, num_views=8, width=320, height=240, elevation_deg
             gt_masked = gt_crop * union[..., None].astype(np.float32)
             rm_masked = rm_crop * union[..., None].astype(np.float32)
             values["psnr"].append(masked_psnr(gt_crop, rm_crop, union))
-            values["psnr_standard"].append(masked_psnr_standard(gt_crop, rm_crop, union))
             values["ssim"].append(masked_ssim(gt_masked, rm_masked))
             values["lpips"].append(
                 masked_lpips(lpips_model, gt_masked, rm_masked, device) if lpips_model is not None else np.nan)

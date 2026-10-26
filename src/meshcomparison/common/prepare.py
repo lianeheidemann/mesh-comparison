@@ -1,4 +1,6 @@
-"""Steps shared by both pipelines: load, normalize scale, measure the pre-alignment error and align with ICP."""
+"""Steps shared by both pipelines: load, normalize scale, measure the pre-alignment error and align with ICP.
+
+The pre-alignment error and the ICP use area-uniform surface samples, so they do not depend on the triangulation."""
 import os
 from dataclasses import dataclass
 
@@ -7,6 +9,7 @@ import numpy as np
 from .alignment import similarity_icp_align
 from .distances import symmetric_mse
 from .io import load_mesh
+from .sampling import N_SAMPLES, SEED_GT, SEED_RM, sample_surface
 
 
 @dataclass
@@ -18,6 +21,8 @@ class PreparedMeshes:
     pre_mse_norm: float
     alignment_triggered: bool
     final_transform: np.ndarray
+    gt_points: np.ndarray  # surface samples of the normalized GT (seed ``SEED_GT``)
+    gt_normals: np.ndarray  # unit face normals of those samples
 
 
 def prepare_meshes(gt_path, rm_path, mse_threshold_normalized, total_steps):
@@ -36,7 +41,9 @@ def prepare_meshes(gt_path, rm_path, mse_threshold_normalized, total_steps):
     rm.apply_scale(internal_scale)
 
     print(f"[3/{total_steps}] Computing pre-alignment MSE...")
-    pre_mse_norm = symmetric_mse(gt.vertices, rm.vertices)
+    gt_points, gt_normals = sample_surface(gt, N_SAMPLES, SEED_GT, return_normals=True)
+    rm_points = sample_surface(rm, N_SAMPLES, SEED_RM)
+    pre_mse_norm = symmetric_mse(gt_points, rm_points)
     alignment_triggered = pre_mse_norm > mse_threshold_normalized
 
     print(f"    Pre-alignment symmetric MSE (normalized): {pre_mse_norm:.8e}")
@@ -48,7 +55,7 @@ def prepare_meshes(gt_path, rm_path, mse_threshold_normalized, total_steps):
 
     if alignment_triggered:
         print(f"[4/{total_steps}] Running similarity ICP alignment (RM -> GT)...")
-        transform, fitness, inlier_rmse = similarity_icp_align(rm.vertices, gt.vertices)
+        transform, fitness, inlier_rmse = similarity_icp_align(rm_points, gt_points)
         rm_aligned.apply_transform(transform)
         final_transform = transform
         print(f"    ICP fitness: {fitness:.6f}")
@@ -57,7 +64,7 @@ def prepare_meshes(gt_path, rm_path, mse_threshold_normalized, total_steps):
         print(f"[4/{total_steps}] Alignment skipped.")
 
     return PreparedMeshes(gt, rm_aligned, internal_scale, gt_diag_raw, pre_mse_norm,
-                          alignment_triggered, final_transform)
+                          alignment_triggered, final_transform, gt_points, gt_normals)
 
 
 def export_aligned(prepared, aligned_dir):

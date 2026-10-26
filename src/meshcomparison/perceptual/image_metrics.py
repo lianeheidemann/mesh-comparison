@@ -38,24 +38,8 @@ def crop_to_union_mask(img1, img2, mask1, mask2, pad=12):
 
 def masked_psnr(gt_img, rm_img, mask):
     """
-    PSNR over masked pixels only.
-    Images are float32 in [0,1].
-    """
-    mask3 = mask[..., None].astype(np.float32)
-    denom = np.sum(mask3)
-    if denom <= 0:
-        return np.nan
-
-    mse = np.sum(((gt_img - rm_img) ** 2) * mask3) / (denom + 1e-12)
-    if mse <= 1e-12:
-        return np.inf
-    return 10.0 * np.log10(1.0 / mse)
-
-
-def masked_psnr_standard(gt_img, rm_img, mask):
-    """
-    evaluation-v2 PSNR over the same masked pixels: the usual definition, mean squared error over the
-    3 * N channel values (the legacy ``masked_psnr`` divides the RGB sum by N). Peak 1, images in [0,1].
+    PSNR over the masked pixels: mean squared error over the 3 * N channel values of the N masked pixels.
+    Images are float32 in [0,1] (peak 1).
     """
     n_values = 3.0 * np.sum(mask)
     if n_values <= 0:

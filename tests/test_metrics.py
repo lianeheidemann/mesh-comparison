@@ -1,10 +1,11 @@
-# Deterministic tests of the evaluation-v2 geometric metrics (sampling, CD, HD95, F-score, visibility regions).
+# Deterministic tests of the geometric metrics (sampling, CD, HD95, F-score, visibility regions).
 import numpy as np
 import pytest
 import trimesh
 
-from meshcomparison.geometry.metrics import compute_metrics
-from meshcomparison.geometry.metrics_v2 import compute_metrics_v2, icp_scale, sample_surface, tau_key
+from meshcomparison.analysis.robustness import vertex_baseline
+from meshcomparison.common.sampling import sample_surface
+from meshcomparison.geometry.metrics import compute_metrics, icp_scale, tau_key
 
 
 def _square(z=0.0, size=1.0):
@@ -40,7 +41,7 @@ def test_sampling_rejects_meshes_without_area():
 
 def test_identical_samples_give_zero_error_and_full_fscore():
     points = sample_surface(trimesh.creation.box(), 5000, seed=0)
-    m = compute_metrics_v2(points, points.copy())["all"]
+    m = compute_metrics(points, points.copy())["all"]
     assert m["chamfer_mean"] == 0.0 and m["hd95"] == 0.0
     assert all(m[f"fscore_{tau_key(t)}"] == 1.0 for t in (0.01, 0.02, 0.05))
 
@@ -50,26 +51,36 @@ def test_parallel_offset_gives_known_distances_and_fscore_step():
     delta = 0.03
     gt = sample_surface(_square(), 4000, seed=0)
     rm = gt + np.array([0.0, 0.0, delta])
-    m = compute_metrics_v2(gt, rm, taus=(0.02, 0.05))["all"]
+    m = compute_metrics(gt, rm, taus=(0.02, 0.05))["all"]
     assert m["chamfer_mean"] == pytest.approx(delta, abs=1e-12)
     assert m["hd95"] == pytest.approx(delta, abs=1e-12)
     assert m["fscore_tau2pct"] == 0.0  # tau < delta
     assert m["fscore_tau5pct"] == 1.0  # tau > delta
 
 
+def test_single_point_offset():
+    a = np.array([[0.0, 0.0, 0.0]])
+    b = np.array([[3.0, 4.0, 0.0]])
+    m = compute_metrics(a, b, taus=(1.0, 10.0))["all"]
+    assert m["chamfer_mean"] == pytest.approx(5.0)
+    assert m["hd95"] == pytest.approx(5.0)
+    assert m["mse"] == pytest.approx(25.0)
+    assert m["fscore_tau100pct"] == 0.0 and m["fscore_tau1000pct"] == 1.0
+
+
 def test_hd95_ignores_a_few_outliers_unlike_hausdorff():
     gt = sample_surface(_square(), 2000, seed=0)
     rm = gt.copy()
     rm[:10] += np.array([0.0, 0.0, 0.5])  # 0.5 % of the RM samples far from the GT
-    assert compute_metrics(gt, rm)["hausdorff"] == pytest.approx(0.5, abs=1e-9)
-    assert compute_metrics_v2(gt, rm)["all"]["hd95"] == 0.0
+    assert vertex_baseline(gt, rm)["vertex_hausdorff"] == pytest.approx(0.5, abs=1e-9)
+    assert compute_metrics(gt, rm)["all"]["hd95"] == 0.0
 
 
 def test_precision_and_recall_follow_their_directions():
     # the RM covers only half of the GT square: precision 1, recall ~0.5 at a small tolerance
     gt = sample_surface(_square(), 20_000, seed=0)
     rm = gt[gt[:, 0] < 0.5]
-    m = compute_metrics_v2(gt, rm, taus=(0.01,))["all"]
+    m = compute_metrics(gt, rm, taus=(0.01,))["all"]
     assert m["precision_tau1pct"] == 1.0
     assert m["recall_tau1pct"] == pytest.approx(0.5, abs=0.02)
 
@@ -77,7 +88,7 @@ def test_precision_and_recall_follow_their_directions():
 def test_regions_split_gt_by_mask_and_rm_by_nearest_gt():
     gt = np.array([[0.0, 0, 0], [1.0, 0, 0]])
     rm = np.array([[0.0, 0, 0.1], [1.0, 0, 0.3]])
-    out = compute_metrics_v2(gt, rm, taus=(0.2,), gt_visible=np.array([True, False]))
+    out = compute_metrics(gt, rm, taus=(0.2,), gt_visible=np.array([True, False]))
     assert out["visible"]["gt_fraction"] == 0.5
     assert out["visible"]["chamfer_mean"] == pytest.approx(0.1)
     assert out["hidden"]["chamfer_mean"] == pytest.approx(0.3)
@@ -86,7 +97,7 @@ def test_regions_split_gt_by_mask_and_rm_by_nearest_gt():
 
 def test_empty_region_is_nan():
     gt = np.array([[0.0, 0, 0], [1.0, 0, 0]])
-    out = compute_metrics_v2(gt, gt.copy(), taus=(0.1,), gt_visible=np.array([True, True]))
+    out = compute_metrics(gt, gt.copy(), taus=(0.1,), gt_visible=np.array([True, True]))
     assert out["hidden"]["gt_fraction"] == 0.0
     assert np.isnan(out["hidden"]["chamfer_mean"]) and np.isnan(out["hidden"]["fscore_tau10pct"])
 

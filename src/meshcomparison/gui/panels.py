@@ -107,7 +107,7 @@ def _spin(minimum, maximum, value, decimals=None, step=None, suffix=""):
 
 
 class ParametersPanel(QGroupBox):
-    """Analysis parameters, shown as fixed values (the defaults of ``RunConfig``, i.e. the original pipeline's)."""
+    """Analysis parameters, shown as fixed values (the defaults of ``RunConfig``)."""
 
     def __init__(self, parent=None):
         super().__init__("Parameters", parent)
@@ -173,7 +173,7 @@ class ParametersPanel(QGroupBox):
 
 
 class InputViewPanel(QGroupBox):
-    """evaluation-v2: optional view of the input image, to split the geometric metrics into visible/hidden GT."""
+    """Optional view of the input image, to split the geometric metrics into visible/hidden GT regions."""
 
     def __init__(self, parent=None):
         super().__init__("Input view (unobserved regions)", parent)

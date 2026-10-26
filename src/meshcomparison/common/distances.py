@@ -16,16 +16,8 @@ def nn_distances(src_points, dst_points):
     return dists, idx
 
 
-def symmetric_vertex_errors(gt_vertices, rm_vertices):
-    d_gt2rm, _ = nn_distances(gt_vertices, rm_vertices)
-    d_rm2gt, _ = nn_distances(rm_vertices, gt_vertices)
-    return d_gt2rm, d_rm2gt
-
-
-def mse_from_errors(d_gt2rm, d_rm2gt):
-    return 0.5 * (np.mean(d_gt2rm ** 2) + np.mean(d_rm2gt ** 2))
-
-
-def symmetric_mse(gt_vertices, rm_vertices):
-    d_gt2rm, d_rm2gt = symmetric_vertex_errors(gt_vertices, rm_vertices)
-    return mse_from_errors(d_gt2rm, d_rm2gt)
+def symmetric_mse(points_a, points_b):
+    """Mean of the two directional mean squared nearest-neighbour distances between two point sets."""
+    d_ab, _ = nn_distances(points_a, points_b)
+    d_ba, _ = nn_distances(points_b, points_a)
+    return 0.5 * (np.mean(d_ab ** 2) + np.mean(d_ba ** 2))

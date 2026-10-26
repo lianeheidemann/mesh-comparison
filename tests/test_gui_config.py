@@ -37,7 +37,7 @@ def test_build_commands_order_and_device(tmp_path):
     assert config_from_json(commands[1].stdin).device == "cuda"
 
 
-def test_run_config_defaults_match_original_pipeline():
+def test_run_config_defaults():
     cfg = RunConfig()
     assert (cfg.azimuth, cfg.elevation) == (-135.0, 25.264)
     assert (cfg.width, cfg.height) == (1600, 1200)

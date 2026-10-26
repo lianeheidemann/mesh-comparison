@@ -1,4 +1,4 @@
-# Tests of normal consistency, the F(tau) curve and the invariance/sensitivity study helpers (ADR 0002).
+# Tests of normal consistency, the F(tau) curve and the invariance/sensitivity study helpers.
 import numpy as np
 import pytest
 import trimesh
@@ -7,9 +7,8 @@ from meshcomparison.analysis.robustness import (
     geometric_metrics, half_subdivided, local_bump, normal_noise, normalized, permute_vertices, remove_region,
     subdivide,
 )
-from meshcomparison.geometry.metrics_v2 import (
-    compute_metrics_v2, fscore_auc, fscore_curve, normal_consistency, sample_surface,
-)
+from meshcomparison.common.sampling import sample_surface
+from meshcomparison.geometry.metrics import compute_metrics, fscore_auc, fscore_curve, normal_consistency
 
 N = 20_000  # samples per mesh in these tests (the pipeline uses 100 000)
 
@@ -41,7 +40,7 @@ def test_normal_consistency_of_tilted_plane_is_cosine():
     for angle in (0.0, 30.0, 60.0):
         gt_points, gt_normals = sample_surface(_square(), N, 0, return_normals=True)
         rm_points, rm_normals = sample_surface(_square(angle), N, 1, return_normals=True)
-        m = compute_metrics_v2(gt_points, rm_points, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
+        m = compute_metrics(gt_points, rm_points, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
         assert m["normal_consistency"] == pytest.approx(np.cos(np.deg2rad(angle)), abs=1e-9)
 
 
@@ -49,7 +48,7 @@ def test_normal_consistency_ignores_orientation_and_needs_normals():
     n = np.array([[0.0, 0.0, 1.0]])
     assert normal_consistency(n, -n, n, -n) == 1.0
     points = np.zeros((1, 3))
-    assert np.isnan(compute_metrics_v2(points, points)["all"]["normal_consistency"])
+    assert np.isnan(compute_metrics(points, points)["all"]["normal_consistency"])
 
 
 def test_fscore_curve_is_monotonic_and_auc_bounded():
@@ -69,22 +68,22 @@ def test_vertex_permutation_changes_no_metric(box):
     assert permuted == reference  # same faces in the same order: identical samples, exactly equal values
 
 
-def test_retriangulation_moves_legacy_metrics_but_not_v2(box):
-    # the same surface with uneven vertex density: legacy vertex Chamfer grows, v2 stays at its sampling floor
+def test_retriangulation_moves_vertex_baseline_but_not_surface_metrics(box):
+    # same surface, uneven vertex density: the vertex baseline grows, the surface metrics stay at their floor
     floor = geometric_metrics(box, box, n_samples=N)
     uneven = geometric_metrics(box, half_subdivided(box, 2), n_samples=N)
-    assert floor["legacy_chamfer"] == 0.0
-    assert uneven["legacy_chamfer"] > 0.02
-    assert abs(uneven["v2_chamfer"] - floor["v2_chamfer"]) < 0.25 * floor["v2_chamfer"]
+    assert floor["vertex_chamfer"] == 0.0
+    assert uneven["vertex_chamfer"] > 0.02
+    assert abs(uneven["chamfer"] - floor["chamfer"]) < 0.25 * floor["chamfer"]
     # F@1% is below 1 even for the same surface: with N samples the sample spacing is close to tau (floor)
-    assert abs(uneven["v2_fscore_tau1pct"] - floor["v2_fscore_tau1pct"]) < 0.01
+    assert abs(uneven["fscore_tau1pct"] - floor["fscore_tau1pct"]) < 0.01
 
 
-def test_perturbations_degrade_v2_metrics_monotonically(box):
+def test_perturbations_degrade_surface_metrics_monotonically(box):
     dense = subdivide(box, 3)
-    noise = [geometric_metrics(dense, normal_noise(dense, s), n_samples=N)["v2_chamfer"] for s in (0, 0.005, 0.02)]
+    noise = [geometric_metrics(dense, normal_noise(dense, s), n_samples=N)["chamfer"] for s in (0, 0.005, 0.02)]
     assert noise[0] < noise[1] < noise[2]
-    bump = [geometric_metrics(dense, local_bump(dense, a), n_samples=N)["v2_hd95"] for a in (0, 0.05, 0.1)]
+    bump = [geometric_metrics(dense, local_bump(dense, a), n_samples=N)["hd95"] for a in (0, 0.05, 0.1)]
     assert bump[0] <= bump[1] <= bump[2]
 
 
@@ -93,7 +92,7 @@ def test_removed_region_lowers_recall_not_precision(box):
     gt_points = sample_surface(dense, N, 0)
     rm = remove_region(dense, 0.2)
     assert rm.area == pytest.approx(0.8 * dense.area, rel=0.05)
-    floor = compute_metrics_v2(gt_points, sample_surface(dense, N, 1), taus=(0.01,))["all"]
-    m = compute_metrics_v2(gt_points, sample_surface(rm, N, 1), taus=(0.01,))["all"]
+    floor = compute_metrics(gt_points, sample_surface(dense, N, 1), taus=(0.01,))["all"]
+    m = compute_metrics(gt_points, sample_surface(rm, N, 1), taus=(0.01,))["all"]
     assert m["precision_tau1pct"] == pytest.approx(floor["precision_tau1pct"], abs=0.01)  # what is left is right
     assert m["recall_tau1pct"] == pytest.approx(0.8 * floor["recall_tau1pct"], abs=0.05)  # 20 % is missing

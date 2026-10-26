@@ -1,4 +1,4 @@
-variant,rm_vertices,legacy_chamfer,legacy_hausdorff,legacy_rmse,v2_chamfer,v2_hd95,v2_fscore_tau1pct,v2_fscore_tau2pct,v2_fscore_tau5pct,v2_fscore_auc,v2_normal_consistency
+variant,rm_vertices,vertex_chamfer,vertex_hausdorff,vertex_rmse,chamfer,hd95,fscore_tau1pct,fscore_tau2pct,fscore_tau5pct,fscore_auc,normal_consistency
 identical copy,2904,0.0,0.0,0.0,0.0014717329237084057,0.0028741823343323737,1.0,1.0,1.0,0.9999974999993422,0.9830667891553133
 vertex order permuted,2904,0.0,0.0,0.0,0.0014717329237084057,0.0028741823343323737,1.0,1.0,1.0,0.9999974999993422,0.9830667891553133
 subdivided x1,5808,0.004800948496920934,0.08877658419851532,0.011536143014408713,0.0014706763672801008,0.0028693109603975834,1.0,1.0,1.0,0.9999960526078912,0.9834048799574469

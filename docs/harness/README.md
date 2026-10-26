@@ -35,14 +35,14 @@ O fluxo operacional do Mesh Comparison é **GUI-first**: o usuário seleciona as
 | Documentação de implementação | 🟡 | Transferência de conhecimento e plano de evolução | [Guia de implementação](../implementation/README.md) com testes existentes e validação pendente; os tutoriais passo a passo foram removidos em 24/10/2026 |
 | Ambiente Conda declarado | ✅ | Instalação do projeto e execução de tarefas/testes | [environment.yml](../../environments/environment.yml) inclui GUI, mas deixa dependências sem pin; a validação limpa da branch atual ainda precisa ser registrada |
 | Dependências com versões registradas | 🟡 | Ajuda a reproduzir snapshots específicos | [environment-lock.yml](../../environments/environment-lock.yml) é um snapshot Windows CPU anterior à GUI; [requirements-windows-cu128.txt](../../environments/requirements-windows-cu128.txt) registra outro snapshot pip com GUI e PyTorch CUDA 12.8 |
-| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes](../../tests/) para métricas de pontos, MSE/transformações, preparo e exportação alinhada, CPU/CUDA simulado, PSNR legado e padrão/máscaras, escala do heatmap, reuso do renderer, configuração/worker/galeria/saídas da GUI, schema dos CSVs, métricas `evaluation-v2` e estudo de robustez em casos sintéticos (ver [inventário](../implementation/README.md)); **equivalência científica com o original ainda não comprovada** |
+| Testes com pytest | 🟡 | Permitem verificar alterações | [Testes](../../tests/) para métricas de pontos, MSE/transformações, preparo e exportação alinhada, CPU/CUDA simulado, PSNR/máscaras, escala do heatmap, reuso do renderer, configuração/worker/galeria/saídas da GUI, schema dos CSVs, métricas geométricas e estudo de robustez em casos sintéticos (ver [inventário](../implementation/README.md)); **validação nas malhas do benchmark ainda pendente** |
 | Lint com Ruff | ✅ | Verifica padrões de código | Etapa `ruff check .` no [CI](../../.github/workflows/ci.yml) |
 | GitHub Actions | ✅ | Automatiza verificações de CI | Push em `main` e pull requests; executa lint, testes (incluindo execução dos pipelines em subprocesso com configuração reduzida) e verificação de importação dos pipelines e do worker |
 | Pipelines de processamento | ✅ | Processamento científico acionado pela GUI | [Geometria](../../src/meshcomparison/geometry/pipeline.py) e [avaliação perceptual](../../src/meshcomparison/perceptual/pipeline.py); a interface inicia processos internos via [runner](../../src/meshcomparison/gui/runner.py), sem expor execução independente ao usuário |
-| Instruções específicas para agentes | ✅ | Definem regras de atuação, comandos e limites | [AGENTS.md](../../AGENTS.md), comum a Codex, Claude Code e demais agentes (o antigo `CLAUDE.md` foi removido em 24/10/2026); leitura dos contratos CC-01–CC-18 obrigatória |
+| Instruções específicas para agentes | ✅ | Definem regras de atuação, comandos e limites | [AGENTS.md](../../AGENTS.md), comum a Codex, Claude Code e demais agentes (o antigo `CLAUDE.md` foi removido em 24/10/2026) |
 | Ciclo autônomo de correção e validação | ❓ | Permite ao agente testar, diagnosticar, corrigir e revalidar | Não demonstrado por arquivos auditados; CI **não** equivale a agente autônomo |
 | Testes de regressão científica abrangentes | 🟡 | Protegem a validade das métricas | [Plano de validação](../implementation/README.md) separa casos unitários existentes dos cenários pendentes; o [estudo de robustez](../results/robustness/README.md) cobre re-triangulação, ruído, saliência e remoção em **uma** GT de exemplo, sem LPIPS |
-| Decisões de arquitetura (ADR) | ✅ | Registram mudanças metodológicas versionadas | [ADR 0001 — evaluation-v2](../adr/0001-evaluation-v2.md) e [ADR 0002 — robustez](../adr/0002-robustness-study.md); o legado é preservado ao lado das métricas novas |
+| Decisões de arquitetura (ADR) | ✅ | Registram as definições das métricas e suas mudanças | [ADR 0001](../adr/0001-evaluation-v2.md), [ADR 0002](../adr/0002-robustness-study.md) e [ADR 0003 — padrão único de métricas](../adr/0003-single-metric-standard.md) |
 | Proteção de branch e revisões obrigatórias | ❓ | Impede merge sem critérios e aprovação | Configuração remota do GitHub não auditada |
 | Rastro de tarefas/execuções de agente | ❓ | Documenta decisões, evidências e falhas | Não demonstrado no escopo verificado |
 | Interface desktop PySide6/PyVistaQt | ✅ | Permite inspecionar modelos e resultados | [Código](../../src/meshcomparison/gui/main_window.py) e [instruções de uso no README](../../README.md#user-content-validate-on-windows); teste gráfico real ainda não documentado |
@@ -59,19 +59,19 @@ O diagrama abaixo representa um **fluxo-alvo**, não uma funcionalidade que já 
 
 Fluxo recomendado: **solicitação com critérios de aceitação → agente com permissões limitadas → leitura do contexto do repositório → alteração em branch isolada → validação local → CI no pull request → revisão humana → merge autorizado**. Quando os testes falharem, registrar a falha e iterar sem ocultar resultados; quando houver ambiguidade científica, pedir decisão humana.
 
-### Instruções e contratos científicos já versionados
+### Instruções já versionadas
 
-- [AGENTS.md](../../AGENTS.md): regras gerais obrigatórias para Codex, Claude Code e demais agentes (arquivo único de instruções desde a remoção do `CLAUDE.md`); define planejamento, limites de alterações, validação e aprovação humana.
-- [CONTRATOS-CIENTIFICOS.md](CONTRATOS-CIENTIFICOS.md): **referência metodológica obrigatória**. CC-01–CC-13 descrevem o comportamento legado, baseado no [código original de Thiago Figueiro Ribeiro](https://github.com/ThiagoFigueiroRibeiro/MeshComparison): normalização, distâncias entre vértices, ICP, heatmap, câmeras, PSNR legado, SSIM, LPIPS, CSVs e proveniência. CC-14–CC-18 descrevem o protocolo versionado `evaluation-v2` (amostragem de superfície, CD/HD95/F-score, PSNR padrão, regiões visível/oculta, normal consistency, F(τ) e estudo de robustez).
+- [AGENTS.md](../../AGENTS.md): regras gerais obrigatórias para Codex, Claude Code e demais agentes (arquivo único de instruções desde a remoção do `CLAUDE.md`); define planejamento, limites de alterações, testes, relato honesto de resultados e proveniência de IA nos commits.
+- [ADRs](../adr/): registram as definições das métricas e o motivo de cada mudança.
 
-**Regra:** alterações metodológicas exigem aprovação humana, ADR, baseline comparativa e testes; otimizações de interface e desempenho não devem alterar silenciosamente resultados científicos. A existência dos documentos não comprova a execução de testes de equivalência nem garante, por si só, a obediência dos agentes.
+**Regra:** mudanças nas definições das métricas são registradas em ADR, com testes determinísticos e comparação de resultados antes e depois. A existência dos documentos não garante, por si só, a obediência dos agentes.
 
 ## 4. O que falta para um harness mais completo?
 
 Não existe uma certificação universal de “harness completo”. Neste projeto, adotamos a seguinte **definição operacional de pronto**, sem exigir um orquestrador novo:
 
 1. **Instruções versionadas — arquivos presentes:** `AGENTS.md` já estabelece regras, comandos e limites; verificar sua aplicação em tarefas reais.
-2. **Contexto navegável — parcial:** contratos científicos CC-01–CC-18 e ADRs 0001–0002 já documentados; o mapa de arquitetura ainda precisa ser avaliado.
+2. **Contexto navegável — parcial:** ADRs 0001–0003 documentam as métricas; o mapa de arquitetura ainda precisa ser avaliado.
 3. **Ambiente verificável**: dependências consistentes, entradas de teste pequenas e execução das avaliações pela interface em ambientes suportados.
 4. **Critérios objetivos**: testes unitários, integração, propriedades geométricas, regressão de renderização e tolerâncias explícitas.
 5. **Gates de CI**: status checks, proteção de branch, revisão de pull requests e logs reproduzíveis.
@@ -84,7 +84,7 @@ Não existe uma certificação universal de “harness completo”. Neste projet
 | Camada | Ferramentas / artefatos | Responsabilidade |
 | --- | --- | --- |
 | Motor de execução do agente | Codex ou Claude Code | Decidir chamadas de ferramentas **sob permissões definidas**; não é parte do pipeline científico |
-| Orientação | [AGENTS.md](../../AGENTS.md), [contratos científicos](CONTRATOS-CIENTIFICOS.md) e ADRs | Instruções versionadas e referência metodológica |
+| Orientação | [AGENTS.md](../../AGENTS.md) e [ADRs](../adr/) | Instruções versionadas e definições das métricas |
 | Execução | Interface desktop PySide6/PyVistaQt; pipelines internos acionados pela GUI | Executar avaliações GT × RM e produzir artefatos |
 | Verificação | Ruff, pytest, cenários de malhas e validações de saída | Detectar erros e regressões |
 | Integração | Git, PR, GitHub Actions, regras de branch | Impedir integração de mudanças não verificadas |
@@ -116,13 +116,13 @@ A documentação informa, em cada etapa, **como construir do zero, o que já exi
 
 ### Próximas ações prioritárias
 
-1. Registrar uma **baseline executada** do código original e da implementação atual: commits, hashes das malhas, parâmetros, dependências e resultados. Na versão atual, coletar os resultados pela interface gráfica.
-2. Estender os testes existentes com os cenários científicos T-01 a T-10 definidos nos [contratos](CONTRATOS-CIENTIFICOS.md), com tolerâncias justificadas.
-3. Comparar métricas e renderizações entre as duas versões com as mesmas entradas e configurações; não declarar equivalência sem evidências.
-4. Documentar decisões arquiteturais (ADRs) e verificar controles efetivos de branch, CI e revisão humana.
+1. Registrar uma **baseline executada** da versão atual nas malhas do benchmark: commits, hashes das malhas, parâmetros, dependências e resultados.
+2. Estender os testes com malhas reais (identidade, transformação conhecida, escala, deformação, incompletude e densidade), com tolerâncias justificadas.
+3. Rodar o [estudo de robustez](../results/robustness/README.md) nas GTs do benchmark, com LPIPS.
+4. Verificar controles efetivos de branch, CI e revisão humana.
 5. Executar e registrar um ciclo supervisionado de Codex ou Claude Code, com logs, testes e relatório de revisão.
 
-**Situação atual:** instruções e contratos documentados; validação científica comparativa, aprovação de mudanças metodológicas e ciclo supervisionado ainda não demonstrados como concluídos.
+**Situação atual:** instruções e ADRs documentados; validação nas malhas do benchmark e ciclo supervisionado ainda não demonstrados como concluídos.
 
 ## 6. Referências e leitura complementar
 

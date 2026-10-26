@@ -9,6 +9,7 @@ computed for comparison (the earlier metric definition, kept here only as a refe
 All randomness uses fixed seeds.
 """
 import numpy as np
+import pandas as pd
 import trimesh
 
 from ..common.distances import nn_distances
@@ -158,3 +159,22 @@ def perceptual_metrics(gt, rm, num_views=8, width=320, height=240, elevation_deg
             values["lpips"].append(
                 masked_lpips(lpips_model, gt_masked, rm_masked, device) if lpips_model is not None else np.nan)
     return {f"perceptual_{name}": summarize_stats(v)["mean"] for name, v in values.items()}
+
+
+SAMPLING_SIZES = (1_000, 3_000, 10_000, 30_000, 100_000, 300_000)
+
+
+def sampling_uncertainty(gt, rm, sizes=SAMPLING_SIZES, n_seeds=5, taus=TAUS):
+    """Monte Carlo spread of the surface metrics: one row per (samples per mesh, seed pair), each pair drawing
+    independent GT/RM samples (seeds ``2k`` and ``2k + 1``). Shows how far a single run's value can move."""
+    rows = []
+    for n in sizes:
+        for k in range(n_seeds):
+            gt_points, gt_normals = sample_surface(gt, n, 2 * k, return_normals=True)
+            rm_points, rm_normals = sample_surface(rm, n, 2 * k + 1, return_normals=True)
+            m = compute_metrics(gt_points, rm_points, taus, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
+            row = {"n_samples": n, "seed_pair": k, "chamfer": m["chamfer_mean"], "hd95": m["hd95"],
+                   "fscore_auc": m["fscore_auc"], "normal_consistency": m["normal_consistency"]}
+            row.update({f"fscore_{tau_key(t)}": m[f"fscore_{tau_key(t)}"] for t in taus})
+            rows.append(row)
+    return pd.DataFrame(rows)

@@ -1,61 +1,37 @@
 # Documentação — Mesh Comparison
 
-Esta é a navegação da documentação para a versão atual do projeto, organizado como pacote Python em `src/meshcomparison/`. Os exemplos de resultados são um registro histórico; mudanças na estrutura do projeto não equivalem a uma nova execução validada. A pasta [`archived/`](archived/README-v1.md) guarda READMEs de versões anteriores e não deve ser usada como instrução de instalação ou execução.
+| Documento | Conteúdo |
+| --- | --- |
+| [README principal](../README.md) | Visão geral, métricas, instalação, uso, saídas e limitações |
+| [ADRs](adr/) | Definição e justificativa das métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície, [0002](adr/0002-robustness-study.md) normal consistency, F(τ) e estudo de robustez, [0003](adr/0003-single-metric-standard.md) padrão único |
+| [Implementação e validação](implementation/README.md) | Testes existentes e validação pendente |
+| [Resultados de exemplo](results/README.md) | Métricas e gráficos do par de exemplo |
+| [Estudo de robustez](results/robustness/README.md) | Invariância à triangulação e sensibilidade das métricas; roteiro do artigo |
+| [Agent Harness](harness/README.md) | Desenvolvimento assistido por agentes: estado, fluxo e referências |
+| [Artigo e referências](https://github.com/lianeheidemann/mesh-comparison-article) | Repositório privado `mesh-comparison-article` |
 
-| Área | Conteúdo | Quando consultar |
-| --- | --- | --- |
-| [Avaliação de malhas 3D](https://github.com/lianeheidemann/mesh-comparison-article/tree/main/avaliacao-geometrica) | Conceitos, métricas geométricas e perceptuais, aplicações e limitações (movido para o repositório privado `mesh-comparison-article`) | Antes de interpretar métricas |
-| [Implementação e evolução](implementation/README.md) | Testes existentes, lacunas de validação e plano de evolução | Ao estudar ou alterar o código |
-| [Interface desktop](../README.md#user-content-run) | Instalação, execução e validação da GUI PySide6/PyVistaQt (seções do README principal) | Para inspecionar GT, RM, heatmap e relatórios |
-| [Resultados de exemplo](results/README.md) | Métricas e imagens de uma execução previamente registrada | Para consultar um conjunto específico de resultados |
-| [Estudo de robustez das métricas](results/robustness/README.md) | Invariância à triangulação e sensibilidade a ruído, saliência e remoção de superfície; roteiro do artigo (IJCNN 2027) | Para justificar a escolha das métricas |
-| [Decisões de arquitetura (ADR)](adr/) | [0001 — métricas sobre amostras de superfície](adr/0001-evaluation-v2.md), [0002 — normal consistency, F(τ) e estudo de robustez](adr/0002-robustness-study.md) e [0003 — padrão único de métricas](adr/0003-single-metric-standard.md) | Antes de alterar ou interpretar as métricas |
-| [Referências e chamadas](https://github.com/lianeheidemann/mesh-comparison-article) | Movidas para o repositório privado `mesh-comparison-article` (`references/` e `conferences/`) | Para consultar fontes e oportunidades de publicação |
-| [Agent Harness](harness/README.md) | Estado do desenvolvimento assistido por agentes, guardrails e roteiro reutilizável | Para organizar futuras implementações via LLM |
-| [Referências sobre Harness](harness/REFERENCIAS.md) | Fontes oficiais e materiais complementares | Para fundamentar decisões e arquitetura |
-
-## Arquitetura atual
+## Arquitetura
 
 ```mermaid
 flowchart LR
-    GT["Malha de referência (GT)"] --> INPUTS["Entradas e configuração"]
-    RM["Malha reconstruída (RM)"] --> INPUTS
-    GUI["Interface desktop PySide6"] --> RUNNER["QProcess e worker por pipeline"]
-    API["API Python: run_pipeline"] --> GEO["Pipeline geométrico"]
-    API --> PER["Pipeline perceptual"]
-    RUNNER --> GEO
-    RUNNER --> PER
-    INPUTS --> GEO
-    INPUTS --> PER
-    GEO --> GEOPREP["Preparação das malhas: normalização, amostragem e ICP condicional"]
-    PER --> PERPREP["Preparação das malhas: normalização, amostragem e ICP condicional"]
-    GEOPREP --> GEOM["Amostras de superfície: CD, HD95, F-score, AUC-F, normal consistency, regiões visível/oculta; mapa de calor"]
-    PERPREP --> PERCEPT["Renderizações multivista: LPIPS, PSNR e SSIM"]
-    GEOM --> OUT["Resultados: CSV, PLY e PNG"]
-    PERCEPT --> OUT
-    OUT --> VIEW["GUI: visualizador 3D, galeria e resultados"]
+    IN["GT + RM"] --> PREP["Preparação: normalização pela diagonal da GT, amostragem de superfície, ICP condicional"]
+    GUI["GUI PySide6 → worker por pipeline"] --> PREP
+    PREP --> GEO["Geometria: Chamfer, HD95, F-score, AUC-F, normal consistency, regiões visível/oculta, heatmap"]
+    PREP --> PER["Percepção: renderizações multivista, LPIPS, PSNR, SSIM"]
+    GEO --> OUT["CSV · PLY · PNG"]
+    PER --> OUT
+    OUT --> VIEW["GUI: visualizador 3D e resultados"]
+    OUT --> FIG["scripts/plot_metrics.py: gráficos"]
 ```
 
-Na GUI, os pipelines selecionados são executados em processos filhos sequencialmente; a API Python chama os mesmos módulos diretamente. A estrutura dos módulos está resumida abaixo; o [guia de implementação](implementation/README.md) registra testes e validação pendente, e a seção [Validate on Windows](../README.md#user-content-validate-on-windows) do README principal descreve como operar a interface.
+## Módulos (`src/meshcomparison/`)
 
-## Entrada rápida para a versão atual
+| Pacote | Responsabilidade |
+| --- | --- |
+| `common/` | Leitura de malhas, amostragem de superfície (`sampling.py`), preparo compartilhado (`prepare.py`: normalização, MSE e ICP sobre amostras, exportação), distâncias, transformações, renderização, dispositivo do LPIPS |
+| `geometry/` | Métricas (`metrics.py`), visibilidade pela vista de entrada (`visibility.py`), heatmap, renderização e pipeline |
+| `perceptual/` | Câmeras, máscaras e crop, LPIPS/PSNR/SSIM e pipeline multivista |
+| `analysis/` | Estudo de robustez (`robustness.py`: perturbações, baseline por vértice, dispersão de amostragem) e gráficos (`plots.py`) |
+| `gui/` | Janela, painéis, configuração (`RunConfig`), execução em subprocesso, leitura das saídas e visualizador PyVistaQt |
 
-O pacote em `src/meshcomparison/` está dividido em:
-
-- **`common/`** — carregamento de malhas, amostragem de superfície (`sampling.py`), preparo compartilhado em `prepare.py` (normalização, MSE e ICP sobre amostras, exportação), transformações, distâncias, renderização e escolha do dispositivo para LPIPS.
-- **`geometry/`** — métricas sobre amostras de superfície (`metrics.py`), visibilidade pela vista de entrada (`visibility.py`), heatmap e pipeline.
-- **`perceptual/`** — câmeras, imagens, LPIPS/PSNR/SSIM e pipeline multivista.
-- **`analysis/`** — perturbações controladas, baseline por vértice e avaliação de pares para o estudo de robustez, executado por `scripts/robustness_study.py` (fora da GUI).
-- **`gui/`** — interface Qt com módulos separados para janela, painéis, configuração, supervisão (`runner.py`), processo filho (`worker.py`), carregamento das saídas e visualizador PyVistaQt.
-
-Depois de preparar `meshEval` e instalar o pacote em modo editável, abra a interface para executar as avaliações:
-
-```bash
-python -m meshcomparison.gui
-```
-
-O comando inicia uma **janela desktop** e requer PySide6, PyVista, PyVistaQt e um ambiente com interface gráfica. Veja a [instalação](../README.md#user-content-installation) no README principal. O que o CI verifica está descrito em [Development](../README.md#user-content-development).
-
-**Convenção de status:** “implementado no código” não significa “validado em todos os ambientes”. Recursos de GUI, GPU e renderização gráfica precisam de testes próprios antes de se declarar suporte comprovado.
-
-**Para validar no Windows:** siga a seção [Validate on Windows](../README.md#user-content-validate-on-windows) do README inicial para CUDA/PyTorch, `mesh-gui` e comparação dos CSVs dos dois pipelines. Use uma nova pasta de saída para cada experimento: os dois pipelines gravam na pasta escolhida e ambos exportam o mesmo `aligned/rm_aligned.ply`.
+Scripts em `scripts/`: `plot_metrics.py` (gráficos de uma execução) e `robustness_study.py` (estudo de robustez).

@@ -25,211 +25,82 @@
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/PyVistaQt-3B4A5A?style=flat-square"><img src="https://img.shields.io/badge/PyVistaQt-61778E?style=flat-square" alt="PyVistaQt"></picture>
 </p>
 
-Mesh Comparison is a **Python desktop application** for comparing a ground-truth mesh (GT) with a reconstructed mesh (RM). Its interface provides 3D visualization, geometric deviation metrics, heatmaps, and perceptual comparison across multiple camera views. It evaluates **one GT/RM pair per run**.
+Mesh Comparison is a Python desktop application that evaluates a reconstructed mesh (RM) against a ground-truth mesh (GT): geometric accuracy and completeness on the surface, accuracy in regions hidden from the input image, and perceptual similarity over multiple rendered views. It evaluates one GT/RM pair per run; it does not reconstruct meshes.
 
 <p align="center">
-  <img src="assets/interface/evaluate-meshe-preview-v1.webp">
+  <img src="assets/interface/interface-v2.png" width="100%" alt="Mesh Comparison desktop interface">
 </p>
 
 ### Table of contents
 
-- [Evaluation criteria](#user-content-evaluation-criteria)
-  - [Evaluation metrics](#user-content-evaluation-metrics)
-  - [Metric robustness study](#user-content-metric-robustness-study)
+- [How it works](#user-content-how-it-works)
+- [Metrics](#user-content-metrics)
 - [Example results](#user-content-example-results)
-  - [Geometric metric snapshot](#user-content-geometric-metric-snapshot)
-  - [Perceptual summary — desktop screenshot](#user-content-perceptual-summary--desktop-screenshot)
-- [Technologies](#user-content-technologies)
-- [Workspace layout](#user-content-workspace-layout)
-- [Requirements](#user-content-requirements)
 - [Installation](#user-content-installation)
-- [Run](#user-content-run)
+- [Usage](#user-content-usage)
   - [Desktop interface](#user-content-desktop-interface)
-- [Validate on Windows](#user-content-validate-on-windows)
-- [Pipelines](#user-content-pipelines)
-  - [Geometric evaluation](#user-content-geometric-evaluation)
-  - [Perceptual evaluation](#user-content-perceptual-evaluation)
-- [Parameters](#user-content-parameters)
-- [Scope and limitations](#user-content-scope-and-limitations)
+  - [Metric figures](#user-content-metric-figures)
+  - [Robustness study](#user-content-robustness-study)
+- [Outputs](#user-content-outputs)
+- [Limitations](#user-content-limitations)
 - [Development](#user-content-development)
-  - [Agent Harness](#user-content-agent-harness)
 - [Troubleshooting](#user-content-troubleshooting)
-- [Interface](#user-content-interface)
 - [License and credits](#user-content-license-and-credits)
 
----
+## How it works
 
-<img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines used by the desktop interface">
+<img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines">
 
-The diagram shows the **evaluation flow**. In the desktop app, `gui/runner.py` starts a `gui/worker.py` child process for each selected pipeline; selecting both runs them sequentially.
+1. **Preparation** (shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and run similarity ICP (rotation, translation, uniform scale) on them when the symmetric pre-alignment MSE exceeds `1e-4`.
+2. **Geometric pipeline:** surface metrics, optionally split into GT regions visible/hidden from the input view, plus orthographic renders and a GT heatmap of the distance to the aligned RM surface.
+3. **Perceptual pipeline:** GT and aligned RM rendered from the same orthographic cameras (100 azimuths); LPIPS, PSNR and SSIM per view on the crop around the union of both masks.
 
-## Evaluation criteria
+The GUI runs each selected pipeline in a child process. Metric definitions and their rationale are recorded in the [ADRs](docs/adr/).
 
-| Criterion | Methods | Assesses |
+## Metrics
+
+All geometric distances are fractions of the GT diagonal (columns `_normalized`) or GT units (`_gt_units`).
+
+| Metric | Definition | Better |
 | --- | --- | --- |
-| **Geometric fidelity** | Chamfer, HD95 (lower is better), F-score @1/2/5 %, AUC-F and normal consistency (higher is better) on surface samples | Accuracy, completeness and local orientation, independent of mesh tessellation |
-| **Unobserved regions** | The geometric metrics split into GT regions visible / hidden from the input image | How well the geometry the input image does not show is reconstructed |
-| **Alignment** | Conditional ICP | Pose correction before measuring; a preparation step, **not** a quality score |
-| **Localized deviations** | Distance heatmap | **Where** the surfaces diverge |
-| **Perceptual similarity** | PSNR, SSIM (higher is better), LPIPS (lower is better) | Visual similarity under matched camera views |
+| Chamfer | ½ [mean d(G→R) + mean d(R→G)] over surface samples | Lower |
+| HD95 | max of the two directional 95th percentiles | Lower |
+| F-score @τ | harmonic mean of precision (RM samples within τ of GT) and recall (GT samples within τ of RM); τ = 1, 2, 5 % | Higher |
+| AUC-F | area under F(τ) for τ = 0.5–10 %, normalized to [0, 1] | Higher |
+| Normal consistency | mean \|cos\| between matched surface normals, both directions | Higher |
+| ICP scale | uniform scale applied by the alignment (diagnostic; 1 = none) | — |
+| PSNR | 10·log10(1/MSE), MSE over the 3N channel values of the N union-mask pixels | Higher |
+| SSIM | scikit-image SSIM on the crop with the background zeroed | Higher |
+| LPIPS | AlexNet LPIPS on the same crop | Lower |
 
-Mesh Comparison **does not generate meshes from images**; it evaluates a supplied GT/RM pair. Results are comparable only with the same GT, preparation, cameras and parameters.
-
-### Evaluation metrics
-
-The metric definitions and the reasons for them are recorded in the ADRs ([0001](docs/adr/0001-evaluation-v2.md), [0002](docs/adr/0002-robustness-study.md), [0003](docs/adr/0003-single-metric-standard.md)):
-
-- **Surface sampling:** 100 000 area-uniform points per mesh with fixed seeds (GT `0`, RM `1`), in the GT-diagonal-normalized space. The same samples drive the pre-alignment MSE, the ICP and the metrics, so nothing depends on how the meshes are triangulated.
-- **Chamfer** (mean of the two directional mean nearest distances) and **HD95** = max of the two directional 95th percentiles.
-- **F-score @τ** with τ = 1 %, 2 % and 5 % of the GT diagonal: precision (RM samples within τ of the GT) and recall (GT samples within τ of the RM); the full **F(τ) curve** (0.5 %–10 %) and its normalized area **AUC-F**.
-- **Normal consistency**: mean |cos| between matched surface normals (local orientation and roughness, which distances barely capture).
-- **PSNR**: standard definition, mean squared error over the 3N channel values of the N pixels in the union of the GT/RM masks (peak 1). SSIM and LPIPS (AlexNet) use the same crop with the background zeroed.
-- **Visible / hidden regions** (optional): with the azimuth and elevation of the input image in the GT frame (z up), GT samples are classified with an orthographic z-buffer; each RM sample takes the region of its nearest GT sample.
-- **ICP scale factor** is reported, because the similarity ICP corrects a uniform scale error (scale is not recoverable from a single image) but not wrong proportions.
-
-The interface shows the geometric metrics in a **Geometric summary** tab (columns per region) and the perceptual statistics in a **Perceptual summary** tab.
-
-### Metric robustness study
-
-`scripts/robustness_study.py` checks the metrics against the geometric priors of geometric deep learning — invariance, stability and multiscale ([ADR 0002](docs/adr/0002-robustness-study.md)): the same surface re-triangulated (a vertex-to-vertex baseline changes, the surface metrics do not) and controlled noise, local bumps and missing surface of increasing intensity, compared without ICP. The first run on the sample GT, with its limitations (one GT, no LPIPS), is in [docs/results/robustness](docs/results/robustness/README.md).
-
-```bash
-python scripts/robustness_study.py --gt data/samples/gt.stl --out output/robustness --views 8 [--lpips]
-```
+**Visible / hidden regions:** with the input-image camera (azimuth/elevation in the GT frame, z up), GT samples are classified with an orthographic z-buffer; each RM sample takes the region of its nearest GT sample.
 
 ## Example results
 
-The images and the perceptual screenshot below were recorded with the **previous version** of the pipelines (vertex-based geometric metrics, PSNR divided by N); they illustrate the outputs but are not comparable with current values. That run used 100 camera views; ICP alignment was skipped.
+Sample pair `data/samples/gt.stl` × `mod.stl` (ICP not triggered; the input view −135°/25.264° is illustrative, the pair has no input image). Details and data: [example report](docs/results/README.md).
 
-**Execution status:** Both pipelines completed without errors with the repository's example meshes. This confirms the example workflow, but does not constitute systematic validation across varied mesh conditions.
-
-### Geometric metric snapshot
-
-**Geometric metrics** of the sample pair with the current pipeline (26/10/2026; ICP not triggered):
-
-| Metric | Result | Direction |
-| --- | ---: | --- |
-| Chamfer (GT units) | 0.0146744 | Lower is better |
-| HD95 (GT units) | 0.0804864 | Lower is better |
-| F-score @1 % / @2 % / @5 % | 0.9073 / 0.9521 / 0.9980 | Higher is better |
-| AUC-F (τ 0.5 %–10 %) | 0.9804 | Higher is better |
-| Normal consistency | 0.9445 | Higher is better |
-
-These values describe this sample pair only; the [example report](docs/results/README.md) has the details and the previous-version values.
-
-### Perceptual summary — desktop screenshot
+| Region | GT share | Chamfer (GT units) | HD95 (GT units) | F@1 % | AUC-F | Normal consistency |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Whole surface | 100 % | 0.0147 | 0.0805 | 0.907 | 0.980 | 0.945 |
+| Visible | 39 % | 0.0226 | 0.1197 | 0.824 | 0.963 | 0.909 |
+| Hidden | 61 % | 0.0094 | 0.0270 | 0.963 | 0.992 | 0.968 |
 
 <p align="center">
-  <img src="assets/interface/perceptual-summary-example.png" width="100%" alt="Screenshot of the Mesh Comparison desktop Results tab, showing LPIPS, PSNR (dB), and SSIM perceptual summary statistics across evaluated camera views">
+  <img src="docs/results/figures/geometric_metrics.png" width="100%" alt="Geometric metrics per region for the sample pair">
+  <img src="docs/results/figures/sampling_uncertainty.png" width="100%" alt="Metric spread against the number of surface samples">
 </p>
-
-*Screenshot of the perceptual summary for the example GT/RM mesh pair.* Lower LPIPS is better; higher PSNR and SSIM are better under comparable settings. The screenshot's rounded values differ slightly from the versioned [example results](docs/results/README.md), so treat them as separately recorded results until the respective run settings and metadata are matched.
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <strong>Ground-truth mesh (GT)</strong><br>
-      <img src="examples/output/renders/gt_ortho.png" width="100%" alt="Orthographic render of the ground-truth mesh">
-    </td>
-    <td width="50%" align="center">
-      <strong>Aligned reconstructed mesh (RM)</strong><br>
-      <img src="examples/output/renders/rm_aligned_ortho.png" width="100%" alt="Orthographic render of the aligned reconstructed mesh">
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <strong>Geometric distance heatmap</strong><br>
-      <img src="examples/output/heatmaps/gt_heatmap_ortho.png" width="70%" alt="Geometric distance heatmap on the ground-truth mesh">
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <strong>Perceptual comparison — view 1</strong><br>
-      <img src="examples/output/renders/pairs/pair_view001.png" width="100%" alt="Side-by-side perceptual comparison of GT and RM for view 1">
-    </td>
-  </tr>
-</table>
-
-The [full example report](docs/results/README.md) (currently in Portuguese) contains all metrics, metadata, and additional views.
-
-## Technologies
-
-| Technology | Reference version (Windows CUDA snapshot) | Purpose |
-| --- | --- | --- |
-| Python | 3.12 | Application runtime |
-| PySide6 | 6.12.0 | Desktop interface |
-| PyVista / PyVistaQt | 0.49.1 / 0.13.1 | Interactive 3D viewer |
-| Trimesh / Open3D | 5.1.1 / 0.20.0 | Mesh loading and ICP alignment |
-| NumPy / SciPy | 2.5.4 / 1.18.1 | Geometric and numerical calculations |
-| pyrender | 0.1.45 | Rendering for visual comparison |
-| PyTorch / torchvision | 2.11.0+cu128 / 0.26.0+cu128 | LPIPS computation, with CUDA support |
-| LPIPS / scikit-image | 0.1.4 / 0.26.0 | Perceptual image metrics |
-| Matplotlib / imageio | 3.11.2 / 2.38.1 | Heatmaps and image output |
-| pandas | 3.0.6 | Metrics and CSV reports |
-
-Versions are taken from the [Windows CUDA environment snapshot](environments/requirements-windows-cu128.txt), **not** from automatic runtime detection. The [Conda environment](environments/environment.yml) lists the general dependencies.
-
-## Workspace layout
-
-```text
-mesh-comparison/
-├── src/meshcomparison/
-│   ├── common/                # Shared I/O, alignment and rendering utilities
-│   ├── geometry/              # Geometric metrics, input-view visibility and heatmaps
-│   ├── perceptual/            # Multi-view perceptual evaluation
-│   ├── analysis/              # Metric robustness study (invariance and sensitivity)
-│   └── gui/                   # Desktop interface and pipeline execution
-├── scripts/                   # Experiment scripts (robustness_study.py)
-├── data/samples/              # Sample GT and RM meshes
-├── examples/output/           # Versioned example results
-│   ├── aligned/
-│   ├── heatmaps/
-│   ├── metrics/
-│   └── renders/
-├── environments/              # Conda and Windows CUDA dependency files
-├── assets/                    # Interface screenshots and previews
-├── docs/
-│   ├── adr/                   # Architecture decision records (metric definitions)
-│   ├── harness/               # Agent Harness and roadmap
-│   ├── implementation/        # Existing tests, validation plan and evolution
-│   ├── results/               # Recorded example run and robustness study
-│   ├── archived/              # Historical READMEs (not current instructions)
-│   └── assets/
-├── tests/                     # Automated tests
-├── AGENTS.md                  # Repository-wide coding agent instructions
-├── pyproject.toml
-├── LICENSE
-└── README.md
-```
-
-Use `data/samples/gt.stl` (GT) and `data/samples/mod.stl` (RM) to try the application. The interface saves new results to the selected output folder (default: `output/`); versioned example results are in `examples/output/`. Choose a new output folder for each experiment to avoid overwriting files.
-
-## Requirements
-
-Use Python 3.12 with the project dependencies and a graphical desktop environment. The interface uses PySide6/PyVistaQt; mesh evaluation requires an OpenGL-capable rendering setup.
 
 ## Installation
 
-Open **Anaconda Prompt** in the repository folder. Create the environment only if it does not already exist:
+Python 3.12, an OpenGL-capable renderer and, for the GUI, a desktop session. With Conda (Anaconda Prompt, repository folder):
 
 ```bat
 conda env create -f environments/environment.yml
-```
-
-Then activate it and install the project:
-
-```bat
 conda activate meshEval
 python -m pip install -e . --no-deps
 ```
 
-If Conda reports `prefix already exists`, the environment is already there. Skip `conda env create` and run the activation and install commands above. The `environment.yml` file includes the desktop interface dependencies. The `--no-deps` option registers the project without installing its dependencies, so an older environment may still need the GUI packages:
-
-```bat
-python -m pip install PySide6 pyvista pyvistaqt
-```
-
-**For a pinned Windows CUDA 12.8 setup**, create a virtual environment with Python 3.12 and install the pip snapshot, which points to the `cu128` PyTorch wheels:
+Pinned Windows CUDA 12.8 setup (LPIPS on GPU):
 
 ```bat
 python -m venv .venv
@@ -238,103 +109,71 @@ python -m pip install -r environments/requirements-windows-cu128.txt
 python -m pip install -e . --no-deps
 ```
 
-The interface's **Compute device (LPIPS)** defaults to **Auto — prefer CUDA**, with CPU fallback. A CUDA-enabled PyTorch installation and compatible NVIDIA driver are required for LPIPS GPU acceleration; see the [official PyTorch installation selector](https://pytorch.org/get-started/locally/). The geometric pipeline is not accelerated by this LPIPS setting.
+Reference versions are listed in [requirements-windows-cu128.txt](environments/requirements-windows-cu128.txt).
 
-## Run
+## Usage
 
 ### Desktop interface
 
-With the `meshEval` environment active, start the interface with:
-
 ```bat
 mesh-gui
 ```
 
-The window opens maximized, with the Windows title bar and taskbar visible. If that command is not found, use `python -m meshcomparison.gui`. If Python reports `No module named 'PySide6'`, install the GUI packages as described in [Installation](#user-content-installation). The GUI needs a desktop session. See [Validate on Windows](#user-content-validate-on-windows) for choosing meshes and running an evaluation.
+(or `python -m meshcomparison.gui`). Select the GT and RM (STL, OBJ, PLY, OFF, GLB/GLTF), a new output folder, the pipelines and the LPIPS device (Auto prefers CUDA), optionally the **Input view**, and click **Run evaluation**. The 3D view shows the aligned meshes and heatmap; **Results** shows the geometric and perceptual summaries and the saved images.
 
-## Validate on Windows
+Fixed parameters (`RunConfig`, `src/meshcomparison/gui/config.py`): ICP threshold `1e-4`, render `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views 1, 33, 66), camera margin `1.05`, radius factor `1.45`, 100 000 samples per mesh, τ = 1/2/5 %.
 
-With the project installed, check which device PyTorch can use:
+### Metric figures
 
-```bat
-conda activate meshEval
-python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
-mesh-gui
+```bash
+python scripts/plot_metrics.py --run output [--uncertainty] [--perceptual-metrics lpips,psnr,ssim]
 ```
 
-In the interface, select `data/samples/gt.stl` for **Ground truth (GT)** and `data/samples/mod.stl` for **Reconstruction (RM)**. Choose a **new output folder**, keep both **Geometric** and **Perceptual** enabled, leave **Compute device (LPIPS)** on **Auto — prefer CUDA**, and click **Run evaluation**. Optionally, enable **Input view** and enter the azimuth and elevation of the input image to split the geometric metrics into visible and hidden regions. The viewer shows the aligned meshes and heatmap; the **Results** tab shows the **Geometric summary**, the **Perceptual summary** and the images.
+Writes to `output/figures/`: F(τ) curves, per-region metrics, per-view perceptual metrics with the mean and its 95 % bootstrap interval, and, with `--uncertainty`, the metric spread over seeds and sample counts.
 
-Compare the generated CSVs in the output folder with the [recorded example metrics](examples/output/metrics/) under comparable settings. Small numerical differences, especially between CPU and GPU runs, are possible.
+### Robustness study
 
-## Pipelines
+```bash
+python scripts/robustness_study.py --gt data/samples/gt.stl --out output/robustness [--views 8] [--lpips]
+```
 
-### Geometric evaluation
+Checks invariance to re-triangulation and sensitivity to noise, local bumps and missing surface, against a vertex-to-vertex baseline ([results](docs/results/robustness/README.md)).
 
-The geometric pipeline (`src/meshcomparison/geometry/`) uses the shared preparation function in `src/meshcomparison/common/prepare.py` to normalize both meshes using the ground-truth bounding-box diagonal and conditionally run similarity ICP (rotation, translation, and uniform scale) when pre-alignment normalized MSE exceeds the threshold. It computes the [geometric metrics](#user-content-evaluation-metrics) on area-uniform surface samples (optionally split by the input view), and writes one shared-view render per mesh and a heatmap of the distance from each GT vertex to the aligned RM surface.
+## Outputs
 
-Main outputs (relative to the output folder; the committed sample run is in `examples/output/`):
+| File (in the output folder) | Content |
+| --- | --- |
+| `metrics/metrics_geometry.csv` | One row per region: Chamfer, HD95, precision/recall/F-score per τ, AUC-F, normal consistency; run settings (files, pre/post-alignment MSE, ICP scale, seeds, input view, camera, heatmap scale, final transform) |
+| `metrics/fscore_curve.csv` | F(τ), precision and recall per region, τ = 0.5–10 % |
+| `metrics/per_view_metrics.csv` | LPIPS, PSNR, SSIM, camera and crop per view |
+| `metrics/metrics_perceptual.csv` | min, p25, median, p75, max, mean of the finite per-view values |
+| `metrics/run_metadata.csv` | Perceptual run settings and final transform |
+| `aligned/rm_aligned.ply` | Aligned RM in GT units |
+| `renders/`, `heatmaps/` | Orthographic renders, selected view pairs, heatmap image and coloured mesh |
 
-- `output/metrics/metrics_geometry.csv`: one row per region (`all`, and `visible`/`hidden` when an input view is set) with Chamfer and HD95 (normalized and in GT units), precision/recall/F-score per tolerance, AUC-F and normal consistency, followed by the run settings: input files, pre/post-alignment MSE, alignment status, ICP scale factor, sampling seeds, input view, render camera, heatmap scale and the final transform.
-- `output/metrics/fscore_curve.csv`: F(τ), precision and recall per region for τ = 0.5 %–10 % of the GT diagonal.
-- `output/aligned/rm_aligned.ply`: aligned reconstructed mesh, exported in the input ground-truth scale.
-- `output/renders/gt_ortho.png` and `output/renders/rm_aligned_ortho.png`: orthographic renders.
-- `output/heatmaps/gt_heatmap_ortho.png`: rendered distance heatmap; `gt_heatmap_colored.ply` is the colored mesh used to create it.
+## Limitations
 
-### Perceptual evaluation
-
-The perceptual pipeline (`src/meshcomparison/perceptual/`) uses the same shared mesh preparation and conditional ICP alignment, then renders the meshes across a rotating set of camera azimuths. It computes masked LPIPS, PSNR and SSIM per view and summarizes their distributions; the number of views and saved views are listed under [Parameters](#user-content-parameters).
-
-Main outputs:
-
-- `output/metrics/per_view_metrics.csv`: one row per view with LPIPS, PSNR, SSIM, camera angle, and framing values.
-- `output/metrics/metrics_perceptual.csv`: min, max, 25th/75th percentiles, median, and mean of the finite values of each perceptual metric.
-- `output/metrics/run_metadata.csv`: input paths, alignment details, view settings, and the final transform.
-- `output/aligned/rm_aligned.ply`: the same aligned mesh written by the geometric pipeline.
-- `output/renders/gt/`, `output/renders/rm/`, and `output/renders/pairs/`: saved images for the selected views.
-
-## Parameters
-
-The interface shows analysis parameters as **fixed values** configured in `RunConfig` (`src/meshcomparison/gui/config.py`): ICP MSE threshold `1e-4` (alignment runs only above it), render size `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views `1 33 66`), camera margin `1.05` and camera radius factor `1.45`. Images are saved only for the view numbers that exist.
-
-The surface sampling (100 000 points, seeds `0`/`1`) and the F-score tolerances (1 %, 2 %, 5 %) are fixed. The only editable setting is the optional **Input view** (azimuth and elevation of the input image in the GT frame, z up, azimuth measured from +x towards +y), which enables the visible/hidden split.
-
-## Scope and limitations
-
-- STL files do not store physical units. Geometric distances use the unit system of the GT mesh.
-- CI checks code and output structure only, not metric values, CUDA or the GUI window; see [Development](#user-content-development).
-- Unit tests cover identical vertex clouds, a simple point offset and bounding-box scale/translation, perceptual helpers and GUI configuration, plus the geometric metrics on synthetic cases (known offsets, outliers, regions, tilted planes, re-triangulation, noise, bumps and missing surface). The [robustness study](docs/results/robustness/README.md) has so far been run on **one** sample GT and without LPIPS; validation on the benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and rendering regression are still pending; see the [validation plan](docs/implementation/README.md).
-- Metric limitations ([ADR 0001](docs/adr/0001-evaluation-v2.md)): the input view uses an orthographic camera and a z-up convention that must match the dataset; ICP is local; sampling has a floor (non-zero Chamfer and F@1 % < 1 for the same surface when the sample spacing approaches τ).
+- STL has no physical units; distances are in the GT's units.
+- Point-to-point distances between samples have a sampling floor: on the sample pair the Chamfer still drops from 0.0039 (10⁵ samples) to 0.0034 (3 × 10⁵), while HD95 and F@1 % have converged and the seed spread is below 1 %. Compare models only at the same sample count.
+- The input view uses an orthographic camera and a z-up convention that must match the dataset; ICP is local and may fail for large rotations.
+- Validation so far uses synthetic cases and one sample pair; benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
 
 ## Development
 
-The [documentation index](docs/README.md) describes the package structure; the [ADRs](docs/adr/) record the metric decisions; the [implementation guide](docs/implementation/README.md) covers existing tests and the validation plan; and [Harness documentation](docs/harness/README.md) describes the documented (not yet fully implemented) agent-development workflow.
-
-### Agent Harness
-
-This project adopts an **Agent Harness** to guide AI-assisted development with tests, reproducibility and honest reporting.
-
-Codex, Claude Code and other coding agents follow repository-level instructions defined in [AGENTS.md](AGENTS.md): plan before editing, add deterministic tests for numerical changes, report test results without inventing evidence, record metric-definition changes in an [ADR](docs/adr/), and record AI provenance in every commit.
-
-`environments/environment.yml` also installs `pytest` and `ruff`. From the activated environment (with `pip install -e . --no-deps` done):
-
-```bat
+```bash
 ruff check .
 pytest
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint, the tests and an import check of both pipelines and the worker. Its subprocess tests run the pipelines with offscreen rendering at a reduced configuration (320 × 240 px, 2 perceptual views on CPU) to check output structure only; CI does not validate metric values, the default 100-view configuration, CUDA execution or the GUI window.
+CI (`.github/workflows/ci.yml`) runs Ruff, pytest (pipelines in subprocesses at 320 × 240 px, 2 perceptual views on CPU) and an import check; it checks structure, not metric values, CUDA or the GUI window. Coding agents follow [AGENTS.md](AGENTS.md); see the [documentation index](docs/README.md) for architecture, tests and results.
 
 ## Troubleshooting
 
-- **`pyrender` fails to create an offscreen context**: a working offscreen OpenGL setup is required. On headless Linux, install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl` (as the CI does).
-- **CUDA not available**: expected on CPU-only installs; LPIPS then runs on CPU, just slower.
-- **`.fbx` files are not supported**: convert them to STL, OBJ or PLY first.
-
-## Interface
-
-<img src="assets/interface/interface-v2.png">
+- **No offscreen OpenGL context:** on headless Linux install `libegl1 libgl1 libglu1-mesa libosmesa6` and set `PYOPENGL_PLATFORM=egl`.
+- **`No module named 'PySide6'`:** `python -m pip install PySide6 pyvista pyvistaqt`.
+- **CUDA not available:** LPIPS runs on CPU, more slowly.
+- **`.fbx` files:** not supported; convert to STL, OBJ or PLY.
 
 ## License and credits
 
-This repository is a fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](LICENSE). Code derived from the original project remains the property of its author.
-
+Fork of [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). The modifications in this fork are proprietary; see [LICENSE](LICENSE). Code derived from the original project remains the property of its author.

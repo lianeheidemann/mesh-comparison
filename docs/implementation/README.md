@@ -28,4 +28,4 @@ Os testes abaixo existem em `tests/` e rodam no CI. Eles verificam fórmulas, es
 | Alta | Convenção de eixos e câmera de entrada de cada conjunto de dados; câmera ortográfica × perspectiva |
 | Alta | Alinhamento de reconstruções reais (formas diferentes da GT, simetrias): conferir a orientação escolhida pela inicialização global |
 | Alta | CI do branch `evaluation-v2`: ainda não executado (só roda em PRs e em `main`) |
-| Média | LPIPS em CUDA × CPU; GUI numa janela real: abas de resultados só renderizadas com a plataforma *offscreen* do Qt; visualização 3D e painel da vista de entrada nunca abertos |
+| Média | LPIPS em CUDA × CPU; GUI no Windows e numa janela real: no Linux, as abas de resultados foram renderizadas com a plataforma *offscreen* do Qt e o visualizador 3D sob Xvfb (OpenGL por software, imagens idênticas antes e depois da modularização); o painel da vista de entrada nunca foi aberto |

@@ -188,7 +188,7 @@ Flags meshes that are not a clean single object (base or scenery, holes, hidden 
 - The input view uses an orthographic camera and a z-up convention that must match the dataset.
 - Alignment starts from 28 orientations (axis permutations and principal axes) and keeps the best fit ([ADR 0005](docs/adr/0005-icp-global-start.md)); on the sample GT it recovers any rotation, scale and translation ([ICP study](docs/results/icp/README.md)). For symmetric objects or reconstructions far from the GT, the best-fitting orientation may not be the intended one: check `icp_scale` and the heatmap.
 - Validation so far uses synthetic cases and one sample pair, whose GT is itself not a clean benchmark GT (`check_gt.py` reports separate parts, holes and enclosed faces); benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
-- The results tabs were rendered with Qt's offscreen platform (Linux); the 3D view and the Input view panel have unit tests for their logic but have not been checked in a running window.
+- The GUI was checked only on Linux: the results tabs with Qt's offscreen platform, the 3D view under a virtual display (Xvfb, software OpenGL). The Input view panel and Windows have not been checked in a running window.
 
 ## Development
 

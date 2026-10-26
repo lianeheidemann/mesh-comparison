@@ -54,7 +54,7 @@ Um GLB/GLTF guarda uma **cena**, não só uma malha. O carregador (`common/io.py
 | Esqueleto, animação, *morph targets* | Não aplicados: a malha entra na **pose de repouso** |
 | **Todas as malhas triangulares da cena** | **Entram juntas**, com as transformações da cena (inclusive chão, cenário e outros objetos) |
 
-Quando a cena tem mais de uma malha, o log mostra o nome e a área de cada uma (por exemplo, `Scene model.glb: ground 2 tri 86%, object 12 tri 14%`). O `check_gt.py` repete essa lista no aviso de partes separadas e nas colunas `scene_meshes` e `dropped`.
+Quando a cena tem mais de uma malha, o log mostra o nome e a área de cada uma (por exemplo, `Scene model.glb: ground 2 tri 86%, object 12 tri 14%`). O `check_gt.py` repete essa lista no aviso de partes separadas e nas colunas `scene_meshes` e `dropped`; numa avaliação, ela vai para as colunas `gt_scene_meshes`/`rm_scene_meshes` de `metrics_geometry.csv` e aparece como aviso na aba *Geometric summary* da GUI.
 
 Nada é removido automaticamente, porque decidir o que é cenário é uma escolha de quem prepara a GT. Remova os nós extras no Blender (*Outliner* → apagar o nó → exportar GLB) e registre isso em `cleanup_notes` no manifesto.
 

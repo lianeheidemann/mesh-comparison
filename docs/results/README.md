@@ -5,7 +5,7 @@ Par `data/samples/gt.stl` (GT) × `data/samples/mod.stl` (RM), versão atual dos
 - **Preparo:** diagonal da GT = 3,77537 unidades STL; MSE pré-alinhamento (ponto-superfície) = 6,66 × 10⁻⁵ < 10⁻⁴, então o ICP **não** foi acionado.
 - **Vista de entrada:** azimute −135° e elevação 25,264°, só como **ilustração**: o par não tem imagem de entrada.
 - **Qualidade da GT:** o `check_gt.py` dá WARN para `gt.stl` (3 partes separadas, 2,9 % de arestas de borda, 3,7 % de superfície encerrada). O par serve para demonstrar o software, não como GT de benchmark ([guia das GTs](../gt/README.md)).
-- **Dados das figuras:** [`figures/data/`](figures/data/). Para regenerar: `python scripts/plot_metrics.py --run <saída> --uncertainty`.
+- **Dados das figuras:** [`figures/data/`](figures/data/). Cada execução já salva as figuras de métricas por região, F(τ) e perceptual por vista em `<saída>/figures/`; a de incerteza de amostragem exige `python scripts/plot_metrics.py --run <saída> --uncertainty`.
 
 ## Métricas geométricas
 

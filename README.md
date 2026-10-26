@@ -31,7 +31,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
   <img src="assets/interface/interface-v2.png" width="100%" alt="Mesh Comparison desktop interface">
 </p>
 
-<sub>Screenshot from a previous version: the current interface adds a Geometric summary tab and an Input view panel.</sub>
+<sub>Screenshot from a previous version: the current interface adds the Input view panel and the Geometric summary and Figures tabs.</sub>
 
 ### Table of contents
 

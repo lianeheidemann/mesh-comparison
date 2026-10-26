@@ -25,4 +25,5 @@ Os testes abaixo existem em `tests/` e rodam no CI. Eles verificam fórmulas, es
 | Alta | Estudo de robustez nas GTs do benchmark, com LPIPS |
 | Alta | Convenção de eixos e câmera de entrada de cada conjunto de dados; câmera ortográfica × perspectiva |
 | Alta | Alinhamento de reconstruções reais (formas diferentes da GT, simetrias): conferir a orientação escolhida pela inicialização global |
-| Média | LPIPS em CUDA × CPU; teste manual ou automatizado da GUI |
+| Alta | CI do branch `evaluation-v2`: ainda não executado (só roda em PRs e em `main`) |
+| Média | LPIPS em CUDA × CPU; teste manual ou automatizado da GUI (aba "Geometric summary" e painel da vista de entrada nunca abertos) |

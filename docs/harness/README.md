@@ -9,9 +9,9 @@ Conjunto de instruções, testes, CI e regras de revisão que tornam as alteraç
 | Elemento | Estado | Evidência / limite |
 | --- | :---: | --- |
 | Instruções para agentes | ✅ | [AGENTS.md](../../AGENTS.md): planejamento, testes, relato honesto de resultados e proveniência de IA nos commits |
-| Definições das métricas | ✅ | [ADRs](../adr/) 0001–0003 |
+| Definições das métricas e do alinhamento | ✅ | [ADRs](../adr/) 0001–0005 |
 | Testes (pytest) e lint (Ruff) | 🟡 | Casos sintéticos e integração por subprocesso ([inventário](../implementation/README.md)); faltam as malhas do benchmark |
-| CI (GitHub Actions) | ✅ | Lint, testes e import dos pipelines em push para `main` e em PRs; não valida valores, CUDA nem a janela da GUI |
+| CI (GitHub Actions) | 🟡 | Lint, testes e import dos pipelines em push para `main` e em PRs; não valida valores, CUDA nem a janela da GUI. O branch `evaluation-v2` ainda não passou pelo CI (sem PR aberto); os testes só rodaram localmente |
 | Ambiente reproduzível | 🟡 | [environment.yml](../../environments/environment.yml) sem versões fixas; snapshots em [environment-lock.yml](../../environments/environment-lock.yml) e [requirements-windows-cu128.txt](../../environments/requirements-windows-cu128.txt) |
 | Proveniência de IA | ✅ | Hook `.githooks/commit-msg` e trailer `AI-Agent` |
 | Proteção de branch e revisão obrigatória | ❓ | Configuração remota não auditada |
@@ -27,11 +27,12 @@ Solicitação com critérios de aceite → agente com permissões limitadas → 
 
 ## Próximas ações
 
-1. Registrar uma baseline da versão atual nas malhas do benchmark: commits, hashes, parâmetros, dependências e resultados.
-2. Estender os testes para malhas reais (identidade, transformação e escala conhecidas, deformação, incompletude, densidade).
-3. Rodar o [estudo de robustez](../results/robustness/README.md) nas GTs do benchmark, com LPIPS.
-4. Ativar a proteção de branch com status checks e revisão obrigatória.
-5. Registrar um ciclo supervisionado completo de agente, com logs, testes e relatório.
+1. Abrir o PR de `evaluation-v2` para `main` para que o CI rode sobre as mudanças.
+2. Registrar uma baseline da versão atual nas malhas do benchmark: commits, hashes, parâmetros, dependências e resultados.
+3. Estender os testes para malhas reais (identidade, transformação e escala conhecidas, deformação, incompletude, densidade).
+4. Rodar o [estudo de robustez](../results/robustness/README.md) e o [estudo do ICP](../results/icp/README.md) nas GTs do benchmark, com LPIPS.
+5. Ativar a proteção de branch com status checks e revisão obrigatória.
+6. Registrar um ciclo supervisionado completo de agente, com logs, testes e relatório.
 
 ## Referências
 

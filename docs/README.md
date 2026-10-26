@@ -30,7 +30,7 @@ flowchart LR
 
 | Pacote | Responsabilidade |
 | --- | --- |
-| `common/` | Leitura de malhas, amostragem de superfície (`sampling.py`), distâncias (`distances.py`: KD-tree e ponto-superfície via Open3D), preparo compartilhado (`prepare.py`: normalização, MSE ponto-superfície, ICP sobre amostras, exportação), transformações, renderização, dispositivo do LPIPS |
+| `common/` | Leitura de malhas e cenas (`io.py`: só malhas triangulares entram; câmeras, luzes e linhas ficam de fora e são listadas), amostragem de superfície (`sampling.py`), distâncias (`distances.py`: KD-tree e ponto-superfície via Open3D), preparo compartilhado (`prepare.py`: normalização, MSE ponto-superfície, ICP sobre amostras, exportação), transformações, renderização, dispositivo do LPIPS |
 | `geometry/` | Métricas (`metrics.py`), visibilidade pela vista de entrada (`visibility.py`), heatmap, renderização e pipeline |
 | `perceptual/` | Câmeras, máscaras e crop, LPIPS/PSNR/SSIM e pipeline multivista |
 | `analysis/` | Verificação das GTs (`gt_check.py`), estudos de validação (`robustness.py`: perturbações, baseline por vértice, dispersão de amostragem, recuperação de transformações pelo ICP) e gráficos (`plots.py`) |

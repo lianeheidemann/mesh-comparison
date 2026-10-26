@@ -31,6 +31,8 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
   <img src="assets/interface/interface-v2.png" width="100%" alt="Mesh Comparison desktop interface">
 </p>
 
+<sub>Screenshot from a previous version: the current interface adds a Geometric summary tab and an Input view panel.</sub>
+
 ### Table of contents
 
 - [How it works](#user-content-how-it-works)
@@ -40,7 +42,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
 - [Usage](#user-content-usage)
   - [Desktop interface](#user-content-desktop-interface)
   - [Metric figures](#user-content-metric-figures)
-  - [Robustness study](#user-content-robustness-study)
+  - [Validation studies](#user-content-validation-studies)
   - [Ground-truth meshes](#user-content-ground-truth-meshes)
 - [Outputs](#user-content-outputs)
 - [Limitations](#user-content-limitations)
@@ -132,13 +134,14 @@ python scripts/plot_metrics.py --run output [--uncertainty] [--perceptual-metric
 
 Writes to `output/figures/`: F(τ) curves, per-region metrics, per-view perceptual metrics with the mean and its 95 % bootstrap interval, and, with `--uncertainty`, the metric spread over seeds and sample counts.
 
-### Robustness study
+### Validation studies
 
 ```bash
 python scripts/robustness_study.py --gt data/samples/gt.stl --out output/robustness [--views 8] [--lpips]
+python scripts/icp_study.py --gt data/samples/gt.stl --out output/icp
 ```
 
-Checks invariance to re-triangulation and sensitivity to noise, local bumps and missing surface, against a vertex-to-vertex baseline ([results](docs/results/robustness/README.md)). `python scripts/icp_study.py --gt data/samples/gt.stl --out output/icp` measures how far the ICP recovers known rotations ([results](docs/results/icp/README.md)).
+The robustness study checks invariance to re-triangulation and sensitivity to noise, local bumps and missing surface, against a vertex-to-vertex baseline ([results](docs/results/robustness/README.md)). The ICP study applies known rotations (0–180°), scale and translation and measures how well the alignment undoes them ([results](docs/results/icp/README.md)).
 
 ### Ground-truth meshes
 
@@ -166,7 +169,8 @@ Flags meshes that are not a clean single object (base or scenery, holes, hidden 
 - Metrics are Monte Carlo estimates over surface samples. With point-to-surface distances they do not drift with the sample count; at 10⁵ samples the seed spread is about 1 % for Chamfer and HD95 and ≤ 0.1 % for the scores (sample pair).
 - The input view uses an orthographic camera and a z-up convention that must match the dataset.
 - Alignment starts from 28 orientations (axis permutations and principal axes) and keeps the best fit ([ADR 0005](docs/adr/0005-icp-global-start.md)); on the sample GT it recovers any rotation, scale and translation ([ICP study](docs/results/icp/README.md)). For symmetric objects or reconstructions far from the GT, the best-fitting orientation may not be the intended one: check `icp_scale` and the heatmap.
-- Validation so far uses synthetic cases and one sample pair; benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
+- Validation so far uses synthetic cases and one sample pair, whose GT is itself not a clean benchmark GT (`check_gt.py` reports separate parts, holes and enclosed faces); benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
+- The GUI changes (Geometric summary tab, Input view panel) have unit tests for their logic but have not been checked in a running window.
 
 ## Development
 

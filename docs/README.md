@@ -5,6 +5,7 @@
 | [README principal](../README.md) | Visão geral, métricas, instalação, uso, saídas e limitações |
 | [ADRs](adr/) | Definição e justificativa das métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície, [0002](adr/0002-robustness-study.md) normal consistency, F(τ) e estudo de robustez, [0003](adr/0003-single-metric-standard.md) padrão único, [0004](adr/0004-point-to-surface.md) distâncias ponto-superfície, [0005](adr/0005-icp-global-start.md) inicialização global do ICP |
 | [Implementação e validação](implementation/README.md) | Testes existentes e validação pendente |
+| [Escolha das GTs](gt/README.md) | Como escolher e limpar malhas de referência sem contaminação do treino; manifesto e verificador |
 | [Resultados de exemplo](results/README.md) | Métricas e gráficos do par de exemplo |
 | [Estudo de robustez](results/robustness/README.md) | Invariância à triangulação e sensibilidade das métricas; roteiro do artigo |
 | [Validação do ICP](results/icp/README.md) | Recuperação de rotação, escala e translação conhecidas, antes e depois da inicialização global |
@@ -32,7 +33,7 @@ flowchart LR
 | `common/` | Leitura de malhas, amostragem de superfície (`sampling.py`), distâncias (`distances.py`: KD-tree e ponto-superfície via Open3D), preparo compartilhado (`prepare.py`: normalização, MSE ponto-superfície, ICP sobre amostras, exportação), transformações, renderização, dispositivo do LPIPS |
 | `geometry/` | Métricas (`metrics.py`), visibilidade pela vista de entrada (`visibility.py`), heatmap, renderização e pipeline |
 | `perceptual/` | Câmeras, máscaras e crop, LPIPS/PSNR/SSIM e pipeline multivista |
-| `analysis/` | Estudos de validação (`robustness.py`: perturbações, baseline por vértice, dispersão de amostragem, recuperação de transformações pelo ICP) e gráficos (`plots.py`) |
+| `analysis/` | Verificação das GTs (`gt_check.py`), estudos de validação (`robustness.py`: perturbações, baseline por vértice, dispersão de amostragem, recuperação de transformações pelo ICP) e gráficos (`plots.py`) |
 | `gui/` | Janela, painéis, configuração (`RunConfig`), execução em subprocesso, leitura das saídas e visualizador PyVistaQt |
 
-Scripts em `scripts/`: `plot_metrics.py` (gráficos de uma execução), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).
+Scripts em `scripts/`: `check_gt.py` (verificação das GTs), `plot_metrics.py` (gráficos de uma execução), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).

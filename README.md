@@ -41,6 +41,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
   - [Desktop interface](#user-content-desktop-interface)
   - [Metric figures](#user-content-metric-figures)
   - [Robustness study](#user-content-robustness-study)
+  - [Ground-truth meshes](#user-content-ground-truth-meshes)
 - [Outputs](#user-content-outputs)
 - [Limitations](#user-content-limitations)
 - [Development](#user-content-development)
@@ -138,6 +139,14 @@ python scripts/robustness_study.py --gt data/samples/gt.stl --out output/robustn
 ```
 
 Checks invariance to re-triangulation and sensitivity to noise, local bumps and missing surface, against a vertex-to-vertex baseline ([results](docs/results/robustness/README.md)). `python scripts/icp_study.py --gt data/samples/gt.stl --out output/icp` measures how far the ICP recovers known rotations ([results](docs/results/icp/README.md)).
+
+### Ground-truth meshes
+
+```bash
+python scripts/check_gt.py gt/ --manifest gt/manifest.csv --cutoff YYYY-MM-DD
+```
+
+Flags meshes that are not a clean single object (base or scenery, holes, hidden inner faces, broken geometry) and, with a manifest, missing source/license and objects published before the models' training cutoff. How to choose GTs without training-data contamination or selection bias: [GT guide](docs/gt/README.md).
 
 ## Outputs
 

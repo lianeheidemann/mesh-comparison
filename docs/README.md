@@ -14,17 +14,28 @@
 
 ## Arquitetura
 
+Visão geral do fluxo no [diagrama do README](../README.md#user-content-how-it-works). Abaixo, quem importa quem entre os pacotes (seta = "usa"); `common/` não depende de nenhum outro:
+
 ```mermaid
 flowchart LR
-    IN["GT + RM"] --> PREP["Preparação: normalização pela diagonal da GT, amostragem de superfície, ICP condicional"]
-    GUI["GUI PySide6 → worker por pipeline"] --> PREP
-    PREP --> GEO["Geometria: Chamfer, HD95, F-score, AUC-F, normal consistency, regiões visível/oculta, heatmap"]
-    PREP --> PER["Percepção: renderizações multivista, LPIPS, PSNR, SSIM"]
-    GEO --> OUT["CSV · PLY · PNG · figuras"]
-    PER --> OUT
-    OUT --> VIEW["GUI: visualizador 3D, tabelas, imagens e figuras"]
-    OUT --> FIG["scripts/plot_metrics.py: regenera as figuras e a dispersão de amostragem"]
+    GUI["gui/"] -->|subprocesso: gui/worker.py| GEO["geometry/"]
+    GUI -->|subprocesso: gui/worker.py| PER["perceptual/"]
+    GUI --> COM["common/"]
+    CLI["cli/"] --> DS["datasets/"]
+    CLI --> AN["analysis/"]
+    CLI --> COM
+    DS -->|formatos aceitos| AN
+    GEO -->|câmeras da visibilidade| PER
+    GEO -->|figuras| AN
+    PER -->|figuras| AN
+    AN -->|métricas dos estudos| GEO
+    AN -->|métricas dos estudos| PER
+    GEO --> COM
+    PER --> COM
+    AN --> COM
 ```
+
+As setas entre `analysis/` e os pipelines ligam módulos diferentes (`plots.py` não importa os pipelines; `robustness.py` importa as métricas), então não há importação circular.
 
 ## Módulos (`src/meshcomparison/`)
 

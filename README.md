@@ -53,13 +53,13 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
 
 ## How it works
 
-<img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines">
+<img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture: packages of the evaluation flow (datasets, common, geometry, perceptual) and the desktop app, command-line tools and analysis around it">
 
-1. **Preparation** (shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and, when the symmetric point-to-surface MSE exceeds `1e-4`, run similarity ICP (rotation, translation, uniform scale) on them from the best of 28 starting orientations.
-2. **Geometric pipeline:** surface metrics, optionally split into GT regions visible/hidden from the input view, plus orthographic renders and a GT heatmap of the distance to the aligned RM surface.
-3. **Perceptual pipeline:** GT and aligned RM rendered from the same orthographic cameras (100 azimuths); LPIPS, PSNR and SSIM per view on the crop around the union of both masks.
+1. **Preparation** (`common/`, shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and, when the symmetric point-to-surface MSE exceeds `1e-4`, run similarity ICP (rotation, translation, uniform scale) on them from the best of 28 starting orientations.
+2. **Geometric pipeline** (`geometry/`): surface metrics, optionally split into GT regions visible/hidden from the input view, plus orthographic renders and a GT heatmap of the distance to the aligned RM surface.
+3. **Perceptual pipeline** (`perceptual/`): GT and aligned RM rendered from the same orthographic cameras (100 azimuths); LPIPS, PSNR and SSIM per view on the crop around the union of both masks.
 
-The GUI runs each selected pipeline in a child process. Metric definitions and their rationale are recorded in the [ADRs](docs/adr/).
+The desktop app (`gui/`) runs each selected pipeline in a child process and shows its outputs. The command-line tools (`cli/`, also `scripts/`) prepare and check the GT meshes (`datasets/`, `analysis/`), regenerate figures and run the validation studies. Module details: [documentation index](docs/README.md); metric definitions and their rationale: [ADRs](docs/adr/).
 
 ## Metrics
 

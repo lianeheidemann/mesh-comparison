@@ -9,6 +9,21 @@ Qualquer malha triangular em STL, OBJ, PLY, OFF ou GLB/GLTF pode ser GT. Os resu
 | **Quantitativo** | 30–50 objetos do [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1), escolhidos por categoria (bichinhos, brinquedos e bonecos também existem ali) | Números principais, comparáveis com a literatura |
 | **Curado** | 10–20 objetos escolhidos por você: escaneados, modelados ou publicados depois do treino dos modelos | Figuras e teste de generalização, reportado **separadamente** |
 
+### Seleção do GSO deste repositório
+
+[`data/gso/selection.csv`](../../data/gso/selection.csv) lista 20 objetos principais e 5 suplentes. Foram escolhidos **à mão**, antes de rodar qualquer modelo, com este critério: objetos visualmente atraentes (animais, dinossauros, bonecos, veículos e utensílios), alternando corpos lisos com partes finas (asas, chifres, hélices, alças) e incluindo alguns casos de controle rígidos ou quase simétricos (ônibus, panda). Como a escolha é manual, declare esse critério no artigo.
+
+```bash
+python scripts/fetch_gso.py                        # baixa do Gazebo Fuel para gt/gso/ e escreve gt/gso/manifest.csv
+python scripts/check_gt.py --manifest gt/gso/manifest.csv --out gt/gso/gt_report.csv
+```
+
+- **Substituição:** um objeto que não exista no Fuel é trocado pelo próximo suplente, e a troca fica registrada em `selection_reason`. Os nomes foram listados sem acesso ao Fuel, então confira o relatório do script.
+- **Metadados:** licença, autoria e data vêm do Fuel; campo vazio no manifesto significa que o Fuel não os informou.
+- **Limpeza:** objetos com WARN no `check_gt.py` também são trocados pelo próximo suplente, com o motivo registrado.
+- **Data de corte:** todos os objetos do GSO foram publicados antes do corte de treino dos modelos atuais, então o `--cutoff` acusaria todos. Para o GSO, confira a contaminação nos artigos dos modelos (seção abaixo) e rode o `check_gt.py` sem `--cutoff`.
+- **Arquivos:** as malhas baixadas ficam em `gt/`, fora do Git; só a seleção é versionada.
+
 ## Contaminação do treino
 
 - **Fontes de treino:** a maioria dos modelos de imagem para 3D treina no Objaverse, montado a partir do Sketchfab. O Objaverse-XL acrescenta Thingiverse, GitHub e outros acervos públicos.

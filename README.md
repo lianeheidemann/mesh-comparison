@@ -146,8 +146,11 @@ The robustness study checks invariance to re-triangulation and sensitivity to no
 ### Ground-truth meshes
 
 ```bash
+python scripts/fetch_gso.py      # the 20 selected Google Scanned Objects -> gt/gso/ with manifest.csv
 python scripts/check_gt.py gt/ --manifest gt/manifest.csv --cutoff YYYY-MM-DD
 ```
+
+`fetch_gso.py` downloads the selection in [`data/gso/selection.csv`](data/gso/selection.csv) from Gazebo Fuel.
 
 Flags meshes that are not a clean single object (base or scenery, holes, hidden inner faces, broken geometry) and, with a manifest, missing source/license and objects published before the models' training cutoff. How to choose GTs without training-data contamination or selection bias: [GT guide](docs/gt/README.md).
 

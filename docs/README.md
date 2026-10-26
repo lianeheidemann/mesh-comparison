@@ -36,4 +36,4 @@ flowchart LR
 | `analysis/` | Verificação das GTs (`gt_check.py`), estudos de validação (`robustness.py`: perturbações, baseline por vértice, dispersão de amostragem, recuperação de transformações pelo ICP) e gráficos (`plots.py`) |
 | `gui/` | Janela, painéis, configuração (`RunConfig`), execução em subprocesso, leitura das saídas (`outputs.py`, `gallery.py`), abas de resultados (`results_view.py`: tabelas, imagens, figuras) e visualizador PyVistaQt |
 
-Scripts em `scripts/`: `check_gt.py` (verificação das GTs), `plot_metrics.py` (regenera as figuras de uma execução; `--uncertainty` acrescenta a dispersão de amostragem), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).
+Scripts em `scripts/`: `fetch_gso.py` (baixa a seleção do GSO e escreve o manifesto), `check_gt.py` (verificação das GTs), `plot_metrics.py` (regenera as figuras de uma execução; `--uncertainty` acrescenta a dispersão de amostragem), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).

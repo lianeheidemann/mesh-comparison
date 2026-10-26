@@ -32,3 +32,6 @@ desktop.ini
 
 # Local pipeline runs (committed examples live in examples/output/)
 /output/
+
+# Downloaded ground-truth meshes (scripts/fetch_gso.py); the selection lives in data/gso/
+/gt/

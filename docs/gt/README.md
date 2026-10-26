@@ -4,10 +4,10 @@ Qualquer malha triangular em STL, OBJ, PLY, OFF ou GLB/GLTF pode ser GT. Os resu
 
 ## Estrutura recomendada
 
-| Conjunto | Origem | Papel no artigo |
-| --- | --- | --- |
-| **Quantitativo** | 30–50 objetos do [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1), escolhidos por categoria (bichinhos, brinquedos e bonecos também existem ali) | Números principais, comparáveis com a literatura |
-| **Curado** | 10–20 objetos escolhidos por você: escaneados, modelados ou publicados depois do treino dos modelos | Figuras e teste de generalização, reportado **separadamente** |
+| Conjunto | Origem e papel |
+| --- | --- |
+| Quantitativo | 30–50 objetos do [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1), por categoria (há bichinhos, brinquedos e bonecos); seleção atual [abaixo](#user-content-seleção-do-gso-deste-repositório). **Números principais**, comparáveis com a literatura |
+| Curado | 10–20 objetos escolhidos por você: escaneados, modelados ou publicados depois do treino dos modelos. **Figuras e generalização**, reportado à parte |
 
 ### Seleção do GSO deste repositório
 
@@ -46,13 +46,14 @@ python scripts/check_gt.py --manifest gt/gso/manifest.csv --out gt/gso/gt_report
 python scripts/check_gt.py gt/ --manifest gt/manifest.csv --cutoff AAAA-MM-DD --out gt_report.csv
 ```
 
-| Aviso | Limite | Por que importa | O que fazer |
-| --- | --- | --- | --- |
-| Partes separadas | > 5 % da área fora da maior parte | Uma base, cenário ou chão entra no Chamfer e na separação visível/oculta | Remover a base e o cenário; peças pequenas do próprio objeto (olhos, botões) podem ficar |
-| Superfície aberta | > 1 % de arestas de borda | Buracos mudam a cobertura (recall) e o F-score | Fechar os buracos (no Blender, *Fill Holes*) ou trocar o objeto |
-| Superfície encerrada | > 2 % da área | Faces escondidas (cascas internas, roupas sobre o corpo, olhos dentro da cabeça) recebem amostras que nenhum modelo reconstrói | Apagar as faces internas; concavidades profundas também disparam o aviso, então confira visualmente |
-| Arestas não-manifold, faces duplicadas ou degeneradas | > 0, > 0, > 1 % | Indicam geometria quebrada | Limpar (no Blender: *Merge by Distance*, *Delete Loose*) |
-| Falha de leitura ou formato | — | Não é avaliável | Converter (FBX → GLB/OBJ) |
+| Aviso (gatilho) | Por quê → o que fazer |
+| --- | --- |
+| **Partes separadas** (> 5 % da área fora da maior parte) | Base, cenário ou chão entram no Chamfer e na separação visível/oculta → remover base e cenário; peças do próprio objeto (olhos, botões) podem ficar |
+| **Superfície aberta** (> 1 % de arestas de borda) | Buracos mudam a cobertura (recall) e o F-score → fechar os buracos (Blender: *Fill Holes*) ou trocar o objeto |
+| **Superfície encerrada** (> 2 % da área) | Faces escondidas (cascas internas, roupas sobre o corpo, olhos dentro da cabeça) recebem amostras que nenhum modelo reconstrói → apagar as faces internas; concavidades profundas também disparam o aviso, então confira visualmente |
+| **Arestas não-manifold** (> 0) | Geometria quebrada → limpar (Blender: *Merge by Distance*) |
+| **Faces duplicadas** (> 0) ou **degeneradas** (> 1 %) | Geometria quebrada → limpar (Blender: *Merge by Distance*, *Delete Loose*) |
+| **Falha de leitura ou formato** | Não é avaliável → converter (FBX → GLB/OBJ) |
 
 A textura (`has_texture`) não gera aviso, mas afeta as métricas perceptuais: use objetos todos com textura ou todos sem.
 

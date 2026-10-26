@@ -65,17 +65,21 @@ The desktop app (`gui/`) runs each selected pipeline in a child process and show
 
 d(g, R) is the distance from a GT surface sample to the closest point on the RM triangles (point-to-surface, [ADR 0004](docs/adr/0004-point-to-surface.md)); d(r, G) is the reverse. Distances are fractions of the GT diagonal (columns `_normalized`) or GT units (`_gt_units`).
 
-| Metric | Definition | Better |
-| --- | --- | --- |
-| Chamfer | ½ [mean d(G→R) + mean d(R→G)] over surface samples | Lower |
-| HD95 | max of the two directional 95th percentiles | Lower |
-| F-score @τ | harmonic mean of precision (RM samples within τ of GT) and recall (GT samples within τ of RM); τ = 1, 2, 5 % | Higher |
-| AUC-F | area under F(τ) for τ = 0.5–10 %, normalized to [0, 1] | Higher |
-| Normal consistency | mean \|cos\| between each sample's normal and the normal of the closest triangle on the other mesh, both directions | Higher |
-| ICP scale | uniform scale applied by the alignment (diagnostic; 1 = none) | — |
-| PSNR | 10·log10(1/MSE), MSE over the 3N channel values of the N union-mask pixels | Higher |
-| SSIM | scikit-image SSIM on the crop with the background zeroed | Higher |
-| LPIPS | AlexNet LPIPS on the same crop | Lower |
+| Metric | Definition | Best |
+| --- | --- | :---: |
+| Chamfer | ½ [mean d(G→R) + mean d(R→G)] | ↓ |
+| HD95 | Larger of the two directional 95th percentiles | ↓ |
+| Precision @τ | Share of RM samples within τ of the GT | ↑ |
+| Recall @τ | Share of GT samples within τ of the RM | ↑ |
+| F‑score @τ | Harmonic mean of precision and recall; τ = 1, 2, 5 % | ↑ |
+| AUC‑F | Area under F(τ) for τ = 0.5–10 %, in [0, 1] | ↑ |
+| NC | Normal consistency: mean \|cos\| between each sample's normal and the closest triangle's normal, both directions | ↑ |
+| ICP scale | Uniform scale applied by the alignment (diagnostic; 1 = none) | — |
+| PSNR | 10·log10(1/MSE) over the 3N channel values of the N union-mask pixels | ↑ |
+| SSIM | scikit-image SSIM on the crop, background zeroed | ↑ |
+| LPIPS | AlexNet LPIPS on the same crop | ↓ |
+
+↓ lower is better · ↑ higher is better · τ is a fraction of the GT bounding-box diagonal.
 
 **Visible / hidden regions:** with the input-image camera (azimuth/elevation in the GT frame, z up), GT samples are classified with an orthographic z-buffer; each RM sample takes the region of its nearest GT sample.
 
@@ -83,10 +87,10 @@ d(g, R) is the distance from a GT surface sample to the closest point on the RM 
 
 GT meshes come in two sets, reported separately ([GT guide](docs/gt/README.md)):
 
-| Set | Content | Role |
-| --- | --- | --- |
-| **Quantitative** | 30–50 objects from [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1) (GSO): real scanned household items and toys, with texture, usually outside the models' training data | Main numbers, comparable with the literature |
-| **Curated** | 10–20 objects chosen by hand: own scans or models, or objects published after the models' training cutoff | Figures and a generalization check; not mixed into the main numbers |
+| Set | Content and role |
+| --- | --- |
+| Quantitative | 30–50 [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1) (GSO): real scans of household items and toys, textured, usually outside the models' training data. **Main numbers**, comparable with the literature |
+| Curated | 10–20 hand-picked objects: own scans or models, or published after the models' training cutoff. **Figures and generalization**, reported apart |
 
 The current GSO selection, [`data/gso/selection.csv`](data/gso/selection.csv), holds 20 objects (animals, dinosaurs, figures, vehicles, household items) and 5 alternates. It was chosen by hand before any model was run, alternating smooth bodies with thin parts; the paper must state this criterion. `scripts/fetch_gso.py` downloads it. Avoid Objaverse and other training sets of the evaluated models as GT.
 
@@ -94,11 +98,16 @@ The current GSO selection, [`data/gso/selection.csv`](data/gso/selection.csv), h
 
 Sample pair `data/samples/gt.stl` × `mod.stl` (ICP not triggered; the input view −135°/25.264° is illustrative, the pair has no input image). Details and data: [example report](docs/results/README.md).
 
-| Region | GT share | Chamfer (GT units) | HD95 (GT units) | F@1 % | AUC-F | Normal consistency |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Whole surface | 100 % | 0.0100 | 0.0800 | 0.908 | 0.981 | 0.960 |
-| Visible | 39 % | 0.0187 | 0.1195 | 0.826 | 0.963 | 0.928 |
-| Hidden | 61 % | 0.0042 | 0.0261 | 0.963 | 0.992 | 0.980 |
+| Metric | Whole | Visible | Hidden |
+| --- | ---: | ---: | ---: |
+| GT share | 100 % | 39 % | 61 % |
+| Chamfer | 0.0100 | 0.0187 | 0.0042 |
+| HD95 | 0.0800 | 0.1195 | 0.0261 |
+| F@1% | 0.908 | 0.826 | 0.963 |
+| AUC‑F | 0.981 | 0.963 | 0.992 |
+| NC | 0.960 | 0.928 | 0.980 |
+
+Chamfer and HD95 in GT units; NC = normal consistency.
 
 <p align="center">
   <img src="docs/results/figures/geometric_metrics.png" width="100%" alt="Geometric metrics per region for the sample pair">
@@ -170,16 +179,19 @@ Flags meshes that are not a clean single object (base or scenery, holes, hidden 
 
 ## Outputs
 
-| File (in the output folder) | Content |
+Paths are relative to the output folder.
+
+| Path | Content |
 | --- | --- |
-| `metrics/metrics_geometry.csv` | One row per region: Chamfer, HD95, precision/recall/F-score per τ, AUC-F, normal consistency; run settings (files, scene meshes when a file holds several or ignored geometry, pre/post-alignment MSE, ICP scale, seeds, input view, camera, heatmap scale, final transform) |
+| `metrics/metrics_geometry.csv` | One row per region: the geometric metrics, then the run settings (files, scene meshes, MSE before/after alignment, ICP scale, seeds, input view, camera, heatmap scale, final transform) |
 | `metrics/fscore_curve.csv` | F(τ), precision and recall per region, τ = 0.5–10 % |
 | `metrics/per_view_metrics.csv` | LPIPS, PSNR, SSIM, camera and crop per view |
-| `metrics/metrics_perceptual.csv` | min, p25, median, p75, max, mean of the finite per-view values |
+| `metrics/metrics_perceptual.csv` | Min, P25, median, P75, max and mean of the finite per-view values |
 | `metrics/run_metadata.csv` | Perceptual run settings and final transform |
 | `aligned/rm_aligned.ply` | Aligned RM in GT units |
-| `renders/`, `heatmaps/` | Orthographic renders, selected view pairs, heatmap image and coloured mesh |
-| `figures/` | Per-region metrics, F(τ) curve, perceptual metrics per view (PNG) |
+| `renders/` | `gt_ortho.png`, `rm_aligned_ortho.png`; saved perceptual views in `gt/`, `rm/`, `pairs/` |
+| `heatmaps/` | `gt_heatmap_ortho.png` (image) and `gt_heatmap_colored.ply` (coloured GT) |
+| `figures/` | `geometric_metrics.png`, `fscore_curve.png`, `perceptual_views.png` |
 
 ## Limitations
 
@@ -187,7 +199,7 @@ Flags meshes that are not a clean single object (base or scenery, holes, hidden 
 - Metrics are Monte Carlo estimates over surface samples. With point-to-surface distances they do not drift with the sample count; at 10⁵ samples the seed spread is about 1 % for Chamfer and HD95 and ≤ 0.1 % for the scores (sample pair).
 - The input view uses an orthographic camera and a z-up convention that must match the dataset.
 - Alignment starts from 28 orientations (axis permutations and principal axes) and keeps the best fit ([ADR 0005](docs/adr/0005-icp-global-start.md)); on the sample GT it recovers any rotation, scale and translation ([ICP study](docs/results/icp/README.md)). For symmetric objects or reconstructions far from the GT, the best-fitting orientation may not be the intended one: check `icp_scale` and the heatmap.
-- Validation so far uses synthetic cases and one sample pair, whose GT is itself not a clean benchmark GT (`check_gt.py` reports separate parts, holes and enclosed faces); benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
+- Validation so far uses synthetic cases and one sample pair, whose GT is itself not a clean benchmark GT (`check_gt.py` reports separate parts, holes and enclosed faces); benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh, TRELLIS) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
 - The GUI was checked only on Linux: the results tabs with Qt's offscreen platform, the 3D view under a virtual display (Xvfb, software OpenGL). The Input view panel and Windows have not been checked in a running window.
 
 ## Development

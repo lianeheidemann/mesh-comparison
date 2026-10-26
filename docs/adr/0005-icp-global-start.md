@@ -22,12 +22,16 @@ Fica a partida com a menor distância média simétrica ao vizinho mais próximo
 
 ## Consequências
 
-| Varredura 0°–180°, eixos z e [1, 1, 1], escala 1,3 (26 casos) | Antes | Depois |
+Varredura de 0° a 180° em torno dos eixos z e [1, 1, 1], com escala 1,3 (26 casos):
+
+| Resultado | Antes | Depois |
 | --- | ---: | ---: |
-| Casos recuperados (Chamfer < 1 % da diagonal) | 9 | 26 |
+| Casos recuperados¹ | 9 | 26 |
 | Erro máximo de rotação | 175° | 0,05° |
 | Erro máximo de escala | 10 % | 0,008 % |
 | Chamfer máximo pós-alinhamento | 3,1 × 10⁻² | 6,3 × 10⁻⁵ |
+
+¹ Chamfer < 1 % da diagonal da GT.
 
 - **Custo:** cerca de 2 s a mais por alinhamento, e só quando o ICP é acionado. No par de exemplo o ICP não é acionado, e as métricas são idênticas.
 - **Objetos simétricos:** podem ser alinhados em qualquer orientação equivalente. Isso não altera as métricas, mas o erro de rotação deixa de ser único.

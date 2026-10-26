@@ -9,11 +9,18 @@ Par `data/samples/gt.stl` (GT) × `data/samples/mod.stl` (RM), versão atual dos
 
 ## Métricas geométricas
 
-| Região | Parcela da GT | Chamfer (unid. GT) | HD95 (unid. GT) | F@1 % | F@2 % | F@5 % | AUC-F | Normal consistency |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Superfície inteira | 100 % | 0,0100 | 0,0800 | 0,908 | 0,952 | 0,998 | 0,981 | 0,960 |
-| Visível | 39 % | 0,0187 | 0,1195 | 0,826 | 0,914 | 0,995 | 0,963 | 0,928 |
-| Oculta | 61 % | 0,0042 | 0,0261 | 0,963 | 0,978 | 1,000 | 0,992 | 0,980 |
+| Métrica | Inteira | Visível | Oculta |
+| --- | ---: | ---: | ---: |
+| Parcela da GT | 100 % | 39 % | 61 % |
+| Chamfer | 0,0100 | 0,0187 | 0,0042 |
+| HD95 | 0,0800 | 0,1195 | 0,0261 |
+| F@1% | 0,908 | 0,826 | 0,963 |
+| F@2% | 0,952 | 0,914 | 0,978 |
+| F@5% | 0,998 | 0,995 | 1,000 |
+| AUC‑F | 0,981 | 0,963 | 0,992 |
+| NC | 0,960 | 0,928 | 0,980 |
+
+Chamfer e HD95 em unidades da GT; NC = normal consistency; "Inteira" = superfície inteira.
 
 ![Métricas por região](figures/geometric_metrics.png)
 
@@ -34,10 +41,17 @@ Cinco pares de sementes por N (média ± desvio padrão):
 
 100 vistas, 1600 × 1200 px, elevação 25,264°.
 
-| Métrica | Mín. | P25 | Mediana | P75 | Máx. | Média (IC 95 % bootstrap) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| PSNR (dB) | 13,72 | 15,57 | 15,90 | 16,24 | 17,44 | 15,73 (15,56–15,88) |
-| SSIM | 0,9186 | 0,9279 | 0,9310 | 0,9382 | 0,9445 | 0,9322 (0,9310–0,9334) |
+| Estatística | PSNR (dB) | SSIM |
+| --- | ---: | ---: |
+| Mínimo | 13,72 | 0,9186 |
+| P25 | 15,57 | 0,9279 |
+| Mediana | 15,90 | 0,9310 |
+| P75 | 16,24 | 0,9382 |
+| Máximo | 17,44 | 0,9445 |
+| Média | 15,73 | 0,9322 |
+| IC 95 % da média | 15,56–15,88 | 0,9310–0,9334 |
+
+IC: intervalo bootstrap percentil sobre as vistas.
 
 ![Métricas perceptuais por vista](figures/perceptual_views.png)
 

@@ -25,13 +25,18 @@ Esse piso depende de N e da área da malha. Por isso, distorce a comparação en
 
 ## Consequências
 
-| Par de exemplo (superfície inteira) | Antes (amostra-amostra) | Depois (ponto-superfície) |
+Par de exemplo, superfície inteira. Antes: distância amostra-amostra; depois: ponto-superfície.
+
+| Métrica | Antes | Depois |
 | --- | ---: | ---: |
-| Chamfer (unid. GT) | 0,0147 | 0,0100 (−32 %) |
-| HD95 (unid. GT) | 0,0805 | 0,0800 (−0,6 %) |
-| F@1 % / AUC-F | 0,907 / 0,980 | 0,908 / 0,981 |
-| Normal consistency | 0,945 | 0,960 |
-| MSE pré-alinhamento | 6,95 × 10⁻⁵ | 6,66 × 10⁻⁵ (ICP não acionado) |
+| Chamfer | 0,0147 | 0,0100 (−32 %) |
+| HD95 | 0,0805 | 0,0800 (−0,6 %) |
+| F@1% | 0,907 | 0,908 |
+| AUC‑F | 0,980 | 0,981 |
+| NC | 0,945 | 0,960 |
+| MSE pré-alinhamento | 6,95 × 10⁻⁵ | 6,66 × 10⁻⁵ |
+
+Chamfer e HD95 em unidades da GT; NC = normal consistency; ICP não acionado nos dois casos.
 
 - **Chamfer na região oculta:** caiu 55 %; ali, a maior parte do erro anterior era piso.
 - **Comparação entre regiões:** a razão visível/oculta do Chamfer passou de 2,4 para 4,4.

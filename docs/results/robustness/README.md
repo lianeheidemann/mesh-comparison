@@ -16,13 +16,23 @@ As métricas de superfície são comparadas com um **baseline por vértice** (Ch
 
 [invariance.csv](invariance.csv). A RM é a **mesma superfície** da GT, com outra discretização. Valores normalizados pela diagonal.
 
-| Variante | Vértices | Chamfer por vértice | Hausdorff por vértice | Chamfer | HD95 | F@1 % | AUC-F | Normal consistency |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Cópia idêntica | 2 904 | 0 | 0 | 0 | 0 | 1,000 | 1,000 | 1,000 |
-| Vértices permutados | 2 904 | 0 | 0 | 0 | 0 | 1,000 | 1,000 | 1,000 |
-| Subdividida ×1 | 5 808 | 0,0048 | 0,0888 | 0 | 0 | 1,000 | 1,000 | 1,000 |
-| Subdividida ×2 | 14 520 | 0,0058 | 0,0888 | 0 | 0 | 1,000 | 1,000 | 1,000 |
-| Metade subdividida ×2 | 8 712 | 0,0048 | 0,0888 | 0 | 0 | 1,000 | 1,000 | 1,000 |
+**Baseline por vértice** (definição anterior das métricas):
+
+| Variante | Vértices | Chamfer | Hausdorff |
+| --- | ---: | ---: | ---: |
+| Cópia idêntica | 2 904 | 0 | 0 |
+| Vértices permutados | 2 904 | 0 | 0 |
+| Subdividida ×1 | 5 808 | 0,0048 | 0,0888 |
+| Subdividida ×2 | 14 520 | 0,0058 | 0,0888 |
+| Metade subdividida ×2 | 8 712 | 0,0048 | 0,0888 |
+
+**Métricas de superfície** (as do pacote), iguais nas cinco variantes:
+
+| Chamfer | HD95 | F@1% | AUC‑F | NC |
+| ---: | ---: | ---: | ---: | ---: |
+| 0 | 0 | 1,000 | 1,000 | 1,000 |
+
+NC = normal consistency.
 
 - **Baseline por vértice:** não é invariante. Para a mesma superfície, o Hausdorff vai de 0 a 8,9 % da diagonal.
 - **Métricas de superfície:** são exatas (0 e 1, a menos de ~10⁻⁷ de arredondamento em float32) para qualquer triangulação da mesma superfície, porque cada amostra é medida até a superfície e não até outras amostras ([ADR 0004](../../adr/0004-point-to-surface.md)).

@@ -6,16 +6,17 @@ Conjunto de instruções, testes, CI e regras de revisão que tornam as alteraç
 
 ✅ implementado · 🟡 parcial · ❓ não demonstrado
 
-| Elemento | Estado | Evidência / limite |
+| Elemento | Estado | Evidência |
 | --- | :---: | --- |
-| Instruções para agentes | ✅ | [AGENTS.md](../../AGENTS.md): planejamento, testes, relato honesto de resultados e proveniência de IA nos commits |
-| Definições das métricas e do alinhamento | ✅ | [ADRs](../adr/) 0001–0005 |
-| Testes (pytest) e lint (Ruff) | 🟡 | Casos sintéticos e integração por subprocesso ([inventário](../implementation/README.md)); faltam as malhas do benchmark |
-| CI (GitHub Actions) | 🟡 | Lint, testes e import dos pipelines em push para `main` e em PRs; não valida valores, CUDA nem a janela da GUI. O branch `evaluation-v2` ainda não passou pelo CI (sem PR aberto); os testes só rodaram localmente |
+| Instruções para agentes | ✅ | [AGENTS.md](../../AGENTS.md): planejamento, testes, relato honesto e proveniência de IA |
+| Métricas e alinhamento definidos | ✅ | [ADRs](../adr/) 0001–0005 |
+| Testes e lint | 🟡 | 111 testes pytest em 20 arquivos ([inventário](../implementation/README.md)); localmente 110 passam e 1 depende do download dos pesos do LPIPS. Ruff sem erros. Faltam as malhas do benchmark |
+| GUI | 🟡 | Lógica testada; no Linux, abas de resultados (Qt *offscreen*) e visualizador 3D (Xvfb) conferidos. Windows e painel da vista de entrada não conferidos |
+| CI (GitHub Actions) | 🟡 | Lint, testes e import dos pipelines em push para `main` e em PRs; não valida valores, CUDA nem a janela da GUI. O branch `evaluation-v2` ainda não passou pelo CI (sem PR aberto) |
 | Ambiente reproduzível | 🟡 | [environment.yml](../../environments/environment.yml) sem versões fixas; snapshots em [environment-lock.yml](../../environments/environment-lock.yml) e [requirements-windows-cu128.txt](../../environments/requirements-windows-cu128.txt) |
 | Proveniência de IA | ✅ | Hook `.githooks/commit-msg` e trailer `AI-Agent` |
-| Proteção de branch e revisão obrigatória | ❓ | Configuração remota não auditada |
-| Ciclo supervisionado registrado (tarefa → testes → relatório) | ❓ | Ainda não documentado |
+| Proteção de branch e revisão | ❓ | Configuração remota não auditada |
+| Ciclo supervisionado registrado | ❓ | Tarefa → testes → relatório ainda não documentado |
 
 ## Fluxo
 

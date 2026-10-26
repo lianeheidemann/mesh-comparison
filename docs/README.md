@@ -3,7 +3,7 @@
 | Documento | Conteúdo |
 | --- | --- |
 | [README principal](../README.md) | Visão geral, métricas, instalação, uso, saídas e limitações |
-| [ADRs](adr/) | Definição e justificativa das métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície, [0002](adr/0002-robustness-study.md) normal consistency, F(τ) e estudo de robustez, [0003](adr/0003-single-metric-standard.md) padrão único, [0004](adr/0004-point-to-surface.md) distâncias ponto-superfície, [0005](adr/0005-icp-global-start.md) inicialização global do ICP |
+| [ADRs](adr/) | Decisões sobre as métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície · [0002](adr/0002-robustness-study.md) NC, F(τ) e estudo de robustez · [0003](adr/0003-single-metric-standard.md) padrão único · [0004](adr/0004-point-to-surface.md) ponto-superfície · [0005](adr/0005-icp-global-start.md) ICP com início global |
 | [Implementação e validação](implementation/README.md) | Testes existentes e validação pendente |
 | [Escolha das GTs](gt/README.md) | Como escolher e limpar malhas de referência sem contaminação do treino; manifesto e verificador |
 | [Resultados de exemplo](results/README.md) | Métricas e gráficos do par de exemplo |
@@ -39,14 +39,14 @@ As setas entre `analysis/` e os pipelines ligam módulos diferentes (`plots.py` 
 
 ## Módulos (`src/meshcomparison/`)
 
-| Pacote | Responsabilidade |
-| --- | --- |
-| `common/` | Leitura de malhas e cenas (`io.py`: só malhas triangulares entram; câmeras, luzes e linhas ficam de fora e são listadas), amostragem de superfície (`sampling.py`), distâncias (`distances.py`: KD-tree e ponto-superfície via Open3D), preparo compartilhado (`prepare.py`: normalização, MSE ponto-superfície, ICP sobre amostras, exportação), transformações, renderização, dispositivo do LPIPS |
-| `geometry/` | Métricas (`metrics.py`), visibilidade pela vista de entrada (`visibility.py`), heatmap, renderização e pipeline |
-| `perceptual/` | Câmeras, máscaras e crop, LPIPS/PSNR/SSIM e pipeline multivista |
-| `analysis/` | Verificação das GTs (`gt_check.py`), estudos de validação (`robustness.py`: perturbações, baseline por vértice, linhas de invariância e sensibilidade, dispersão de amostragem, recuperação de transformações pelo ICP) e gráficos (`plots.py`, inclusive o da sensibilidade) |
-| `datasets/` | Manifesto das GTs (`manifest.py`: colunas, arquivos de malha, problemas de cada linha) e download do Google Scanned Objects pelo Gazebo Fuel (`gso.py`) |
-| `cli/` | Linhas de comando finas (argumentos, chamadas e impressão), uma por ferramenta: `check_gt`, `fetch_gso`, `plot_metrics`, `robustness_study`, `icp_study` |
-| `gui/` | Janela, painéis, configuração (`RunConfig`), execução em subprocesso, leitura das saídas (`outputs.py`, `gallery.py`); resultados: abas (`results_view.py`), tabelas (`result_tables.py`) e galeria (`image_gallery.py`); visualizador PyVistaQt (`viewer3d.py`), sua barra de controles (`viewer_toolbar.py`) e a geometria de câmera, limites e chão sem Qt (`view_geometry.py`) |
+| Pacote | Responsabilidade | Arquivos |
+| --- | --- | --- |
+| `common/` | Base compartilhada: leitura de malhas e cenas (só triângulos), amostragem, distâncias, preparo e ICP, renderização, dispositivo | `io.py`, `sampling.py`, `distances.py`, `alignment.py`, `prepare.py` |
+| `geometry/` | Pipeline geométrico: métricas, regiões visível/oculta, heatmap | `metrics.py`, `visibility.py`, `heatmap.py`, `pipeline.py` |
+| `perceptual/` | Pipeline perceptual: câmeras, máscaras e crop, LPIPS/PSNR/SSIM | `cameras.py`, `image_metrics.py`, `pipeline.py` |
+| `analysis/` | Verificação das GTs, estudos de robustez e do ICP, gráficos | `gt_check.py`, `robustness.py`, `plots.py` |
+| `datasets/` | Manifesto das GTs e download do Google Scanned Objects | `manifest.py`, `gso.py` |
+| `cli/` | Uma linha de comando fina por ferramenta (`mesh-*`) | `check_gt.py`, `fetch_gso.py`, `plot_metrics.py`, `robustness_study.py`, `icp_study.py` |
+| `gui/` | Janela, painéis e execução em subprocesso; abas de resultados; visualizador 3D | `main_window.py`, `runner.py`, `results_view.py`, `result_tables.py`, `image_gallery.py`, `viewer3d.py`, `view_geometry.py` |
 
 Cada ferramenta de `cli/` é instalada como comando `mesh-*` (`mesh-check-gt`, `mesh-fetch-gso`, `mesh-plot-metrics`, `mesh-robustness-study`, `mesh-icp-study`) e também roda como `python scripts/<nome>.py`, um atalho de poucas linhas. Ferramentas: `fetch_gso.py` (baixa a seleção do GSO e escreve o manifesto), `check_gt.py` (verificação das GTs), `plot_metrics.py` (regenera as figuras de uma execução; `--uncertainty` acrescenta a dispersão de amostragem), `robustness_study.py` (estudo de robustez) e `icp_study.py` (validação do ICP).

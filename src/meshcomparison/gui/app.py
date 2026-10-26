@@ -1,8 +1,13 @@
+import os
 from pathlib import Path
 import sys
 
+# Interface zoom: 0.8 = 20 % smaller than the system scale. Set QT_SCALE_FACTOR to override (1 = system scale).
+DEFAULT_SCALE_FACTOR = "0.8"
+
 
 def main(argv=None):
+    os.environ.setdefault("QT_SCALE_FACTOR", DEFAULT_SCALE_FACTOR)
     from PySide6.QtCore import QSettings
     from PySide6.QtGui import QIcon
     from PySide6.QtWidgets import QApplication

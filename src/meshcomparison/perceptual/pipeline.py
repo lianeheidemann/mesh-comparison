@@ -16,6 +16,7 @@ from .image_metrics import (
     crop_to_union_mask,
     masked_lpips,
     masked_psnr,
+    masked_psnr_standard,
     masked_ssim,
     rgba_to_rgb_mask,
     summarize_stats,
@@ -86,6 +87,7 @@ def _view_metrics(view, lpips_model, lpips_lock, device):
     return {
         "crop_shape": gt_crop.shape,
         "psnr": masked_psnr(gt_crop, rm_crop, union_c),
+        "psnr_standard": masked_psnr_standard(gt_crop, rm_crop, union_c),
         "ssim": masked_ssim(gt_crop_masked, rm_crop_masked),
         "lpips": lpips_value,
     }
@@ -129,9 +131,10 @@ def _save_view_images(index, gt_img, rm_img, paths):
     print(f"    Saved selected view {index:03d}")
 
 
-def _summary_table(lpips_vals, psnr_vals, ssim_vals):
+def _summary_table(lpips_vals, psnr_vals, ssim_vals, psnr_standard_vals):
     rows = []
-    for metric_name, values in (("lpips", lpips_vals), ("psnr", psnr_vals), ("ssim", ssim_vals)):
+    for metric_name, values in (("lpips", lpips_vals), ("psnr", psnr_vals), ("ssim", ssim_vals),
+                                ("psnr_standard", psnr_standard_vals)):
         stats = summarize_stats(values)
         rows.append({
             "metric": metric_name,
@@ -189,7 +192,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
     center, diag = _scene_framing([gt, rm_aligned])
 
     per_view_rows = []
-    lpips_vals, psnr_vals, ssim_vals = [], [], []
+    lpips_vals, psnr_vals, ssim_vals, psnr_standard_vals = [], [], [], []
 
     def save_if_selected(index, view):
         if index in save_views:
@@ -203,6 +206,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
             lpips_vals.append(metrics["lpips"])
             psnr_vals.append(metrics["psnr"])
             ssim_vals.append(metrics["ssim"])
+            psnr_standard_vals.append(metrics["psnr_standard"])
 
             per_view_rows.append({
                 "view_idx": i,
@@ -215,6 +219,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
                 "crop_w": int(metrics["crop_shape"][1]),
                 "xmag": float(view["cam_cfg"]["xmag"]),
                 "ymag": float(view["cam_cfg"]["ymag"]),
+                "psnr_standard": metrics["psnr_standard"],  # evaluation-v2, appended after the legacy columns
             })
 
             print(
@@ -223,7 +228,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
             )
 
     print(f"[7/{TOTAL_STEPS}] Summarizing metrics...")
-    summary_df = _summary_table(lpips_vals, psnr_vals, ssim_vals)
+    summary_df = _summary_table(lpips_vals, psnr_vals, ssim_vals, psnr_standard_vals)
 
     per_view_csv = os.path.join(paths["metrics"], "per_view_metrics.csv")
     summary_csv = os.path.join(paths["metrics"], "metrics_perceptual.csv")

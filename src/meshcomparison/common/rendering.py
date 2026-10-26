@@ -96,3 +96,28 @@ def render_ortho_rgba(mesh, camera_cfg, bg_color, width=1600, height=1200, smoot
     renderer.delete()
 
     return color
+
+
+def render_ortho_depth(mesh, camera_cfg, width=1024, height=1024):
+    """Depth image (float, distance along the view axis; 0 where nothing was hit) of ``mesh`` seen through an
+    orthographic ``camera_cfg``. Used for z-buffer visibility, not for any image metric."""
+    import pyrender
+
+    znear, zfar = 0.01, camera_cfg["zfar"]
+    scene = pyrender.Scene()
+    scene.add(pyrender.Mesh.from_trimesh(mesh, smooth=False))
+    cam = pyrender.OrthographicCamera(xmag=camera_cfg["xmag"], ymag=camera_cfg["ymag"], znear=znear, zfar=zfar)
+    scene.add(cam, pose=camera_cfg["pose"])
+
+    renderer = pyrender.OffscreenRenderer(viewport_width=width, viewport_height=height)
+    try:
+        depth = np.asarray(renderer.render(scene, flags=pyrender.RenderFlags.DEPTH_ONLY), dtype=np.float64)
+    finally:
+        renderer.delete()
+
+    # pyrender linearizes the depth buffer with the perspective formula for every camera; undo it to get the
+    # normalized device depth, which is linear in distance for an orthographic projection
+    hit = depth > 0
+    z_ndc = (zfar + znear - 2.0 * znear * zfar / depth[hit]) / (zfar - znear)
+    depth[hit] = znear + 0.5 * (z_ndc + 1.0) * (zfar - znear)
+    return depth

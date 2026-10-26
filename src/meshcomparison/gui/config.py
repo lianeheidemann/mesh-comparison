@@ -32,6 +32,11 @@ class RunConfig:
     camera_margin: float = 1.05
     radius_factor: float = 1.45
     device: str = "auto"
+    # evaluation-v2: view of the input image in the GT frame, used to split the geometric metrics into regions
+    # visible and hidden from it (off: whole surface only)
+    input_view: bool = False
+    input_azimuth: float = 0.0
+    input_elevation: float = 0.0
 
 
 @dataclass

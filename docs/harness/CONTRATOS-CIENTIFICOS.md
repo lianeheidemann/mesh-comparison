@@ -202,8 +202,9 @@ Para cada métrica nas vistas avaliadas, remover valores **não finitos** (`NaN`
 | Produto | Saída atual | Significado |
 | --- | --- | --- |
 | Métricas geométricas | `metrics/metrics_geometry.csv` | Pré/pós-ICP; Chamfer, Hausdorff, RMSE; valores normalizados e unidades da GT; câmera; matriz 3x4 |
-| Métricas perceptuais por vista | `metrics/per_view_metrics.csv` | `view_idx`, azimute/elevação, LPIPS/PSNR/SSIM, dimensões do crop e câmera |
-| Resumo perceptual | `metrics/metrics_perceptual.csv` | Estatísticas dos valores finitos por métrica |
+| Métricas geométricas v2 | `metrics/metrics_geometry_v2.csv` | `evaluation-v2` (CC-14, CC-15, CC-17): uma linha por região |
+| Métricas perceptuais por vista | `metrics/per_view_metrics.csv` | `view_idx`, azimute/elevação, LPIPS/PSNR/SSIM, dimensões do crop e câmera; `psnr_standard` (CC-16) ao final |
+| Resumo perceptual | `metrics/metrics_perceptual.csv` | Estatísticas dos valores finitos por métrica (inclui a linha `psnr_standard`) |
 | Metadados | `metrics/run_metadata.csv` | Paths GT/RM, alinhamento, threshold, vistas, câmera, matriz |
 | Malha alinhada | `aligned/rm_aligned.ply` | RM após ICP condicional e retorno à escala original |
 | Geometria renderizada | `renders/gt_ortho.png`, `renders/rm_aligned_ortho.png`, `heatmaps/gt_heatmap_ortho.png`, `heatmaps/gt_heatmap_colored.ply` | Visuais geométricos/heatmap |
@@ -223,6 +224,59 @@ Para comparar execuções com rigor, registrar em relatório ou manifesto adicio
 - Tolerâncias por teste; local do resultado; divergências conhecidas CPU/GPU ou entre renderizadores.
 
 Esse manifesto é **proposta**, não recurso já comprovado no original.
+
+## 5A. Protocolo versionado `evaluation-v2` (complemento ao legado)
+
+**Decisão:** [ADR 0001](../adr/0001-evaluation-v2.md). É calculado **ao lado** do legado; nenhum valor, nome ou coluna de CC-01 a CC-13 muda. **Não misturar** valores legados e v2 sob o mesmo rótulo.
+
+### CC-14 — Amostragem de superfície
+
+- `N = 100 000` pontos por malha, uniformes por área (face sorteada com probabilidade ∝ área; baricêntricas `(1-√r1, √r1(1-r2), √r1·r2)`), com `numpy.random.default_rng(seed)`; semente `0` para a GT e `1` para a RM alinhada.
+- Amostrar a GT normalizada e a RM **após** o ICP condicional (CC-02, CC-04), no espaço normalizado.
+- Malha sem faces ou sem área → erro explícito.
+
+**Fonte:** `src/meshcomparison/geometry/metrics_v2.py:sample_surface`.
+
+### CC-15 — Chamfer, HD95 e F-score sobre amostras
+
+Para as amostras `G` (GT) e `R` (RM), com `d` do vizinho mais próximo (`cKDTree`, como em CC-03):
+
+```text
+Chamfer_v2 = 1/2 [ mean d(g,R) + mean d(r,G) ]
+HD95       = max( P95 d(g,R), P95 d(r,G) )
+P@τ = fração de r com d(r,G) < τ      R@τ = fração de g com d(g,R) < τ
+F@τ = 2 P R / (P + R)   (0 se P + R = 0)         τ ∈ {0.01, 0.02, 0.05}
+```
+
+- τ e as distâncias normalizadas são frações da diagonal da GT; as colunas `_gt_units` multiplicam por `D` (CC-02).
+- `icp_scale = det(T[:3,:3])^(1/3)` registra a correção de escala uniforme do ICP (1 sem alinhamento).
+- **Não** há métricas v2 pré-ICP (ver justificativa no ADR).
+
+**Fonte:** `geometry/metrics_v2.py:compute_metrics_v2`; saída `metrics/metrics_geometry_v2.csv`.
+
+### CC-16 — PSNR padrão
+
+```text
+MSE_std  = [sum_{p na união} sum_{c em RGB} (GT[p,c]-RM[p,c])²] / (3N)
+PSNR_std = 10 * log10(1 / MSE_std)
+```
+
+Usa o mesmo crop e a mesma máscara de CC-08 e os mesmos casos-limite de CC-09 (`NaN` se `N = 0`; `+Infinity` se `MSE_std <= 1e-12`). Na mesma máscara, `PSNR_std = PSNR_legacy + 10·log10(3)`. Por isso a ordenação entre modelos não muda; o ganho é a comparabilidade com a literatura. O resumo segue CC-11.
+
+**Fonte:** `perceptual/image_metrics.py:masked_psnr_standard`; coluna `psnr_standard` (no final de `per_view_metrics.csv`) e linha `psnr_standard` em `metrics_perceptual.csv`.
+
+### CC-17 — Regiões visíveis e ocultas pela vista de entrada
+
+- É opcional: requer o azimute e a elevação da imagem de entrada no referencial da GT normalizada (z para cima, azimute de +x para +y; mesma convenção de `camera_pose_for_view`).
+- A câmera é **ortográfica**, enquadrada na GT (`build_tight_ortho_camera`, margem `1.05`); o z-buffer é calculado por `pyrender` com resolução `1024×1024`.
+- Uma amostra GT é **visível** se cai dentro do quadro, acerta a superfície no seu pixel e sua profundidade ≤ z-buffer + `0.005`; nos demais casos, é **oculta**.
+- Cada amostra RM herda a região da amostra GT mais próxima. CC-15 é calculado por região; `gt_surface_fraction` é a fração das amostras GT (≈ fração da área). Uma região vazia gera `NaN`.
+
+**Limitações:** a câmera ortográfica aproxima a câmera perspectiva real; a tolerância pode marcar como visíveis paredes mais finas que `0.005`; é preciso conferir a convenção de eixos de cada conjunto de dados.
+
+**Fonte:** `geometry/visibility.py`.
+
+**VALIDAR (v2):** `tests/test_metrics_v2.py` (amostragem reprodutível e proporcional à área, deslocamento paralelo conhecido, F-score em degrau, HD95 robusto a *outliers*, separação por região, escala do ICP, visibilidade de um cubo) e `tests/test_perceptual.py` (PSNR padrão com erro conhecido e diferença `10·log10(3)`). Antes do benchmark, medir a variação entre sementes nos dados reais.
 
 ## 6. Matriz de aceitação — próximos testes (não declarados como concluídos)
 

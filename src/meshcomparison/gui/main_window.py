@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 from ..common.io import load_mesh
 from .config import RunConfig, validate
 from .outputs import load_run_meshes
-from .panels import DevicePanel, MeshesPanel, ParametersPanel, PipelinesPanel
+from .panels import DevicePanel, InputViewPanel, MeshesPanel, ParametersPanel, PipelinesPanel
 from .results_view import ResultsView
 from .runner import PipelineRunner
 from .viewer3d import MeshViewer
@@ -75,9 +75,11 @@ class MainWindow(QMainWindow):
         self.meshes_panel.meshChanged.connect(self._preview)
         self.pipelines_panel = PipelinesPanel()
         self.parameters_panel = ParametersPanel()
+        self.input_view_panel = InputViewPanel()
         self.device_panel = DevicePanel()
         self.device_panel.message.connect(lambda text: self.statusBar().showMessage(text, 5000))
-        for card in (self.meshes_panel, self.pipelines_panel, self.parameters_panel, self.device_panel):
+        for card in (self.meshes_panel, self.pipelines_panel, self.parameters_panel, self.input_view_panel,
+                     self.device_panel):
             layout.addWidget(card)
 
         self.run_button = QPushButton("Run evaluation")
@@ -117,6 +119,7 @@ class MainWindow(QMainWindow):
             run_perceptual=self.pipelines_panel.perceptual_check.isChecked(),
             device=self.device_panel.device(),
             **self.parameters_panel.values(),
+            **self.input_view_panel.values(),
         )
 
     def _preview(self, which):

@@ -52,6 +52,21 @@ def masked_psnr(gt_img, rm_img, mask):
     return 10.0 * np.log10(1.0 / mse)
 
 
+def masked_psnr_standard(gt_img, rm_img, mask):
+    """
+    evaluation-v2 PSNR over the same masked pixels: the usual definition, mean squared error over the
+    3 * N channel values (the legacy ``masked_psnr`` divides the RGB sum by N). Peak 1, images in [0,1].
+    """
+    n_values = 3.0 * np.sum(mask)
+    if n_values <= 0:
+        return np.nan
+
+    mse = np.sum(((gt_img - rm_img) ** 2) * mask[..., None]) / n_values
+    if mse <= 1e-12:
+        return np.inf
+    return 10.0 * np.log10(1.0 / mse)
+
+
 def masked_ssim(gt_img, rm_img):
     """
     SSIM on a masked crop where background has already been zeroed.

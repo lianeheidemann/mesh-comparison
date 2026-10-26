@@ -17,59 +17,120 @@ SUMMARY_COLUMNS = (  # (CSV column, header) in reading order
 )
 METRIC_LABELS = {
     "lpips": ("LPIPS", "lower is better"),
-    "psnr": ("PSNR (dB)", "higher is better"),
+    "psnr": ("PSNR legacy (dB)", "higher is better; RGB squared errors summed and divided by N pixels"),
     "ssim": ("SSIM", "higher is better"),
+    "psnr_standard": ("PSNR standard (dB)", "higher is better; mean over the 3N channel values (evaluation-v2)"),
 }
+GEOMETRY_ROWS = (  # (metrics_geometry_v2.csv column, label, tooltip, format)
+    ("chamfer_mean_gt_units", "Chamfer (GT units)", "lower is better; mean surface-sample distance", "{:.4g}"),
+    ("hd95_gt_units", "HD95 (GT units)", "lower is better; 95th-percentile symmetric distance", "{:.4g}"),
+    ("fscore_tau1pct", "F-score @1%", "higher is better; tolerance 1% of the GT diagonal", "{:.4f}"),
+    ("fscore_tau2pct", "F-score @2%", "higher is better; tolerance 2% of the GT diagonal", "{:.4f}"),
+    ("fscore_tau5pct", "F-score @5%", "higher is better; tolerance 5% of the GT diagonal", "{:.4f}"),
+)
+REGION_HEADERS = {"all": "Whole surface", "visible": "Visible", "hidden": "Hidden"}
 
 
-def _make_summary_table(df):
-    """Perceptual summary: one row per metric, statistics as evenly spaced, centred columns."""
-    columns = [(key, header) for key, header in SUMMARY_COLUMNS if key in df.columns]
-    table = QTableWidget(len(df), len(columns) + 1)
-    table.setHorizontalHeaderLabels(["Metric"] + [header for _, header in columns])
+def _new_table(n_rows, headers):
+    """Read-only table in the results style (first column = metric name)."""
+    table = QTableWidget(n_rows, len(headers))
+    table.setHorizontalHeaderLabels(headers)
     table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
     table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
     table.setAlternatingRowColors(True)
     table.setShowGrid(False)
     table.verticalHeader().setVisible(False)
     table.verticalHeader().setDefaultSectionSize(46)
-
-    centred = Qt.AlignmentFlag.AlignCenter
-    for r, row in enumerate(df.to_dict("records")):
-        name, hint = METRIC_LABELS.get(row["metric"], (str(row["metric"]).upper(), ""))
-        label = QTableWidgetItem(name)
-        label.setToolTip(hint)
-        font = label.font()
-        font.setBold(True)
-        label.setFont(font)
-        table.setItem(r, 0, label)
-        for c, (key, _) in enumerate(columns, start=1):
-            item = QTableWidgetItem(f"{row[key]:.4f}")
-            item.setTextAlignment(centred)
-            table.setItem(r, c, item)
-
-    header = table.horizontalHeader()
-    header.setDefaultAlignment(centred)
-    header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-    header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-    header.setStretchLastSection(False)
-    table.setFixedHeight(header.height() + table.verticalHeader().defaultSectionSize() * len(df) + 8)
     return table
 
 
-def _make_summary_page(df):
+def _set_label(table, row, name, hint):
+    label = QTableWidgetItem(name)
+    label.setToolTip(hint)
+    font = label.font()
+    font.setBold(True)
+    label.setFont(font)
+    table.setItem(row, 0, label)
+
+
+def _set_value(table, row, column, text):
+    item = QTableWidgetItem(text)
+    item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+    table.setItem(row, column, item)
+
+
+def _finish_table(table):
+    """Evenly spaced, centred value columns and a height that fits every row."""
+    header = table.horizontalHeader()
+    header.setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
+    header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+    header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+    header.setStretchLastSection(False)
+    table.setFixedHeight(header.height() + table.verticalHeader().defaultSectionSize() * table.rowCount() + 8)
+    return table
+
+
+def _make_summary_table(df):
+    """Perceptual summary: one row per metric, statistics as evenly spaced, centred columns."""
+    columns = [(key, header) for key, header in SUMMARY_COLUMNS if key in df.columns]
+    table = _new_table(len(df), ["Metric"] + [header for _, header in columns])
+    for r, row in enumerate(df.to_dict("records")):
+        name, hint = METRIC_LABELS.get(row["metric"], (str(row["metric"]).upper(), ""))
+        _set_label(table, r, name, hint)
+        for c, (key, _) in enumerate(columns, start=1):
+            _set_value(table, r, c, f"{row[key]:.4f}")
+    return _finish_table(table)
+
+
+def _make_geometry_table(df):
+    """evaluation-v2 geometric summary: one row per metric, one column per GT region present in the CSV."""
+    by_region = {row["region"]: row for row in df.to_dict("records")}
+    regions = [r for r in REGION_HEADERS if r in by_region]
+    headers = ["Metric"] + [
+        REGION_HEADERS[r] if r == "all" else f"{REGION_HEADERS[r]} ({by_region[r]['gt_surface_fraction']:.0%})"
+        for r in regions]
+    rows = [entry for entry in GEOMETRY_ROWS if entry[0] in df.columns]
+    table = _new_table(len(rows), headers)
+    for r, (key, name, hint, fmt) in enumerate(rows):
+        _set_label(table, r, name, hint)
+        for c, region in enumerate(regions, start=1):
+            value = by_region[region][key]
+            _set_value(table, r, c, "n/a" if pd.isna(value) else fmt.format(value))
+    return _finish_table(table)
+
+
+def _make_page(table, hint_text):
     page = QWidget()
     layout = QVBoxLayout(page)
     layout.setContentsMargins(12, 12, 12, 12)
     layout.setSpacing(10)
-    layout.addWidget(_make_summary_table(df))
-    hint = QLabel("LPIPS: lower is better · PSNR: higher is better · SSIM: higher is better. "
-                  "Statistics over all rendered views.")
+    layout.addWidget(table)
+    hint = QLabel(hint_text)
     hint.setObjectName("hint")
     hint.setWordWrap(True)
     layout.addWidget(hint)
     layout.addStretch(1)
     return page
+
+
+def _make_summary_page(df):
+    return _make_page(_make_summary_table(df),
+                      "LPIPS: lower is better · PSNR: higher is better · SSIM: higher is better. "
+                      "Statistics over all rendered views. On the same pixels, "
+                      "PSNR standard = PSNR legacy + 10·log10(3) ≈ +4.77 dB.")
+
+
+def _make_geometry_page(df):
+    first = df.iloc[0]
+    if bool(first["alignment_triggered"]):
+        alignment = f"Similarity ICP applied; uniform scale factor {first['icp_scale']:.4f}."
+    else:
+        alignment = "ICP not applied (pre-alignment MSE at or below the threshold)."
+    regions = ("Visible / hidden: GT regions seen from the input view (share of the GT surface)."
+               if len(df) > 1 else "Set an input view to split the metrics into visible / hidden regions.")
+    return _make_page(_make_geometry_table(df),
+                      f"evaluation-v2 on {int(first['n_samples']):,} area-uniform surface samples per mesh, after "
+                      f"alignment. {alignment} {regions} Legacy vertex metrics: metrics/metrics_geometry.csv.")
 
 
 class ImageGallery(QWidget):
@@ -184,6 +245,7 @@ class ImageGallery(QWidget):
 
 class ResultsView(QTabWidget):
     PERCEPTUAL_CSV = os.path.join("metrics", "metrics_perceptual.csv")
+    GEOMETRY_V2_CSV = os.path.join("metrics", "metrics_geometry_v2.csv")
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -218,6 +280,10 @@ class ResultsView(QTabWidget):
         self._out_dir = out_dir
         self.open_button.setEnabled(os.path.isdir(out_dir))
         added = False
+        geometry = os.path.join(out_dir, self.GEOMETRY_V2_CSV)
+        if os.path.isfile(geometry):
+            self.addTab(_make_geometry_page(pd.read_csv(geometry)), "Geometric summary")
+            added = True
         summary = os.path.join(out_dir, self.PERCEPTUAL_CSV)
         if os.path.isfile(summary):
             self.addTab(_make_summary_page(pd.read_csv(summary)), "Perceptual summary")

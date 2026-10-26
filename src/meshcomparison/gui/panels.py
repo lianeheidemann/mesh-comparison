@@ -85,7 +85,7 @@ class PipelinesPanel(QGroupBox):
         self.setObjectName("card")
         layout = QVBoxLayout(self)
         layout.setSpacing(7)
-        self.geometry_check = QCheckBox("Geometric (Chamfer, Hausdorff, RMSE, heatmap)")
+        self.geometry_check = QCheckBox("Geometric (Chamfer, HD95, F-score, heatmap)")
         self.perceptual_check = QCheckBox("Perceptual (LPIPS, PSNR, SSIM over multiple views)")
         self.geometry_check.setChecked(True)
         self.perceptual_check.setChecked(True)
@@ -170,6 +170,40 @@ class ParametersPanel(QGroupBox):
             width=self.width.value(), height=self.height.value(), num_views=self.num_views.value(),
             camera_margin=self.margin.value(), radius_factor=self.radius.value(),
         )
+
+
+class InputViewPanel(QGroupBox):
+    """evaluation-v2: optional view of the input image, to split the geometric metrics into visible/hidden GT."""
+
+    def __init__(self, parent=None):
+        super().__init__("Input view (unobserved regions)", parent)
+        self.setObjectName("card")
+        defaults = RunConfig()
+        self.enabled = QCheckBox("Split metrics into regions visible / hidden from the input image")
+        self.enabled.setChecked(defaults.input_view)
+        self.azimuth = _spin(-360, 360, defaults.input_azimuth, decimals=3, suffix=" °")
+        self.elevation = _spin(-90, 90, defaults.input_elevation, decimals=3, suffix=" °")
+        form = QFormLayout(self)
+        form.setHorizontalSpacing(8)
+        form.setVerticalSpacing(6)
+        form.addRow(self.enabled)
+        form.addRow("Azimuth", self.azimuth)
+        form.addRow("Elevation", self.elevation)
+        note = QLabel("Camera of the input image in the GT frame (z up, azimuth from +x towards +y).")
+        note.setObjectName("hint")
+        note.setWordWrap(True)
+        form.addRow(note)
+        self.enabled.toggled.connect(self._sync)
+        self._sync(self.enabled.isChecked())
+
+    def _sync(self, checked):
+        self.azimuth.setEnabled(checked)
+        self.elevation.setEnabled(checked)
+
+    def values(self):
+        """``RunConfig`` fields held by this panel."""
+        return dict(input_view=self.enabled.isChecked(), input_azimuth=self.azimuth.value(),
+                    input_elevation=self.elevation.value())
 
 
 class DevicePanel(QGroupBox):

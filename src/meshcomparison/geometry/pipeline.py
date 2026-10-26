@@ -6,7 +6,11 @@ from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
 from .heatmap import colorize_gt_heatmap, save_heatmap_figure
 from .metrics import compute_metrics
+from .metrics_v2 import (
+    N_SAMPLES, PROTOCOL, REGIONS, SEED_GT, SEED_RM, TAUS, compute_metrics_v2, icp_scale, sample_surface, tau_key,
+)
 from .rendering import build_shared_camera, render_mesh
+from .visibility import gt_visibility
 
 TOTAL_STEPS = 7
 
@@ -76,12 +80,62 @@ def _metrics_row(gt_path, rm_path, prepared, post_mse_norm, metrics, mse_thresho
     }
 
 
+def _compute_v2(prepared, input_azimuth_deg, input_elevation_deg):
+    """evaluation-v2 metrics on surface samples of the normalized GT and aligned RM (regions need the input view)."""
+    gt_points = sample_surface(prepared.gt, N_SAMPLES, SEED_GT)
+    rm_points = sample_surface(prepared.rm_aligned, N_SAMPLES, SEED_RM)
+    gt_visible = None
+    if input_azimuth_deg is not None and input_elevation_deg is not None:
+        gt_visible = gt_visibility(prepared.gt, gt_points, input_azimuth_deg, input_elevation_deg)
+    return compute_metrics_v2(gt_points, rm_points, TAUS, gt_visible)
+
+
+def _v2_rows(prepared, results, input_azimuth_deg, input_elevation_deg):
+    """One row per region of ``metrics_geometry_v2.csv``; distances also in GT units, F-score columns per tau."""
+    diag = prepared.gt_diag_raw
+    rows = []
+    for region in REGIONS:
+        if region not in results:
+            continue
+        m = results[region]
+        row = {
+            "protocol": PROTOCOL,
+            "region": region,
+            "gt_surface_fraction": m["gt_fraction"],
+            "chamfer_mean_normalized": m["chamfer_mean"],
+            "chamfer_mean_gt_units": m["chamfer_mean"] * diag,
+            "hd95_normalized": m["hd95"],
+            "hd95_gt_units": m["hd95"] * diag,
+        }
+        for tau in TAUS:
+            key = tau_key(tau)
+            row[f"precision_{key}"] = m[f"precision_{key}"]
+            row[f"recall_{key}"] = m[f"recall_{key}"]
+            row[f"fscore_{key}"] = m[f"fscore_{key}"]
+        row.update({
+            "n_samples": N_SAMPLES,
+            "seed_gt": SEED_GT,
+            "seed_rm": SEED_RM,
+            "input_azimuth_deg": input_azimuth_deg,
+            "input_elevation_deg": input_elevation_deg,
+            "alignment_triggered": prepared.alignment_triggered,
+            "icp_scale": icp_scale(prepared.final_transform),
+            "gt_bbox_diagonal_original_units": diag,
+        })
+        rows.append(row)
+    return rows
+
+
 def run_pipeline(gt_path, rm_path, out_dir,
                  mse_threshold_normalized=1e-4,
                  azimuth_deg=45.0,
                  elevation_deg=35.264,
                  width=1600,
-                 height=1200):
+                 height=1200,
+                 input_azimuth_deg=None,
+                 input_elevation_deg=None):
+    """``input_azimuth_deg``/``input_elevation_deg``: view of the input image in the GT frame (z up); when given,
+    the evaluation-v2 metrics are also split into GT regions visible and hidden from that view."""
     paths = ensure_dirs(out_dir, OUTPUT_SUBDIRS)
 
     prepared = prepare_meshes(gt_path, rm_path, mse_threshold_normalized, TOTAL_STEPS)
@@ -89,6 +143,7 @@ def run_pipeline(gt_path, rm_path, out_dir,
     print(f"[5/{TOTAL_STEPS}] Computing final metrics...")
     metrics = compute_metrics(prepared.gt.vertices, prepared.rm_aligned.vertices)
     post_mse_norm = metrics["mse"]  # same distances, computed once
+    v2_results = _compute_v2(prepared, input_azimuth_deg, input_elevation_deg)
 
     print(f"[6/{TOTAL_STEPS}] Rendering orthographic views and heatmap...")
     files = _render_views_and_heatmap(
@@ -100,6 +155,9 @@ def run_pipeline(gt_path, rm_path, out_dir,
     csv_path = os.path.join(paths["metrics"], "metrics_geometry.csv")
     pd.DataFrame([_metrics_row(gt_path, rm_path, prepared, post_mse_norm, metrics, mse_threshold_normalized,
                                azimuth_deg, elevation_deg)]).to_csv(csv_path, index=False)
+    v2_csv_path = os.path.join(paths["metrics"], "metrics_geometry_v2.csv")
+    pd.DataFrame(_v2_rows(prepared, v2_results, input_azimuth_deg, input_elevation_deg)).to_csv(
+        v2_csv_path, index=False)
 
     print("\nDone.")
     print(f"GT render:        {files['gt_render']}")
@@ -108,3 +166,4 @@ def run_pipeline(gt_path, rm_path, out_dir,
     print(f"Heatmap mesh:     {files['heat_mesh']}")
     print(f"Aligned RM mesh:  {aligned_path}")
     print(f"Metrics CSV:      {csv_path}")
+    print(f"Metrics v2 CSV:   {v2_csv_path}")

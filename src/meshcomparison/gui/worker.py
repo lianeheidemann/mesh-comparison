@@ -35,6 +35,8 @@ def run_geometry(cfg):
         elevation_deg=cfg.elevation,
         width=cfg.width,
         height=cfg.height,
+        input_azimuth_deg=cfg.input_azimuth if cfg.input_view else None,
+        input_elevation_deg=cfg.input_elevation if cfg.input_view else None,
     )
 
 

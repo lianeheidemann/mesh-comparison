@@ -37,6 +37,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
 
 - [How it works](#user-content-how-it-works)
 - [Metrics](#user-content-metrics)
+- [Datasets](#user-content-datasets)
 - [Example results](#user-content-example-results)
 - [Installation](#user-content-installation)
 - [Usage](#user-content-usage)
@@ -77,6 +78,17 @@ d(g, R) is the distance from a GT surface sample to the closest point on the RM 
 | LPIPS | AlexNet LPIPS on the same crop | Lower |
 
 **Visible / hidden regions:** with the input-image camera (azimuth/elevation in the GT frame, z up), GT samples are classified with an orthographic z-buffer; each RM sample takes the region of its nearest GT sample.
+
+## Datasets
+
+GT meshes come in two sets, reported separately ([GT guide](docs/gt/README.md)):
+
+| Set | Content | Role |
+| --- | --- | --- |
+| **Quantitative** | 30–50 objects from [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1) (GSO): real scanned household items and toys, with texture, usually outside the models' training data | Main numbers, comparable with the literature |
+| **Curated** | 10–20 objects chosen by hand: own scans or models, or objects published after the models' training cutoff | Figures and a generalization check; not mixed into the main numbers |
+
+The current GSO selection, [`data/gso/selection.csv`](data/gso/selection.csv), holds 20 objects (animals, dinosaurs, figures, vehicles, household items) and 5 alternates. It was chosen by hand before any model was run, alternating smooth bodies with thin parts; the paper must state this criterion. `scripts/fetch_gso.py` downloads it. Avoid Objaverse and other training sets of the evaluated models as GT.
 
 ## Example results
 

@@ -202,7 +202,8 @@ Para cada métrica nas vistas avaliadas, remover valores **não finitos** (`NaN`
 | Produto | Saída atual | Significado |
 | --- | --- | --- |
 | Métricas geométricas | `metrics/metrics_geometry.csv` | Pré/pós-ICP; Chamfer, Hausdorff, RMSE; valores normalizados e unidades da GT; câmera; matriz 3x4 |
-| Métricas geométricas v2 | `metrics/metrics_geometry_v2.csv` | `evaluation-v2` (CC-14, CC-15, CC-17): uma linha por região |
+| Métricas geométricas v2 | `metrics/metrics_geometry_v2.csv` | `evaluation-v2` (CC-14, CC-15, CC-17, CC-18): uma linha por região |
+| Curva F(τ) v2 | `metrics/fscore_curve_v2.csv` | F(τ), precisão e cobertura por região e tolerância (CC-18) |
 | Métricas perceptuais por vista | `metrics/per_view_metrics.csv` | `view_idx`, azimute/elevação, LPIPS/PSNR/SSIM, dimensões do crop e câmera; `psnr_standard` (CC-16) ao final |
 | Resumo perceptual | `metrics/metrics_perceptual.csv` | Estatísticas dos valores finitos por métrica (inclui a linha `psnr_standard`) |
 | Metadados | `metrics/run_metadata.csv` | Paths GT/RM, alinhamento, threshold, vistas, câmera, matriz |
@@ -275,6 +276,21 @@ Usa o mesmo crop e a mesma máscara de CC-08 e os mesmos casos-limite de CC-09 (
 **Limitações:** a câmera ortográfica aproxima a câmera perspectiva real; a tolerância pode marcar como visíveis paredes mais finas que `0.005`; é preciso conferir a convenção de eixos de cada conjunto de dados.
 
 **Fonte:** `geometry/visibility.py`.
+
+### CC-18 — Normal consistency, curva F(τ) e estudo de robustez
+
+**Decisão:** [ADR 0002](../adr/0002-robustness-study.md). Para as normais unitárias das faces amostradas (CC-14, mesmos pontos):
+
+```text
+NC     = 1/2 [ mean_g |n_g · n_{nn_R(g)}| + mean_r |n_r · n_{nn_G(r)}| ]      (por região, CC-17)
+F(τ)   em τ = 0.005, 0.010, …, 0.100 (20 pontos)
+AUC-F  = trapézio de F(τ) / (0.100 - 0.005)
+```
+
+- Saídas: colunas `normal_consistency` e `fscore_auc` ao final de `metrics_geometry_v2.csv`; `metrics/fscore_curve_v2.csv` (`region`, `tau_normalized`, `precision`, `recall`, `fscore`).
+- O estudo de invariância e sensibilidade (`analysis/robustness.py`, `scripts/robustness_study.py`) compara pares **sem ICP**, com sementes fixas. É uma validação de métricas, não uma etapa do pipeline.
+
+**Fontes:** `geometry/metrics_v2.py:normal_consistency`, `fscore_curve`, `fscore_auc`; testes em `tests/test_robustness.py`.
 
 **VALIDAR (v2):** `tests/test_metrics_v2.py` (amostragem reprodutível e proporcional à área, deslocamento paralelo conhecido, F-score em degrau, HD95 robusto a *outliers*, separação por região, escala do ICP, visibilidade de um cubo) e `tests/test_perceptual.py` (PSNR padrão com erro conhecido e diferença `10·log10(3)`). Antes do benchmark, medir a variação entre sementes nos dados reais.
 

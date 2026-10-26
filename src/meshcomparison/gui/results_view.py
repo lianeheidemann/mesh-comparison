@@ -27,6 +27,8 @@ GEOMETRY_ROWS = (  # (metrics_geometry_v2.csv column, label, tooltip, format)
     ("fscore_tau1pct", "F-score @1%", "higher is better; tolerance 1% of the GT diagonal", "{:.4f}"),
     ("fscore_tau2pct", "F-score @2%", "higher is better; tolerance 2% of the GT diagonal", "{:.4f}"),
     ("fscore_tau5pct", "F-score @5%", "higher is better; tolerance 5% of the GT diagonal", "{:.4f}"),
+    ("normal_consistency", "Normal consistency", "higher is better; mean |cos| between matched surface normals",
+     "{:.4f}"),
 )
 REGION_HEADERS = {"all": "Whole surface", "visible": "Visible", "hidden": "Hidden"}
 

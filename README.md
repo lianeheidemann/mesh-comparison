@@ -35,6 +35,7 @@ Mesh Comparison is a **Python desktop application** for comparing a ground-truth
 
 - [Evaluation criteria](#user-content-evaluation-criteria)
   - [Evaluation protocol v2](#user-content-evaluation-protocol-v2)
+  - [Metric robustness study](#user-content-metric-robustness-study)
 - [Example results](#user-content-example-results)
   - [Geometric metric snapshot](#user-content-geometric-metric-snapshot)
   - [Perceptual summary — desktop screenshot](#user-content-perceptual-summary--desktop-screenshot)
@@ -81,12 +82,21 @@ Mesh Comparison **does not generate meshes from images**; it evaluates a supplie
 
 - **Surface sampling:** 100 000 area-uniform points per mesh with fixed seeds (GT `0`, RM `1`), in the GT-diagonal-normalized space, after the conditional ICP.
 - **Chamfer** (mean nearest distance, as in the legacy metric) and **HD95** = max of the two directional 95th percentiles.
-- **F-score @τ** with τ = 1 %, 2 % and 5 % of the GT diagonal: precision (RM samples within τ of the GT) and recall (GT samples within τ of the RM).
+- **F-score @τ** with τ = 1 %, 2 % and 5 % of the GT diagonal: precision (RM samples within τ of the GT) and recall (GT samples within τ of the RM); the full **F(τ) curve** (0.5 %–10 %) and its normalized area **AUC-F**.
+- **Normal consistency**: mean |cos| between matched surface normals (local orientation and roughness, which distances barely capture).
 - **Standard PSNR**: mean squared error over the 3N channel values of the union mask. On the same pixels it equals the legacy PSNR + 10·log10(3) ≈ +4.77 dB, so it does not change rankings; it makes values comparable with the literature.
 - **Visible / hidden regions** (optional): with the azimuth and elevation of the input image in the GT frame (z up), GT samples are classified with an orthographic z-buffer; each RM sample takes the region of its nearest GT sample.
 - **ICP scale factor** is reported, because the similarity ICP corrects a uniform scale error (scale is not recoverable from a single image) but not wrong proportions.
 
 The interface shows the v2 geometric metrics in a **Geometric summary** tab (columns per region) and adds a "PSNR standard" row to the perceptual summary.
+
+### Metric robustness study
+
+`scripts/robustness_study.py` checks the metrics against the geometric priors of geometric deep learning — invariance, stability and multiscale ([ADR 0002](docs/adr/0002-robustness-study.md)): the same surface re-triangulated (legacy vertex metrics change, v2 metrics do not) and controlled noise, local bumps and missing surface of increasing intensity, compared without ICP. The first run on the sample GT, with its limitations (one GT, no LPIPS), is in [docs/results/robustness](docs/results/robustness/README.md).
+
+```bash
+python scripts/robustness_study.py --gt data/samples/gt.stl --out output/robustness --views 8 [--lpips]
+```
 
 ## Example results
 
@@ -261,7 +271,8 @@ The geometric pipeline (`src/meshcomparison/geometry/`) uses the shared preparat
 Main outputs (relative to the output folder; the committed sample run is in `examples/output/`):
 
 - `output/metrics/metrics_geometry.csv`: pre/post-alignment MSE, mean Chamfer distance, symmetric Hausdorff distance, symmetric RMSE, alignment status, and transform metadata. Distance metrics are reported both normalized and in the original ground-truth units.
-- `output/metrics/metrics_geometry_v2.csv`: [evaluation-v2](#user-content-evaluation-protocol-v2) Chamfer, HD95, precision/recall/F-score per tolerance, one row per region (`all`, and `visible`/`hidden` when an input view is set), plus sampling seeds, input view and ICP scale factor.
+- `output/metrics/metrics_geometry_v2.csv`: [evaluation-v2](#user-content-evaluation-protocol-v2) Chamfer, HD95, precision/recall/F-score per tolerance, one row per region (`all`, and `visible`/`hidden` when an input view is set), plus sampling seeds, input view, ICP scale factor, normal consistency and AUC-F.
+- `output/metrics/fscore_curve_v2.csv`: F(τ), precision and recall per region for τ = 0.5 %–10 % of the GT diagonal.
 - `output/aligned/rm_aligned.ply`: aligned reconstructed mesh, exported in the input ground-truth scale.
 - `output/renders/gt_ortho.png` and `output/renders/rm_aligned_ortho.png`: orthographic renders.
 - `output/heatmaps/gt_heatmap_ortho.png`: rendered distance heatmap; `gt_heatmap_colored.ply` is the colored mesh used to create it.
@@ -298,7 +309,7 @@ The [documentation index](docs/README.md) describes the package structure; the [
 
 This project adopts an **Agent Harness** to guide AI-assisted development while safeguarding scientific integrity, methodological consistency, and reproducibility.
 
-Codex, Claude Code and other coding agents follow repository-level instructions defined in [AGENTS.md](AGENTS.md), with the [Scientific Contracts (CC-01–CC-17)](docs/harness/CONTRATOS-CIENTIFICOS.md) serving as the mandatory methodological reference.
+Codex, Claude Code and other coding agents follow repository-level instructions defined in [AGENTS.md](AGENTS.md), with the [Scientific Contracts (CC-01–CC-18)](docs/harness/CONTRATOS-CIENTIFICOS.md) serving as the mandatory methodological reference.
 
 The harness establishes safeguards against unintended changes to geometric and perceptual metrics, alignment procedures, rendering parameters, and evaluation outputs. Methodological changes require explicit review and scientific validation. These safeguards support scientific validity but do not independently establish it; numerical equivalence and regression testing remain necessary.
 

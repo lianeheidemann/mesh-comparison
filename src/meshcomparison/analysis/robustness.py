@@ -1,0 +1,151 @@
+# Controlled mesh perturbations and metric evaluation for the invariance/sensitivity study (ADR 0002).
+"""
+Metric-validation study, not part of the GUI pipelines.
+
+Perturbations are applied to a GT that is already normalized (bounding-box diagonal 1, as in CC-02), so every
+intensity is a fraction of the GT diagonal. Pairs are compared **without ICP**: the study isolates how each metric
+responds to a known change, not how registration behaves. All randomness uses fixed seeds.
+"""
+import numpy as np
+import trimesh
+
+from ..geometry.metrics import compute_metrics
+from ..geometry.metrics_v2 import N_SAMPLES, SEED_GT, SEED_RM, TAUS, compute_metrics_v2, sample_surface, tau_key
+from ..perceptual.image_metrics import (
+    crop_to_union_mask, masked_lpips, masked_psnr, masked_psnr_standard, masked_ssim, summarize_stats,
+)
+
+
+def normalized(mesh):
+    """Copy of ``mesh`` scaled so its bounding-box diagonal is 1 (the scale used by the pipelines)."""
+    out = mesh.copy()
+    out.apply_scale(1.0 / np.linalg.norm(out.bounds[1] - out.bounds[0]))
+    return out
+
+
+def _mesh(vertices, faces):
+    return trimesh.Trimesh(vertices=vertices, faces=faces, process=False)
+
+
+def subdivide(mesh, iterations=1, face_mask=None):
+    """Midpoint subdivision: the surface is unchanged, only the triangulation gets finer. With ``face_mask`` only
+    those faces are subdivided at each iteration (uneven vertex density over the same surface)."""
+    vertices, faces = np.asarray(mesh.vertices), np.asarray(mesh.faces)
+    for _ in range(iterations):
+        index = None
+        if face_mask is not None:
+            centroids = vertices[faces].mean(axis=1)
+            index = np.flatnonzero(face_mask(centroids))
+        vertices, faces = trimesh.remesh.subdivide(vertices, faces, face_index=index)
+    return _mesh(vertices, faces)
+
+
+def densify(mesh, min_vertices):
+    """Subdivide until the mesh has at least ``min_vertices`` vertices (so local perturbations are resolved)."""
+    while len(mesh.vertices) < min_vertices:
+        mesh = subdivide(mesh)
+    return mesh
+
+
+def half_subdivided(mesh, iterations=2):
+    """Same surface, with the half of the faces on the low-x side subdivided ``iterations`` times."""
+    middle = float(np.median(np.asarray(mesh.vertices)[:, 0]))
+    return subdivide(mesh, iterations, face_mask=lambda c: c[:, 0] < middle)
+
+
+def permute_vertices(mesh, seed=0):
+    """Same mesh with the vertex order shuffled (faces re-indexed, face order kept)."""
+    order = np.random.default_rng(seed).permutation(len(mesh.vertices))
+    inverse = np.empty_like(order)
+    inverse[order] = np.arange(len(order))
+    return _mesh(np.asarray(mesh.vertices)[order], inverse[np.asarray(mesh.faces)])
+
+
+def _vertex_normals(mesh):
+    return np.asarray(_mesh(mesh.vertices, mesh.faces).vertex_normals)
+
+
+def normal_noise(mesh, sigma, seed=0):
+    """Each vertex moved along its normal by a Gaussian amount of standard deviation ``sigma``."""
+    offsets = np.random.default_rng(seed).normal(0.0, sigma, len(mesh.vertices))
+    return _mesh(np.asarray(mesh.vertices) + offsets[:, None] * _vertex_normals(mesh), mesh.faces)
+
+
+def _anchor(mesh):
+    """Fixed reference point on the surface: the vertex with the largest x (ties broken by index)."""
+    return np.asarray(mesh.vertices)[int(np.argmax(np.asarray(mesh.vertices)[:, 0]))]
+
+
+def local_bump(mesh, amplitude, radius=0.1):
+    """Gaussian bump of height ``amplitude`` along the vertex normals, centred on the anchor vertex."""
+    vertices = np.asarray(mesh.vertices)
+    weight = np.exp(-np.sum((vertices - _anchor(mesh)) ** 2, axis=1) / (2.0 * radius ** 2))
+    return _mesh(vertices + amplitude * weight[:, None] * _vertex_normals(mesh), mesh.faces)
+
+
+def remove_region(mesh, fraction):
+    """Remove the faces closest to the anchor until ``fraction`` of the surface area is gone (incompleteness)."""
+    if fraction <= 0:
+        return mesh.copy()
+    faces = np.asarray(mesh.faces)
+    centroids = np.asarray(mesh.vertices)[faces].mean(axis=1)
+    order = np.argsort(np.linalg.norm(centroids - _anchor(mesh), axis=1), kind="stable")
+    area = np.asarray(mesh.area_faces)[order]
+    removed = order[np.cumsum(area) <= fraction * area.sum()]
+    keep = np.ones(len(faces), dtype=bool)
+    keep[removed] = False
+    out = _mesh(mesh.vertices, faces[keep])
+    out.remove_unreferenced_vertices()
+    return out
+
+
+PERTURBATIONS = {  # name -> (function(mesh, intensity), intensities, unit)
+    "normal_noise": (normal_noise, (0.0, 0.0025, 0.005, 0.01, 0.02), "sigma (fraction of GT diagonal)"),
+    "local_bump": (local_bump, (0.0, 0.01, 0.025, 0.05, 0.1), "bump height (fraction of GT diagonal)"),
+    "remove_region": (remove_region, (0.0, 0.05, 0.1, 0.2, 0.3), "fraction of the GT surface removed"),
+}
+
+
+def geometric_metrics(gt, rm, n_samples=N_SAMPLES):
+    """Legacy vertex metrics and evaluation-v2 surface metrics of ``rm`` against ``gt`` (no ICP)."""
+    legacy = compute_metrics(np.asarray(gt.vertices), np.asarray(rm.vertices))
+    gt_points, gt_normals = sample_surface(gt, n_samples, SEED_GT, return_normals=True)
+    rm_points, rm_normals = sample_surface(rm, n_samples, SEED_RM, return_normals=True)
+    v2 = compute_metrics_v2(gt_points, rm_points, TAUS, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
+    row = {
+        "legacy_chamfer": legacy["chamfer_mean"],
+        "legacy_hausdorff": legacy["hausdorff"],
+        "legacy_rmse": legacy["rmse"],
+        "v2_chamfer": v2["chamfer_mean"],
+        "v2_hd95": v2["hd95"],
+    }
+    for tau in TAUS:
+        row[f"v2_fscore_{tau_key(tau)}"] = v2[f"fscore_{tau_key(tau)}"]
+    row["v2_fscore_auc"] = v2["fscore_auc"]
+    row["v2_normal_consistency"] = v2["normal_consistency"]
+    return row
+
+
+def perceptual_metrics(gt, rm, num_views=8, width=320, height=240, elevation_deg=25.264, lpips_model=None,
+                       device="cpu"):
+    """Mean over finite values (CC-11) of PSNR legacy/standard, SSIM and LPIPS (NaN without a model) over
+    ``num_views`` views, with the cameras, masks and crops of the perceptual pipeline."""
+    from ..perceptual.cameras import make_view_renderer
+    from ..perceptual.pipeline import _render_view, _scene_framing
+
+    azimuths = np.linspace(0.0, 360.0, num_views, endpoint=False)
+    center, diag = _scene_framing([gt, rm])
+    values = {"psnr": [], "psnr_standard": [], "ssim": [], "lpips": []}
+    with make_view_renderer(gt, rm, width=width, height=height) as renderer:
+        for azimuth in azimuths:
+            view = _render_view(renderer, gt, rm, azimuth, center, diag, elevation_deg, 1.45, 1.05)
+            gt_crop, rm_crop, _, _, union = crop_to_union_mask(
+                view["gt_img"], view["rm_img"], view["gt_mask"], view["rm_mask"], pad=12)
+            gt_masked = gt_crop * union[..., None].astype(np.float32)
+            rm_masked = rm_crop * union[..., None].astype(np.float32)
+            values["psnr"].append(masked_psnr(gt_crop, rm_crop, union))
+            values["psnr_standard"].append(masked_psnr_standard(gt_crop, rm_crop, union))
+            values["ssim"].append(masked_ssim(gt_masked, rm_masked))
+            values["lpips"].append(
+                masked_lpips(lpips_model, gt_masked, rm_masked, device) if lpips_model is not None else np.nan)
+    return {f"perceptual_{name}": summarize_stats(v)["mean"] for name, v in values.items()}

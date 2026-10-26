@@ -1,0 +1,2 @@
+gt_file,base_vertices,n_samples,seed_gt,seed_rm,perceptual_views,lpips,icp,python,numpy,platform
+data/samples/gt.stl,43560,100000,0,1,8,False,False,3.13.17,2.5.4,Linux-6.18.44-fc-v153-x86_64-with-glibc2.39

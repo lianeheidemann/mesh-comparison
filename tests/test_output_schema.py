@@ -28,6 +28,7 @@ GEOMETRY_V2_COLUMNS = [  # evaluation-v2 (ADR 0001), a separate file next to the
     "protocol", "region", "gt_surface_fraction", "chamfer_mean_normalized", "chamfer_mean_gt_units",
     "hd95_normalized", "hd95_gt_units", *TAU_COLUMNS, "n_samples", "seed_gt", "seed_rm", "input_azimuth_deg",
     "input_elevation_deg", "alignment_triggered", "icp_scale", "gt_bbox_diagonal_original_units",
+    "normal_consistency", "fscore_auc",  # ADR 0002
 ]
 
 
@@ -37,12 +38,15 @@ def test_geometric_outputs_match_the_original_schema(tmp_path):
     _run(cfg)
 
     # the original geometric CSV keeps its exact schema; evaluation-v2 writes its own file
-    names = ["metrics_geometry.csv", "metrics_geometry_v2.csv"]
+    names = ["fscore_curve_v2.csv", "metrics_geometry.csv", "metrics_geometry_v2.csv"]
     assert sorted(p.name for p in (tmp_path / "metrics").iterdir()) == names
     assert _columns(tmp_path / "metrics" / "metrics_geometry.csv") == _columns(ORIGINAL / "metrics_geometry.csv")
     v2 = pd.read_csv(tmp_path / "metrics" / "metrics_geometry_v2.csv")
     assert list(v2.columns) == GEOMETRY_V2_COLUMNS
     assert v2["region"].tolist() == ["all"]  # no input view: whole surface only
+    curve = pd.read_csv(tmp_path / "metrics" / "fscore_curve_v2.csv")
+    assert list(curve.columns) == ["protocol", "region", "tau_normalized", "precision", "recall", "fscore"]
+    assert len(curve) == 20 and curve["fscore"].is_monotonic_increasing
 
 
 def test_geometric_v2_regions_with_input_view(tmp_path):

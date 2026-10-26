@@ -82,12 +82,12 @@ def _metrics_row(gt_path, rm_path, prepared, post_mse_norm, metrics, mse_thresho
 
 def _compute_v2(prepared, input_azimuth_deg, input_elevation_deg):
     """evaluation-v2 metrics on surface samples of the normalized GT and aligned RM (regions need the input view)."""
-    gt_points = sample_surface(prepared.gt, N_SAMPLES, SEED_GT)
-    rm_points = sample_surface(prepared.rm_aligned, N_SAMPLES, SEED_RM)
+    gt_points, gt_normals = sample_surface(prepared.gt, N_SAMPLES, SEED_GT, return_normals=True)
+    rm_points, rm_normals = sample_surface(prepared.rm_aligned, N_SAMPLES, SEED_RM, return_normals=True)
     gt_visible = None
     if input_azimuth_deg is not None and input_elevation_deg is not None:
         gt_visible = gt_visibility(prepared.gt, gt_points, input_azimuth_deg, input_elevation_deg)
-    return compute_metrics_v2(gt_points, rm_points, TAUS, gt_visible)
+    return compute_metrics_v2(gt_points, rm_points, TAUS, gt_visible, gt_normals, rm_normals)
 
 
 def _v2_rows(prepared, results, input_azimuth_deg, input_elevation_deg):
@@ -121,8 +121,23 @@ def _v2_rows(prepared, results, input_azimuth_deg, input_elevation_deg):
             "alignment_triggered": prepared.alignment_triggered,
             "icp_scale": icp_scale(prepared.final_transform),
             "gt_bbox_diagonal_original_units": diag,
+            # added after the first evaluation-v2 columns (ADR 0002)
+            "normal_consistency": m["normal_consistency"],
+            "fscore_auc": m["fscore_auc"],
         })
         rows.append(row)
+    return rows
+
+
+def _curve_rows(results):
+    """Long-format F(tau) curve per region for ``fscore_curve_v2.csv`` (tau as a fraction of the GT diagonal)."""
+    rows = []
+    for region in REGIONS:
+        if region not in results:
+            continue
+        for tau, precision, recall, fscore in zip(*results[region]["curve"]):
+            rows.append({"protocol": PROTOCOL, "region": region, "tau_normalized": tau,
+                         "precision": precision, "recall": recall, "fscore": fscore})
     return rows
 
 
@@ -158,6 +173,8 @@ def run_pipeline(gt_path, rm_path, out_dir,
     v2_csv_path = os.path.join(paths["metrics"], "metrics_geometry_v2.csv")
     pd.DataFrame(_v2_rows(prepared, v2_results, input_azimuth_deg, input_elevation_deg)).to_csv(
         v2_csv_path, index=False)
+    curve_csv_path = os.path.join(paths["metrics"], "fscore_curve_v2.csv")
+    pd.DataFrame(_curve_rows(v2_results)).to_csv(curve_csv_path, index=False)
 
     print("\nDone.")
     print(f"GT render:        {files['gt_render']}")
@@ -167,3 +184,4 @@ def run_pipeline(gt_path, rm_path, out_dir,
     print(f"Aligned RM mesh:  {aligned_path}")
     print(f"Metrics CSV:      {csv_path}")
     print(f"Metrics v2 CSV:   {v2_csv_path}")
+    print(f"F(tau) curve CSV: {curve_csv_path}")

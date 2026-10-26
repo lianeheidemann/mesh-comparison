@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Adds an AI-Agent trailer to commits made from Claude Code when the message has none.
+# Other agents (e.g., Codex) must add the trailer themselves; see AGENTS.md.
+set -euo pipefail
+msg_file="$1"
+
+[[ "${CLAUDECODE:-}" == "1" ]] || exit 0
+grep -qi '^AI-Agent:' "$msg_file" && exit 0
+
+version=$(claude --version 2>/dev/null | awk '{print $1}')
+version=${version:-${CLAUDE_CODE_VERSION:-unknown}}
+model=${ANTHROPIC_MODEL:-unknown}
+
+git interpret-trailers --in-place --if-exists addIfDifferent \
+  --trailer "AI-Agent: Claude Code ${version}; model: ${model}" "$msg_file"

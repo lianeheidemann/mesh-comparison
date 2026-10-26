@@ -1,0 +1,59 @@
+name: AI usage report
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    name: AI usage report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Summarizes AI-Agent trailers (see AGENTS.md) and AI Co-Authored-By trailers
+      # across the full history, for the manuscript's AI-use disclosure.
+      - name: Build report
+        shell: bash
+        run: |
+          total=$(git rev-list --count HEAD)
+          {
+            echo "# AI usage report"
+            echo
+            echo "Commit \`$(git rev-parse --short HEAD)\`, ${total} commits in history."
+            echo
+            echo "## AI-Agent trailers"
+            echo
+            echo "| Commits | Agent and model |"
+            echo "|---:|---|"
+            git log --format='%(trailers:key=AI-Agent,valueonly)' | sed '/^$/d' | sort | uniq -c | sort -rn \
+              | awk '{n=$1; $1=""; sub(/^ /,""); printf "| %s | %s |\n", n, $0}'
+            echo
+            echo "## AI Co-Authored-By trailers"
+            echo
+            echo "| Commits | Co-author |"
+            echo "|---:|---|"
+            git log --format='%(trailers:key=Co-Authored-By,valueonly)' | grep -iE 'claude|codex|openai|anthropic|copilot|gpt' \
+              | sort | uniq -c | sort -rn \
+              | awk '{n=$1; $1=""; sub(/^ /,""); printf "| %s | %s |\n", n, $0}' || true
+            echo
+            echo "## Commits authored by an AI agent"
+            echo
+            echo "| Commits | Author |"
+            echo "|---:|---|"
+            git log --format='%an <%ae>' | grep -iE 'claude|codex|openai|anthropic|copilot|gpt' \
+              | sort | uniq -c | sort -rn \
+              | awk '{n=$1; $1=""; sub(/^ /,""); printf "| %s | %s |\n", n, $0}' || true
+          } > AI-USAGE.md
+          cat AI-USAGE.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-usage
+          path: AI-USAGE.md

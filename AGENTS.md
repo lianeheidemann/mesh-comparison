@@ -42,6 +42,19 @@ The contracts CC-01 through CC-13 cover loading, normalization, nearest-vertex m
 - Summarize changed files, scientific-contract impact, test commands/results, limitations and any follow-up work.
 - Do not claim complete scientific validation solely from CSV-schema tests, code inspection or successful rendering.
 
+## AI provenance in commits
+
+The companion manuscript discloses AI-assisted development of this software, so every commit made by an AI agent must record it.
+
+- Before the first commit in a clone, run `git config core.hooksPath .githooks`. The `commit-msg` hook adds the trailer automatically for Claude Code (detected via `CLAUDECODE=1`); other agents must write it themselves.
+- End each agent commit message with one trailer per agent, using the real tool version and model:
+  ```
+  AI-Agent: <tool> <tool version>; model: <model>; reasoning: <level>
+  ```
+  Write `unknown` for any value you cannot determine, or when the model is already named in a `Co-Authored-By` trailer. Never guess a version or model.
+- Keep existing `Co-Authored-By` trailers. Do not squash or rewrite commits in a way that drops these trailers.
+- Summary: `git log --format='%(trailers:key=AI-Agent,valueonly)' | sort | uniq -c`, or the `AI usage report` workflow (runs on every push to `main`).
+
 ## Changes requiring explicit human approval
 
 Before changing any methodology covered by CC-01–CC-13 — e.g., using point-to-surface distances, altering ICP scaling, switching PSNR definitions, modifying view/mask semantics or metric aggregation — **stop and request approval**. Propose a versioned alternative, an Architecture Decision Record (ADR), regression/baseline comparisons, migration/compatibility considerations and documentation updates. Never overwrite legacy metrics under the same name while changing their meaning.

@@ -1,21 +1,12 @@
-# Tests of the ground-truth mesh checks and of the manifest validation of scripts/check_gt.py.
-import importlib.util
-from pathlib import Path
+# Tests of the ground-truth mesh checks and of the manifest validation (meshcomparison.cli.check_gt).
 
 import pandas as pd
 import pytest
 import trimesh
 
 from meshcomparison.analysis.gt_check import assess, check_file, measure
-
-ROOT = Path(__file__).resolve().parents[1]
-
-
-def _script():
-    spec = importlib.util.spec_from_file_location("check_gt", ROOT / "scripts" / "check_gt.py")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+from meshcomparison.cli import check_gt
+from meshcomparison.datasets.manifest import MANIFEST_COLUMNS
 
 
 @pytest.fixture(scope="module")
@@ -69,7 +60,6 @@ def test_unreadable_and_unsupported_files_fail(meshes, tmp_path):
 
 
 def test_manifest_flags_missing_fields_files_and_training_cutoff(meshes, tmp_path):
-    script = _script()
     rows = [
         {"object_id": "a", "file": str(meshes / "clean.stl"), "source": "own scan", "license": "CC0",
          "published_date": "2026-09-01"},
@@ -77,12 +67,12 @@ def test_manifest_flags_missing_fields_files_and_training_cutoff(meshes, tmp_pat
          "published_date": "2023-01-01"},
         {"object_id": "c", "file": "missing.stl", "source": "x", "license": "CC-BY-4.0", "published_date": ""},
     ]
-    manifest = pd.DataFrame(rows).reindex(columns=script.MANIFEST_COLUMNS)
+    manifest = pd.DataFrame(rows).reindex(columns=MANIFEST_COLUMNS)
     manifest_path = tmp_path / "manifest.csv"
     manifest.to_csv(manifest_path, index=False)
     out = tmp_path / "report.csv"
 
-    assert script.main(["--manifest", str(manifest_path), "--cutoff", "2025-06-01", "--out", str(out)]) == 1
+    assert check_gt.main(["--manifest", str(manifest_path), "--cutoff", "2025-06-01", "--out", str(out)]) == 1
     report = pd.read_csv(out).set_index("file")
     clean = report.loc[str(meshes / "clean.stl")]
     assert clean["status"] == "OK"

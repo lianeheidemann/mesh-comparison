@@ -126,6 +126,8 @@ python -m pip install -e . --no-deps
 
 Reference versions are listed in [requirements-windows-cu128.txt](environments/requirements-windows-cu128.txt).
 
+The installation also provides the command-line tools as `mesh-check-gt`, `mesh-fetch-gso`, `mesh-plot-metrics`, `mesh-robustness-study` and `mesh-icp-study`; each is equivalent to the `python scripts/<name>.py` commands below.
+
 ## Usage
 
 ### Desktop interface

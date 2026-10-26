@@ -225,3 +225,37 @@ def icp_recovery(gt, applied, mse_threshold=1e-4, n_samples=N_SAMPLES):
         "hd95": m["hd95"],
         "fscore_tau1pct": m["fscore_tau1pct"],
     }
+
+
+# Study steps (scripts: meshcomparison.cli.robustness_study)
+DENSE_VERTICES = 20_000  # minimum vertex count of the base mesh used for the perturbations
+
+
+def invariance_rows(gt):
+    """Metrics of ``gt`` against re-triangulations of the same surface (all should match the identical copy)."""
+    variants = {
+        "identical copy": gt.copy(),
+        "vertex order permuted": permute_vertices(gt, seed=0),
+        "subdivided x1": subdivide(gt, 1),
+        "subdivided x2": subdivide(gt, 2),
+        "half subdivided x2 (uneven density)": half_subdivided(gt, 2),
+    }
+    rows = []
+    for name, variant in variants.items():
+        print(f"    invariance: {name} ({len(variant.vertices)} vertices)")
+        rows.append({"variant": name, "rm_vertices": len(variant.vertices), **geometric_metrics(gt, variant)})
+    return rows
+
+
+def sensitivity_rows(base, views, lpips_model, device):
+    """Metrics of ``base`` against each perturbation and intensity (perceptual ones when ``views`` > 0)."""
+    rows = []
+    for name, (perturb, intensities, unit) in PERTURBATIONS.items():
+        for intensity in intensities:
+            print(f"    sensitivity: {name} = {intensity}")
+            rm = perturb(base, intensity)
+            row = {"perturbation": name, "intensity": intensity, "unit": unit, **geometric_metrics(base, rm)}
+            if views > 0:
+                row.update(perceptual_metrics(base, rm, num_views=views, lpips_model=lpips_model, device=device))
+            rows.append(row)
+    return rows

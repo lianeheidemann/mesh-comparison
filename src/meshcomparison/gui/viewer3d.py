@@ -1,11 +1,13 @@
 """Interactive 3D view (PyVista embedded in Qt) of the GT, the aligned RM and the deviation heatmap."""
 import numpy as np
 import pyvista as pv
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QCheckBox, QFrame, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget,
-)
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 from pyvistaqt import QtInteractor
+
+from .view_geometry import (
+    combined_bounds, constrained_camera_position, floor_plane, placeholder_camera_bounds, view_direction,
+)
+from .viewer_toolbar import ViewerToolbar
 
 
 GT_COLOR = "#b8bec6"
@@ -60,47 +62,18 @@ class MeshViewer(QWidget):
         self._camera_observer = self.plotter.iren.add_observer(
             "InteractionEvent", self._constrain_camera_elevation)
 
-        self._checks = {}
-        toolbar = QFrame()
-        toolbar.setObjectName("viewerToolbar")
-        controls = QHBoxLayout(toolbar)
-        controls.setContentsMargins(10, 8, 10, 8)
-        controls.setSpacing(10)
-        for key, label in self.LAYERS:
-            box = QCheckBox(label)
-            box.setEnabled(False)
+        toolbar = ViewerToolbar(self.LAYERS)
+        self._checks = toolbar.checks
+        for key, box in self._checks.items():
             box.toggled.connect(lambda checked, k=key: self._set_visible(k, checked))
-            self._checks[key] = box
-            controls.addWidget(box)
-
-        controls.addSpacing(12)
-        controls.addWidget(QLabel("RM opacity"))
-        self.opacity = QSlider(Qt.Orientation.Horizontal)
-        self.opacity.setRange(10, 100)
-        self.opacity.setValue(100)
-        self.opacity.setFixedWidth(110)
+        self.opacity = toolbar.opacity
         self.opacity.valueChanged.connect(self._on_opacity)
-        controls.addWidget(self.opacity)
-
-        self.edges = QCheckBox("Edges")
+        self.edges = toolbar.edges
         self.edges.toggled.connect(self._on_edges)
-        controls.addWidget(self.edges)
-
-        self.exact_palette = QCheckBox("Exact palette")
-        self.exact_palette.setToolTip(
-            "Show the heatmap with the true RdYlGn_r colours of the legend, "
-            "instead of the brighter look of the pipeline's PNG.")
-        self.exact_palette.setEnabled(False)
+        self.exact_palette = toolbar.exact_palette
         self.exact_palette.toggled.connect(self._on_palette_toggled)
-        controls.addWidget(self.exact_palette)
-
-        reset = QPushButton("Reset view")
-        reset.clicked.connect(self.reset_view)
-        controls.addWidget(reset)
-        shot = QPushButton("Save image…")
-        shot.clicked.connect(self._save_screenshot)
-        controls.addWidget(shot)
-        controls.addStretch(1)
+        toolbar.reset_button.clicked.connect(self.reset_view)
+        toolbar.screenshot_button.clicked.connect(self._save_screenshot)
 
         self.status = QLabel("Select the GT and RM files to preview them here.")
         self.status.setObjectName("hint")
@@ -115,9 +88,7 @@ class MeshViewer(QWidget):
 
     def reset_view(self):
         """Frame the meshes from the same direction as the evaluation renders (z-up, az -135°, el 25.264°)."""
-        az, el = np.deg2rad(DEFAULT_AZIMUTH), np.deg2rad(DEFAULT_ELEVATION)
-        direction = (np.cos(el) * np.cos(az), np.cos(el) * np.sin(az), np.sin(el))
-        self.plotter.view_vector(direction, viewup=(0.0, 0.0, 1.0))
+        self.plotter.view_vector(view_direction(DEFAULT_AZIMUTH, DEFAULT_ELEVATION), viewup=(0.0, 0.0, 1.0))
         bounds = self._camera_bounds()
         if bounds is not None:
             self.plotter.reset_camera(bounds=bounds)
@@ -125,23 +96,10 @@ class MeshViewer(QWidget):
     def _constrain_camera_elevation(self, _interactor, _event):
         """Keep the camera above the ground plane and prevent it from rolling over."""
         camera = self.plotter.camera
-        position = np.asarray(camera.position, dtype=float)
-        focal_point = np.asarray(camera.focal_point, dtype=float)
-        offset = position - focal_point
-        distance = float(np.linalg.norm(offset))
-        if distance <= 1e-9:
+        position = constrained_camera_position(camera.position, camera.focal_point)
+        if position is None:
             return
-
-        direction = offset / distance
-        azimuth = float(np.arctan2(direction[1], direction[0]))
-        elevation = float(np.arcsin(np.clip(direction[2], -1.0, 1.0)))
-        elevation = float(np.clip(elevation, np.deg2rad(8), np.deg2rad(78)))
-        horizontal = np.cos(elevation)
-        camera.position = (
-            focal_point[0] + distance * horizontal * np.cos(azimuth),
-            focal_point[1] + distance * horizontal * np.sin(azimuth),
-            focal_point[2] + distance * np.sin(elevation),
-        )
+        camera.position = position
         camera.up = (0.0, 0.0, 1.0)
         camera.OrthogonalizeViewUp()
 
@@ -267,18 +225,9 @@ class MeshViewer(QWidget):
         bounds = self._scene_bounds()
         if bounds is None:
             return
-        xmin, xmax, ymin, ymax, zmin, zmax = bounds
-        diagonal = max(float(np.linalg.norm((xmax - xmin, ymax - ymin, zmax - zmin))), 1e-3)
-        grid_size = max(diagonal * 4.0, 3.0)
-        resolution = max(24, min(80, int(grid_size / max(diagonal * 0.16, 1e-3))))
-        plane = pv.Plane(
-            center=((xmin + xmax) / 2, (ymin + ymax) / 2, zmin - diagonal * 0.01),
-            direction=(0.0, 0.0, 1.0),
-            i_size=grid_size,
-            j_size=grid_size,
-            i_resolution=resolution,
-            j_resolution=resolution,
-        )
+        center, size, resolution = floor_plane(bounds)
+        plane = pv.Plane(center=center, direction=(0.0, 0.0, 1.0), i_size=size, j_size=size,
+                         i_resolution=resolution, j_resolution=resolution)
         self._floor_actor = self.plotter.add_mesh(
             plane,
             color=VIEW_BACKGROUND,
@@ -293,28 +242,13 @@ class MeshViewer(QWidget):
         meshes = list(self._polys.values())
         if not meshes and self._placeholder_poly is not None:
             meshes.append(self._placeholder_poly)
-        if not meshes:
-            return None
-        bounds = np.asarray([mesh.bounds for mesh in meshes], dtype=float)
-        return (
-            float(bounds[:, 0].min()), float(bounds[:, 1].max()),
-            float(bounds[:, 2].min()), float(bounds[:, 3].max()),
-            float(bounds[:, 4].min()), float(bounds[:, 5].max()),
-        )
+        return combined_bounds([mesh.bounds for mesh in meshes])
 
     def _camera_bounds(self):
         bounds = self._scene_bounds()
         if bounds is None or self._actors or self._placeholder_poly is None:
             return bounds
-        xmin, xmax, ymin, ymax, zmin, zmax = bounds
-        diagonal = float(np.linalg.norm((xmax - xmin, ymax - ymin, zmax - zmin)))
-        half_extent = max(diagonal, 0.75)
-        center_x, center_y = (xmin + xmax) / 2, (ymin + ymax) / 2
-        return (
-            center_x - half_extent, center_x + half_extent,
-            center_y - half_extent, center_y + half_extent,
-            zmin, zmax,
-        )
+        return placeholder_camera_bounds(bounds)
 
     def show_run_result(self, gt_mesh, rm_mesh, heatmap_mesh, heatmap_scale, heatmap_vmax=None):
         """Switch to the post-run view: aligned RM over GT, plus the heatmap (shown instead of the plain GT).

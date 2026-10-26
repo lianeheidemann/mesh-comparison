@@ -131,3 +131,38 @@ def plot_icp_recovery(sweep, path, success_chamfer=0.01):
         ax.legend(fontsize=8)
     fig.suptitle("Similarity ICP: recovery of a known rotation (scale and translation also applied)", fontsize=10)
     return _save(fig, path)
+
+
+SENSITIVITY_PANELS = (  # (title, [(column, label)])
+    ("Distances (lower is better)", [("vertex_chamfer", "Chamfer, vertex baseline"), ("chamfer", "Chamfer"),
+                                     ("vertex_hausdorff", "Hausdorff, vertex baseline"), ("hd95", "HD95")]),
+    ("Scores (higher is better)", [("fscore_tau1pct", "F@1%"), ("fscore_tau2pct", "F@2%"),
+                                   ("fscore_auc", "AUC-F"), ("normal_consistency", "Normal consistency")]),
+    ("Perceptual", [("perceptual_psnr", "PSNR (dB)"), ("perceptual_ssim", "SSIM"),
+                    ("perceptual_lpips", "LPIPS")]),
+)
+
+
+def plot_sensitivity(df, path):
+    """One row of panels per perturbation (in the order of ``df``): each metric against the intensity."""
+    panels = [p for p in SENSITIVITY_PANELS if any(c in df and df[c].notna().any() for c, _ in p[1])]
+    names = list(df["perturbation"].unique())
+    fig, axes = plt.subplots(len(names), len(panels), figsize=(4.2 * len(panels), 3.0 * len(names)), squeeze=False)
+    for r, name in enumerate(names):
+        sub = df[df["perturbation"] == name]
+        for c, (title, series) in enumerate(panels):
+            ax = axes[r, c]
+            twin = None
+            for k, (column, label) in enumerate(series):
+                if column in sub and sub[column].notna().any():
+                    target = ax
+                    if "(dB)" not in label and any("(dB)" in other for _, other in series):
+                        twin = twin or ax.twinx()  # unitless scores next to a dB curve get their own axis
+                        target = twin
+                    target.plot(sub["intensity"], sub[column], marker="o", label=label, color=f"C{k}")
+            ax.set_xlabel(sub["unit"].iloc[0], fontsize=8)
+            ax.set_title(f"{name}: {title}", fontsize=9)
+            ax.grid(alpha=0.3)
+            handles = [h for a in (ax, twin) if a is not None for h in a.get_legend_handles_labels()[0]]
+            ax.legend(handles=handles, fontsize=7)
+    return _save(fig, path)

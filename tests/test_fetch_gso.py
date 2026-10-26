@@ -1,5 +1,4 @@
-# Tests of scripts/fetch_gso.py against an in-memory stand-in for Gazebo Fuel (no network access).
-import importlib.util
+# Tests of the GSO download (meshcomparison.datasets.gso) against an in-memory stand-in for Gazebo Fuel.
 import io
 import json
 import urllib.error
@@ -10,10 +9,11 @@ import pandas as pd
 import pytest
 import trimesh
 
+from meshcomparison.cli import fetch_gso as fetch_gso_cli
+from meshcomparison.datasets import gso as fetch_gso
+from meshcomparison.datasets.manifest import MANIFEST_COLUMNS, manifest_issues
+
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("fetch_gso", ROOT / "scripts" / "fetch_gso.py")
-fetch_gso = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(fetch_gso)
 
 
 def _gso_zip():
@@ -68,16 +68,12 @@ def test_download_copies_the_texture_next_to_the_mtl(tmp_path):
     assert (tmp_path / "A" / "meshes" / "texture.png").read_bytes() == b"png"
 
 
-def test_manifest_is_accepted_by_check_gt(tmp_path):
+def test_manifest_passes_the_manifest_checks(tmp_path):
     rows, _ = fetch_gso.fetch(_selection(), str(tmp_path), count=2, get=_fake_fuel({"A", "C"}))
     manifest = tmp_path / "manifest.csv"
-    pd.DataFrame(rows, columns=fetch_gso.MANIFEST_COLUMNS).to_csv(manifest, index=False)
+    pd.DataFrame(rows, columns=MANIFEST_COLUMNS).to_csv(manifest, index=False)
 
-    check_spec = importlib.util.spec_from_file_location("check_gt", ROOT / "scripts" / "check_gt.py")
-    check_gt = importlib.util.module_from_spec(check_spec)
-    check_spec.loader.exec_module(check_gt)
-    assert fetch_gso.MANIFEST_COLUMNS == check_gt.MANIFEST_COLUMNS
-    issues = check_gt.manifest_issues(str(manifest))
+    issues = manifest_issues(str(manifest))
     assert len(issues) == 2 and all(found == [] for found in issues.values())
 
 
@@ -96,4 +92,4 @@ def test_unreachable_fuel_stops_instead_of_skipping_everything(tmp_path, monkeyp
 
     with pytest.raises(urllib.error.URLError):  # not reported as missing objects
         fetch_gso.fetch(_selection(), str(tmp_path), count=2)
-    assert fetch_gso.main(["--selection", str(selection), "--out", str(tmp_path / "gso"), "--count", "2"]) == 2
+    assert fetch_gso_cli.main(["--selection", str(selection), "--out", str(tmp_path / "gso"), "--count", "2"]) == 2

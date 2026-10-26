@@ -25,6 +25,13 @@ perceptual = ["scikit-image", "torch", "torchvision", "lpips"]
 gui = ["PySide6", "pyvista", "pyvistaqt"]
 dev = ["pytest", "ruff"]
 
+[project.scripts]
+mesh-check-gt = "meshcomparison.cli.check_gt:main"
+mesh-fetch-gso = "meshcomparison.cli.fetch_gso:main"
+mesh-plot-metrics = "meshcomparison.cli.plot_metrics:main"
+mesh-robustness-study = "meshcomparison.cli.robustness_study:main"
+mesh-icp-study = "meshcomparison.cli.icp_study:main"
+
 [project.gui-scripts]
 mesh-gui = "meshcomparison.gui.app:main"
 

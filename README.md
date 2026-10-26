@@ -41,6 +41,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
 - [Example results](#user-content-example-results)
 - [Installation](#user-content-installation)
 - [Usage](#user-content-usage)
+  - [Ways to run](#user-content-ways-to-run)
   - [Desktop interface](#user-content-desktop-interface)
   - [Metric figures](#user-content-metric-figures)
   - [Validation studies](#user-content-validation-studies)
@@ -138,6 +139,18 @@ Reference versions are listed in [requirements-windows-cu128.txt](environments/r
 The installation also provides the command-line tools as `mesh-check-gt`, `mesh-fetch-gso`, `mesh-plot-metrics`, `mesh-robustness-study` and `mesh-icp-study`; each is equivalent to the `python scripts/<name>.py` commands below.
 
 ## Usage
+
+### Ways to run
+
+First activate the environment from [Installation](#user-content-installation): `conda activate meshEval`, or `.venv\Scripts\Activate.ps1` for the venv (without activating, call `.venv\Scripts\mesh-gui.exe` or `.venv\Scripts\python.exe` directly). To use a checkout's own code, set `PYTHONPATH=src` (the editable install points at the checkout where `pip install -e .` ran).
+
+| Way | Command | When to use |
+| --- | --- | --- |
+| 1. Desktop interface | `mesh-gui` | One GT/RM pair with the 3D view, summaries and figures ([details](#user-content-desktop-interface)) |
+| 2. Pipelines without a window | `python -c "from meshcomparison.geometry.pipeline import run_pipeline as r; r('data/samples/gt.stl', 'data/samples/mod.stl', 'output/run', azimuth_deg=-135, elevation_deg=25.264, input_azimuth_deg=-135, input_elevation_deg=25.264)"` | Scripts and servers. Use `meshcomparison.perceptual.pipeline` for LPIPS/PSNR/SSIM (its `run_pipeline` takes `num_views`, `device`; no input view) |
+| 3. Figures and studies | `python scripts/plot_metrics.py --run output/run`, `scripts/robustness_study.py`, `scripts/icp_study.py` | Regenerate plots from a finished run; validation studies ([figures](#user-content-metric-figures), [studies](#user-content-validation-studies)) |
+
+Ways 1 and 2 write the files listed under [Outputs](#user-content-outputs). Check the compute device with `python -m meshcomparison.common.device`.
 
 ### Desktop interface
 

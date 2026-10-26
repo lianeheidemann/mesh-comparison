@@ -93,7 +93,7 @@ GT meshes come in two sets, reported separately ([GT guide](docs/gt/README.md)):
 | Quantitative | 30–50 [Google Scanned Objects](https://arxiv.org/abs/2204.11918v1) (GSO): real scans of household items and toys, textured, usually outside the models' training data. **Main numbers**, comparable with the literature |
 | Curated | 10–20 hand-picked objects: own scans or models, or published after the models' training cutoff. **Figures and generalization**, reported apart |
 
-The current GSO selection, [`data/gso/selection.csv`](data/gso/selection.csv), holds 20 objects (animals, dinosaurs, figures, vehicles, household items) and 5 alternates. It was chosen by hand before any model was run, alternating smooth bodies with thin parts; the paper must state this criterion. `scripts/fetch_gso.py` downloads it. Avoid Objaverse and other training sets of the evaluated models as GT.
+The current GSO selection, [`data/gso/selection.csv`](data/gso/selection.csv), holds 20 objects (animals, dinosaurs, figures, vehicles, household items) and 4 alternates; one object failed the GT check before any model was run and was replaced by the first alternate. It was chosen by hand before any model was run, alternating smooth bodies with thin parts; the paper must state this criterion. `scripts/fetch_gso.py` downloads it. Avoid Objaverse and other training sets of the evaluated models as GT.
 
 ## Example results
 

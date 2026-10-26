@@ -14,12 +14,12 @@ rank,gso_name,role,category,selection_reason
 13,Nintendo_Yoshi_Action_Figure,primary,figure,character figure with rounded parts
 14,Nintendo_Mario_Action_Figure,primary,figure,character figure with cap and limbs
 15,My_Little_Pony_Princess_Celestia,primary,figure,wings and horn: thin parts on a smooth body
-16,Transformers_Age_of_Extinction_Mega_1Step_Bumblebee_Figure,primary,figure,angular mechanical surfaces
+16,Transformers_Age_of_Extinction_Mega_1Step_Bumblebee_Figure,excluded,figure,"angular mechanical surfaces; excluded after check_gt (6.7% of the surface enclosed: hidden or overlapping faces), replaced by rank 21"
 17,Turboprop_Airplane_with_Pilot,primary,vehicle,wings and propellers: thin parts on a rigid object
 18,SCHOOL_BUS,primary,vehicle,box-like rigid shape: man-made control case
 19,Crosley_Alarm_Clock_Vintage_Metal,primary,household,bells and legs on a round body
 20,Threshold_Porcelain_Teapot_White,primary,household,smooth surface with handle and spout; untextured look
-21,Great_Dinos_Triceratops_Toy,alternate,dinosaur,frill and horns
+21,Great_Dinos_Triceratops_Toy,primary,dinosaur,frill and horns (replaces Transformers_Age_of_Extinction_Mega_1Step_Bumblebee_Figure: check_gt WARN)
 22,Nickelodeon_Teenage_Mutant_Ninja_Turtles_Leonardo,alternate,figure,character figure with shell
 23,Elephant,alternate,animal,trunk and ears
 24,Dino_4,alternate,dinosaur,toy dinosaur

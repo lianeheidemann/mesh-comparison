@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .alignment import similarity_icp_align
-from .distances import symmetric_mse
+from .distances import symmetric_surface_mse
 from .io import load_mesh
 from .sampling import N_SAMPLES, SEED_GT, SEED_RM, sample_surface
 
@@ -43,7 +43,7 @@ def prepare_meshes(gt_path, rm_path, mse_threshold_normalized, total_steps):
     print(f"[3/{total_steps}] Computing pre-alignment MSE...")
     gt_points, gt_normals = sample_surface(gt, N_SAMPLES, SEED_GT, return_normals=True)
     rm_points = sample_surface(rm, N_SAMPLES, SEED_RM)
-    pre_mse_norm = symmetric_mse(gt_points, rm_points)
+    pre_mse_norm = symmetric_surface_mse(gt_points, rm_points, gt, rm)
     alignment_triggered = pre_mse_norm > mse_threshold_normalized
 
     print(f"    Pre-alignment symmetric MSE (normalized): {pre_mse_norm:.8e}")

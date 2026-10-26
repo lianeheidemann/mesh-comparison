@@ -6,7 +6,7 @@ Os testes abaixo existem em `tests/` e rodam no CI. Eles verificam fórmulas, es
 
 | Área | Testes | Limite |
 | --- | --- | --- |
-| Métricas geométricas | [`test_metrics.py`](../../tests/test_metrics.py): amostragem reprodutível e proporcional à área, deslocamentos conhecidos (CD = HD95 = δ, F-score em degrau), HD95 robusto a *outliers*, precisão/cobertura, regiões, escala do ICP, visibilidade de um cubo | Casos sintéticos |
+| Métricas geométricas | [`test_metrics.py`](../../tests/test_metrics.py), [`test_common.py`](../../tests/test_common.py): distância ponto-superfície (face, aresta, vértice), ausência de piso para a mesma superfície, Chamfer independente de N, NC = cos θ, amostragem reprodutível e proporcional à área, deslocamentos conhecidos (CD = HD95 = δ, F-score em degrau), HD95 robusto a *outliers*, precisão/cobertura, regiões, escala do ICP, visibilidade de um cubo | Casos sintéticos |
 | Normal consistency, F(τ), robustez | [`test_robustness.py`](../../tests/test_robustness.py): NC = cos θ em planos inclinados, F(τ) monotônica, AUC em [0,1], invariância à permutação e à re-triangulação, perturbações monotônicas, remoção reduz a cobertura | Uma malha sintética por teste |
 | Gráficos e estimativas | [`test_plots.py`](../../tests/test_plots.py): intervalo bootstrap, dispersão de amostragem, escrita das figuras | Não confere o conteúdo visual |
 | Preparo e alinhamento | [`test_prepare.py`](../../tests/test_prepare.py), [`test_common.py`](../../tests/test_common.py): ICP abaixo/acima do limiar, exportação na escala da GT, MSE, subamostragem, inicialização por caixas | Convergência do ICP não garantida para rotações grandes |
@@ -22,6 +22,5 @@ Os testes abaixo existem em `tests/` e rodam no CI. Eles verificam fórmulas, es
 | Alta | Malhas do benchmark (TripoSR, Stable Fast 3D, InstantMesh): identidade, transformação e escala conhecidas, deformação, incompletude e densidade |
 | Alta | Estudo de robustez nas GTs do benchmark, com LPIPS |
 | Alta | Convenção de eixos e câmera de entrada de cada conjunto de dados; câmera ortográfica × perspectiva |
-| Alta | Viés de amostragem do Chamfer e da normal consistency (ainda caem entre 10⁵ e 3 × 10⁵ amostras): fixar N para comparar modelos, ou avaliar distâncias ponto-superfície |
 | Média | ICP com rotações grandes entre referenciais dos modelos |
 | Média | LPIPS em CUDA × CPU; teste manual ou automatizado da GUI |

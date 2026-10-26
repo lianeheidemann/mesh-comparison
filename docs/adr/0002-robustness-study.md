@@ -8,7 +8,7 @@ O artigo precisa mostrar **por que** as métricas são confiáveis. Os *priors* 
 
 ## Decisão
 
-1. **Normal consistency:** média de |cos| entre a normal de cada amostra e a da amostra mais próxima na outra superfície, nos dois sentidos. As normais vêm das faces sorteadas; o valor absoluto é usado porque malhas reconstruídas não têm orientação confiável. Varia em [0, 1].
+1. **Normal consistency:** média de |cos| entre a normal de cada amostra e a do ponto mais próximo na outra superfície (triângulo mais próximo desde o [ADR 0004](0004-point-to-surface.md)), nos dois sentidos. As normais vêm das faces sorteadas; o valor absoluto é usado porque malhas reconstruídas não têm orientação confiável. Varia em [0, 1].
 2. **Curva F(τ):** τ = 0,5 %, 1,0 %, …, 10 % (20 pontos). A **AUC-F** é a área pelo trapézio dividida pela faixa de τ.
 3. **Estudo de robustez** (`analysis/robustness.py`, `scripts/robustness_study.py`): re-triangulação (permutação e subdivisões), ruído na direção da normal, saliência gaussiana e remoção de área. As comparações são feitas **sem ICP**, com sementes fixas e contra um baseline por vértice.
 
@@ -16,5 +16,5 @@ O artigo precisa mostrar **por que** as métricas são confiáveis. Os *priors* 
 
 ## Consequências
 
-- **Piso da normal consistency:** é menor que 1 em superfícies com arestas vivas e deve ser relatado.
+- **Piso da normal consistency:** com normais da amostra mais próxima, ficava abaixo de 1 em arestas vivas; desde o ADR 0004, é 1 para superfícies idênticas.
 - **Resultados:** [docs/results/robustness](../results/robustness/README.md).

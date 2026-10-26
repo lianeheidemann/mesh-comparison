@@ -124,3 +124,55 @@ def test_visibility_of_a_box_seen_from_above():
     except Exception as exc:  # no offscreen OpenGL available (headless machine)
         pytest.skip(f"offscreen rendering unavailable: {exc}")
     assert visible.tolist() == [True, True, False, False]
+
+
+def test_point_to_surface_has_no_sampling_floor():
+    # independent samples of the same mesh: zero error and full scores, unlike sample-to-sample distances
+    box = trimesh.creation.box()
+    gt_points, gt_normals = sample_surface(box, 5000, 0, return_normals=True)
+    rm_points, rm_normals = sample_surface(box, 5000, 1, return_normals=True)
+    nearest = compute_metrics(gt_points, rm_points)["all"]
+    exact = compute_metrics(gt_points, rm_points, gt_normals=gt_normals, rm_normals=rm_normals,
+                            gt_mesh=box, rm_mesh=box)["all"]
+    assert nearest["chamfer_mean"] > 1e-3  # the floor of the sample-to-sample distance
+    assert exact["chamfer_mean"] < 1e-7 and exact["hd95"] < 1e-6
+    assert exact["fscore_tau1pct"] == 1.0 and exact["normal_consistency"] == pytest.approx(1.0, abs=1e-6)
+
+
+def test_point_to_surface_offset_is_exact_with_independent_samples():
+    delta = 0.03
+    gt_mesh, rm_mesh = _square(), _square(z=delta)
+    m = compute_metrics(sample_surface(gt_mesh, 3000, 0), sample_surface(rm_mesh, 3000, 1), taus=(0.02, 0.05),
+                        gt_mesh=gt_mesh, rm_mesh=rm_mesh)["all"]
+    assert m["chamfer_mean"] == pytest.approx(delta, abs=1e-6)
+    assert m["hd95"] == pytest.approx(delta, abs=1e-6)
+    assert m["fscore_tau2pct"] == 0.0 and m["fscore_tau5pct"] == 1.0
+
+
+def test_point_to_surface_chamfer_does_not_depend_on_the_sample_count():
+    # a 0.02 bump on a densified square: the estimate converges to the same value at 1e3 and 1e5 samples
+    gt_mesh = trimesh.remesh.subdivide_to_size(*(_square().vertices, _square().faces), max_edge=0.02)
+    gt_mesh = trimesh.Trimesh(*gt_mesh, process=False)
+    vertices = np.asarray(gt_mesh.vertices).copy()
+    vertices[:, 2] = 0.02 * np.exp(-np.sum((vertices[:, :2] - 0.5) ** 2, axis=1) / 0.02)
+    rm_mesh = trimesh.Trimesh(vertices, gt_mesh.faces, process=False)
+    values = []
+    for n in (1_000, 100_000):
+        m = compute_metrics(sample_surface(gt_mesh, n, 0), sample_surface(rm_mesh, n, 1),
+                            gt_mesh=gt_mesh, rm_mesh=rm_mesh)["all"]
+        values.append(m["chamfer_mean"])
+    assert values[0] == pytest.approx(values[1], rel=0.05)  # Monte Carlo noise at 1e3 samples
+
+
+def test_point_to_surface_normal_consistency_of_a_tilted_plane():
+    # GT square in z = 0, RM square tilted by 30 degrees: every closest triangle has the other plane's normal
+    angle = np.deg2rad(30.0)
+    gt_mesh = _square()
+    rm_mesh = _square()
+    rotation = np.array([[1, 0, 0], [0, np.cos(angle), -np.sin(angle)], [0, np.sin(angle), np.cos(angle)]])
+    rm_mesh.vertices = np.asarray(rm_mesh.vertices) @ rotation.T
+    gt_points, gt_normals = sample_surface(gt_mesh, 4000, 0, return_normals=True)
+    rm_points, rm_normals = sample_surface(rm_mesh, 4000, 1, return_normals=True)
+    m = compute_metrics(gt_points, rm_points, gt_normals=gt_normals, rm_normals=rm_normals,
+                        gt_mesh=gt_mesh, rm_mesh=rm_mesh)["all"]
+    assert m["normal_consistency"] == pytest.approx(np.cos(angle), abs=1e-6)

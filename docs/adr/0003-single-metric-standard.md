@@ -1,6 +1,6 @@
 # ADR 0003 — Padrão único de métricas
 
-- **Estado:** aceito (26/10/2026). Substitui em parte os ADRs [0001](0001-evaluation-v2.md) e [0002](0002-robustness-study.md).
+- **Estado:** aceito (26/10/2026). Substitui em parte os ADRs [0001](0001-evaluation-v2.md) e [0002](0002-robustness-study.md); a definição de distância foi depois alterada pelo [ADR 0004](0004-point-to-surface.md).
 
 ## Contexto
 

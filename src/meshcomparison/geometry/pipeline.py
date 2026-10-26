@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from ..common.distances import nn_distances
+from ..common.distances import surface_distances
 from ..common.io import ensure_dirs
 from ..common.prepare import export_aligned, prepare_meshes, transform_columns
 from ..common.sampling import N_SAMPLES, SEED_GT, SEED_RM, sample_surface
@@ -127,8 +127,9 @@ def run_pipeline(gt_path, rm_path, out_dir,
     gt_visible = None
     if input_azimuth_deg is not None and input_elevation_deg is not None:
         gt_visible = gt_visibility(prepared.gt, prepared.gt_points, input_azimuth_deg, input_elevation_deg)
-    results = compute_metrics(prepared.gt_points, rm_points, TAUS, gt_visible, prepared.gt_normals, rm_normals)
-    d_heat, _ = nn_distances(prepared.gt.vertices, rm_points)  # GT vertices to the aligned RM surface samples
+    results = compute_metrics(prepared.gt_points, rm_points, TAUS, gt_visible, prepared.gt_normals, rm_normals,
+                              gt_mesh=prepared.gt, rm_mesh=prepared.rm_aligned)
+    d_heat, _ = surface_distances(prepared.gt.vertices, prepared.rm_aligned)  # GT vertices to the aligned RM surface
     heatmap_vmax = max(float(np.nanpercentile(d_heat, ROBUST_PERCENTILE)), 1e-12)
 
     all_region = results["all"]

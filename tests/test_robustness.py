@@ -69,14 +69,13 @@ def test_vertex_permutation_changes_no_metric(box):
 
 
 def test_retriangulation_moves_vertex_baseline_but_not_surface_metrics(box):
-    # same surface, uneven vertex density: the vertex baseline grows, the surface metrics stay at their floor
-    floor = geometric_metrics(box, box, n_samples=N)
+    # same surface, uneven vertex density: the vertex baseline grows, the point-to-surface metrics stay exact
     uneven = geometric_metrics(box, half_subdivided(box, 2), n_samples=N)
-    assert floor["vertex_chamfer"] == 0.0
+    assert geometric_metrics(box, box, n_samples=N)["vertex_chamfer"] == 0.0
     assert uneven["vertex_chamfer"] > 0.02
-    assert abs(uneven["chamfer"] - floor["chamfer"]) < 0.25 * floor["chamfer"]
-    # F@1% is below 1 even for the same surface: with N samples the sample spacing is close to tau (floor)
-    assert abs(uneven["fscore_tau1pct"] - floor["fscore_tau1pct"]) < 0.01
+    assert uneven["chamfer"] < 1e-6 and uneven["hd95"] < 1e-6  # float32 round-off of the closest-point query
+    assert uneven["fscore_tau1pct"] == 1.0 and uneven["fscore_auc"] == pytest.approx(1.0)
+    assert uneven["normal_consistency"] == pytest.approx(1.0, abs=1e-6)
 
 
 def test_perturbations_degrade_surface_metrics_monotonically(box):
@@ -92,7 +91,6 @@ def test_removed_region_lowers_recall_not_precision(box):
     gt_points = sample_surface(dense, N, 0)
     rm = remove_region(dense, 0.2)
     assert rm.area == pytest.approx(0.8 * dense.area, rel=0.05)
-    floor = compute_metrics(gt_points, sample_surface(dense, N, 1), taus=(0.01,))["all"]
-    m = compute_metrics(gt_points, sample_surface(rm, N, 1), taus=(0.01,))["all"]
-    assert m["precision_tau1pct"] == pytest.approx(floor["precision_tau1pct"], abs=0.01)  # what is left is right
-    assert m["recall_tau1pct"] == pytest.approx(0.8 * floor["recall_tau1pct"], abs=0.05)  # 20 % is missing
+    m = compute_metrics(gt_points, sample_surface(rm, N, 1), taus=(0.01,), gt_mesh=dense, rm_mesh=rm)["all"]
+    assert m["precision_tau1pct"] == 1.0  # what is left lies on the GT surface
+    assert m["recall_tau1pct"] == pytest.approx(0.8, abs=0.02)  # 20 % of the area is missing (+ a 1 % rim)

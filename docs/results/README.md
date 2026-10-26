@@ -2,7 +2,7 @@
 
 Par `data/samples/gt.stl` (GT) × `data/samples/mod.stl` (RM), versão atual dos pipelines, executado em 26/10/2026 (Linux, Python 3.13, NumPy 2.5, Trimesh 5.2, CPU).
 
-- **Preparo:** diagonal da GT = 3,77537 unidades STL; MSE pré-alinhamento sobre amostras = 6,95 × 10⁻⁵ < 10⁻⁴, então o ICP **não** foi acionado.
+- **Preparo:** diagonal da GT = 3,77537 unidades STL; MSE pré-alinhamento (ponto-superfície) = 6,66 × 10⁻⁵ < 10⁻⁴, então o ICP **não** foi acionado.
 - **Vista de entrada:** azimute −135° e elevação 25,264°, só como **ilustração**: o par não tem imagem de entrada.
 - **Dados das figuras:** [`figures/data/`](figures/data/). Para regenerar: `python scripts/plot_metrics.py --run <saída> --uncertainty`.
 
@@ -10,15 +10,15 @@ Par `data/samples/gt.stl` (GT) × `data/samples/mod.stl` (RM), versão atual dos
 
 | Região | Parcela da GT | Chamfer (unid. GT) | HD95 (unid. GT) | F@1 % | F@2 % | F@5 % | AUC-F | Normal consistency |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Superfície inteira | 100 % | 0,0147 | 0,0805 | 0,907 | 0,952 | 0,998 | 0,980 | 0,945 |
-| Visível | 39 % | 0,0226 | 0,1197 | 0,824 | 0,914 | 0,995 | 0,963 | 0,909 |
-| Oculta | 61 % | 0,0094 | 0,0270 | 0,963 | 0,978 | 1,000 | 0,992 | 0,968 |
+| Superfície inteira | 100 % | 0,0100 | 0,0800 | 0,908 | 0,952 | 0,998 | 0,981 | 0,960 |
+| Visível | 39 % | 0,0187 | 0,1195 | 0,826 | 0,914 | 0,995 | 0,963 | 0,928 |
+| Oculta | 61 % | 0,0042 | 0,0261 | 0,963 | 0,978 | 1,000 | 0,992 | 0,980 |
 
 ![Métricas por região](figures/geometric_metrics.png)
 
 ![Curva F(τ)](figures/fscore_curve.png)
 
-Neste par, o erro se concentra na região visível pela vista ilustrativa: HD95 4,4 vezes maior e F@1 % 0,14 menor que na região oculta. Com τ ≥ 5 %, praticamente todas as amostras estão dentro da tolerância (F > 0,99): as diferenças entre regiões estão abaixo de ~3 % da diagonal.
+Neste par, o erro se concentra na região visível pela vista ilustrativa: Chamfer 4,4 vezes e HD95 4,6 vezes maiores, e F@1 % 0,14 menor que na região oculta. Com τ ≥ 5 %, praticamente todas as amostras estão dentro da tolerância (F > 0,99): as diferenças entre regiões estão abaixo de ~3 % da diagonal.
 
 ## Incerteza de amostragem
 
@@ -26,9 +26,8 @@ Neste par, o erro se concentra na região visível pela vista ilustrativa: HD95 
 
 Cinco pares de sementes por N (média ± desvio padrão):
 
-- **Variação entre sementes:** com N = 10⁵, o coeficiente de variação é 0,5 % (Chamfer), 1,0 % (HD95) e ≤ 0,1 % (F-score, AUC-F, normal consistency).
-- **Viés:** o Chamfer (0,0039 → 0,0034 normalizado de 10⁵ para 3 × 10⁵) e a normal consistency (0,945 → 0,951) **ainda não convergiram**. A distância entre amostras inclui o espaçamento da amostragem. HD95 e F@1 % já estão estáveis a partir de ~3 × 10⁴.
-- **Consequência:** compare modelos sempre com o mesmo N (padrão: 10⁵). Os valores absolutos de Chamfer contêm um piso que depende de N e da área da malha.
+- **Sem viés:** com a distância ponto-superfície ([ADR 0004](../adr/0004-point-to-surface.md)), as médias de Chamfer (0,0026 normalizado), F@1 % (0,908) e normal consistency (0,960) são constantes de 10³ a 3 × 10⁵ amostras. Só o HD95, que é um percentil, ainda se desloca abaixo de ~10⁴ amostras.
+- **Variação entre sementes:** cai com N; com N = 10⁵, o coeficiente de variação é de 0,8 % (Chamfer), 1,0 % (HD95) e ≤ 0,1 % (F-score, AUC-F, normal consistency).
 
 ## Métricas perceptuais
 

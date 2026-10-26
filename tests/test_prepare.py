@@ -12,8 +12,8 @@ def test_prepare_skips_icp_when_the_threshold_is_not_exceeded(capsys):
     prepared = prepare_meshes(str(SAMPLES / "gt.stl"), str(SAMPLES / "gt.stl"), 1e-4, 7)
     assert not prepared.alignment_triggered
     assert np.allclose(prepared.final_transform, np.eye(4))
-    # same surface sampled with two seeds: only the sampling floor remains, far below the threshold
-    assert 0.0 < prepared.pre_mse_norm < 1e-5
+    # same surface sampled with two seeds: point-to-surface distances are zero up to float32 round-off
+    assert prepared.pre_mse_norm < 1e-12
     assert prepared.gt_points.shape == (100_000, 3) and prepared.gt_normals.shape == (100_000, 3)
     assert "[4/7] Alignment skipped." in capsys.readouterr().out
 

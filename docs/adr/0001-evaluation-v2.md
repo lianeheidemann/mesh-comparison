@@ -27,7 +27,7 @@ O artigo compara reconstruções de imagem única (TripoSR, Stable Fast 3D, Inst
 
 ## Consequências
 
-- **Piso de amostragem:** duas amostragens da mesma superfície têm Chamfer > 0 e F@1 % < 1 quando o espaçamento entre amostras se aproxima de τ.
+- **Piso de amostragem:** com distâncias entre amostras, duas amostragens da mesma superfície davam Chamfer > 0 e F@1 % < 1. O [ADR 0004](0004-point-to-surface.md) resolveu isso com distâncias ponto-superfície.
 - **Câmera de entrada:** a câmera ortográfica aproxima a perspectiva real, e a convenção de eixos deve ser conferida para cada conjunto de dados.
 - **ICP:** é local.
 - **SSIM e LPIPS:** usam o crop com o fundo zerado, que participa das janelas e convoluções.

@@ -18,15 +18,14 @@ As métricas de superfície são comparadas com um **baseline por vértice** (Ch
 
 | Variante | Vértices | Chamfer por vértice | Hausdorff por vértice | Chamfer | HD95 | F@1 % | AUC-F | Normal consistency |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Cópia idêntica | 2 904 | 0 | 0 | 0,0015 | 0,0029 | 1,000 | 1,000 | 0,983 |
-| Vértices permutados | 2 904 | 0 | 0 | 0,0015 | 0,0029 | 1,000 | 1,000 | 0,983 |
-| Subdividida ×1 | 5 808 | 0,0048 | 0,0888 | 0,0015 | 0,0029 | 1,000 | 1,000 | 0,983 |
-| Subdividida ×2 | 14 520 | 0,0058 | 0,0888 | 0,0015 | 0,0029 | 1,000 | 1,000 | 0,983 |
-| Metade subdividida ×2 | 8 712 | 0,0048 | 0,0888 | 0,0015 | 0,0029 | 1,000 | 1,000 | 0,984 |
+| Cópia idêntica | 2 904 | 0 | 0 | 0 | 0 | 1,000 | 1,000 | 1,000 |
+| Vértices permutados | 2 904 | 0 | 0 | 0 | 0 | 1,000 | 1,000 | 1,000 |
+| Subdividida ×1 | 5 808 | 0,0048 | 0,0888 | 0 | 0 | 1,000 | 1,000 | 1,000 |
+| Subdividida ×2 | 14 520 | 0,0058 | 0,0888 | 0 | 0 | 1,000 | 1,000 | 1,000 |
+| Metade subdividida ×2 | 8 712 | 0,0048 | 0,0888 | 0 | 0 | 1,000 | 1,000 | 1,000 |
 
 - **Baseline por vértice:** não é invariante. Para a mesma superfície, o Hausdorff vai de 0 a 8,9 % da diagonal.
-- **Métricas de superfície:** não mudam.
-- **Pisos:** o valor não nulo da cópia idêntica é o piso de amostragem, e a normal consistency tem piso de 0,983 por causa das arestas vivas. Os dois pisos devem ser relatados.
+- **Métricas de superfície:** são exatas (0 e 1, a menos de ~10⁻⁷ de arredondamento em float32) para qualquer triangulação da mesma superfície, porque cada amostra é medida até a superfície e não até outras amostras ([ADR 0004](../../adr/0004-point-to-surface.md)).
 
 ## Sensibilidade a perturbações controladas
 
@@ -34,10 +33,10 @@ As métricas de superfície são comparadas com um **baseline por vértice** (Ch
 
 ![Curvas de sensibilidade](sensitivity.png)
 
-- **Monotonicidade:** todas as métricas pioram de forma monotônica nas três perturbações.
-- **Ruído na direção da normal:** o Chamfer e o HD95 mudam pouco; a normal consistency cai de 0,98 para 0,77 já com σ = 0,25 %. Ela mede rugosidade e orientação, que as distâncias quase não captam.
+- **Monotonicidade:** nenhuma métrica melhora quando a intensidade aumenta, nas três perturbações.
+- **Ruído na direção da normal:** o Chamfer e o HD95 mudam pouco; a normal consistency cai de 1,00 para 0,77 já com σ = 0,25 %. Ela mede rugosidade e orientação, que as distâncias quase não captam.
 - **Saliência local:** o Hausdorff por vértice é igual à altura da saliência. O F@1 % é o que mais separa os níveis (de 1,00 para 0,90), e o Chamfer dilui o erro local.
-- **Remoção de superfície:** o F-score e a AUC-F caem quase linearmente com a fração removida. O HD95 só reage a partir de cerca de 10 %.
+- **Remoção de superfície:** o F-score e a AUC-F caem quase linearmente com a fração removida. O HD95 fica em 0 com 5 % removidos (ignora os 5 % piores pontos de cada direção) e só reage a partir de cerca de 10 %.
 - **PSNR e SSIM:** são monotônicos, mas misturam silhueta e sombreamento.
 
 ## Roteiro sugerido para o artigo (IJCNN, 6 páginas)
@@ -45,6 +44,6 @@ As métricas de superfície são comparadas com um **baseline por vértice** (Ch
 1. Motivação: avaliar modelos *image-to-3D* (TripoSR, Stable Fast 3D, InstantMesh) exige métricas confiáveis.
 2. Métricas como funções sobre variedades discretizadas: invariância, estabilidade e multiescala como requisitos.
 3. Métricas ([ADRs](../../adr/)): amostragem, Chamfer, HD95, F@τ/AUC-F, normal consistency, PSNR, SSIM, LPIPS, regiões visível/oculta e escala do ICP.
-4. Validação das métricas: as tabelas acima e a [incerteza de amostragem](../README.md#user-content-incerteza-de-amostragem), repetidas nas GTs do benchmark.
+4. Validação das métricas: as tabelas acima e a [incerteza de amostragem](../README.md#user-content-incerteza-de-amostragem) (estimativas sem viés em N), repetidas nas GTs do benchmark.
 5. Benchmark: métricas globais, visível × oculto e correlação entre métricas geométricas e perceptuais.
-6. Limitações e reprodutibilidade: câmera ortográfica, ICP local, viés de amostragem, sementes, versões e hashes.
+6. Limitações e reprodutibilidade: câmera ortográfica, ICP local, ruído de Monte Carlo, sementes, versões e hashes.

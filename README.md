@@ -51,7 +51,7 @@ Mesh Comparison is a Python desktop application that evaluates a reconstructed m
 
 <img width="100%" src="docs/assets/how-the-code-works.svg" alt="Architecture of the geometric and perceptual evaluation pipelines">
 
-1. **Preparation** (shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and run similarity ICP (rotation, translation, uniform scale) on them when the symmetric pre-alignment MSE exceeds `1e-4`.
+1. **Preparation** (shared by both pipelines): load GT and RM, scale both by the GT bounding-box diagonal, draw 100 000 area-uniform surface samples per mesh (seeds `0`/`1`) and run similarity ICP (rotation, translation, uniform scale) on them when the symmetric point-to-surface MSE exceeds `1e-4`.
 2. **Geometric pipeline:** surface metrics, optionally split into GT regions visible/hidden from the input view, plus orthographic renders and a GT heatmap of the distance to the aligned RM surface.
 3. **Perceptual pipeline:** GT and aligned RM rendered from the same orthographic cameras (100 azimuths); LPIPS, PSNR and SSIM per view on the crop around the union of both masks.
 
@@ -59,7 +59,7 @@ The GUI runs each selected pipeline in a child process. Metric definitions and t
 
 ## Metrics
 
-All geometric distances are fractions of the GT diagonal (columns `_normalized`) or GT units (`_gt_units`).
+d(g, R) is the distance from a GT surface sample to the closest point on the RM triangles (point-to-surface, [ADR 0004](docs/adr/0004-point-to-surface.md)); d(r, G) is the reverse. Distances are fractions of the GT diagonal (columns `_normalized`) or GT units (`_gt_units`).
 
 | Metric | Definition | Better |
 | --- | --- | --- |
@@ -67,7 +67,7 @@ All geometric distances are fractions of the GT diagonal (columns `_normalized`)
 | HD95 | max of the two directional 95th percentiles | Lower |
 | F-score @τ | harmonic mean of precision (RM samples within τ of GT) and recall (GT samples within τ of RM); τ = 1, 2, 5 % | Higher |
 | AUC-F | area under F(τ) for τ = 0.5–10 %, normalized to [0, 1] | Higher |
-| Normal consistency | mean \|cos\| between matched surface normals, both directions | Higher |
+| Normal consistency | mean \|cos\| between each sample's normal and the normal of the closest triangle on the other mesh, both directions | Higher |
 | ICP scale | uniform scale applied by the alignment (diagnostic; 1 = none) | — |
 | PSNR | 10·log10(1/MSE), MSE over the 3N channel values of the N union-mask pixels | Higher |
 | SSIM | scikit-image SSIM on the crop with the background zeroed | Higher |
@@ -81,9 +81,9 @@ Sample pair `data/samples/gt.stl` × `mod.stl` (ICP not triggered; the input vie
 
 | Region | GT share | Chamfer (GT units) | HD95 (GT units) | F@1 % | AUC-F | Normal consistency |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Whole surface | 100 % | 0.0147 | 0.0805 | 0.907 | 0.980 | 0.945 |
-| Visible | 39 % | 0.0226 | 0.1197 | 0.824 | 0.963 | 0.909 |
-| Hidden | 61 % | 0.0094 | 0.0270 | 0.963 | 0.992 | 0.968 |
+| Whole surface | 100 % | 0.0100 | 0.0800 | 0.908 | 0.981 | 0.960 |
+| Visible | 39 % | 0.0187 | 0.1195 | 0.826 | 0.963 | 0.928 |
+| Hidden | 61 % | 0.0042 | 0.0261 | 0.963 | 0.992 | 0.980 |
 
 <p align="center">
   <img src="docs/results/figures/geometric_metrics.png" width="100%" alt="Geometric metrics per region for the sample pair">
@@ -154,7 +154,7 @@ Checks invariance to re-triangulation and sensitivity to noise, local bumps and 
 ## Limitations
 
 - STL has no physical units; distances are in the GT's units.
-- Point-to-point distances between samples have a sampling floor: on the sample pair the Chamfer still drops from 0.0039 (10⁵ samples) to 0.0034 (3 × 10⁵), while HD95 and F@1 % have converged and the seed spread is below 1 %. Compare models only at the same sample count.
+- Metrics are Monte Carlo estimates over surface samples. With point-to-surface distances they do not drift with the sample count; at 10⁵ samples the seed spread is about 1 % for Chamfer and HD95 and ≤ 0.1 % for the scores (sample pair).
 - The input view uses an orthographic camera and a z-up convention that must match the dataset; ICP is local and may fail for large rotations.
 - Validation so far uses synthetic cases and one sample pair; benchmark meshes (TripoSR, Stable Fast 3D, InstantMesh) and GPU LPIPS are still to be validated ([validation plan](docs/implementation/README.md)).
 

@@ -124,7 +124,8 @@ def geometric_metrics(gt, rm, n_samples=N_SAMPLES):
     """Vertex baseline and surface-sample metrics of ``rm`` against ``gt`` (no ICP)."""
     gt_points, gt_normals = sample_surface(gt, n_samples, SEED_GT, return_normals=True)
     rm_points, rm_normals = sample_surface(rm, n_samples, SEED_RM, return_normals=True)
-    m = compute_metrics(gt_points, rm_points, TAUS, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
+    m = compute_metrics(gt_points, rm_points, TAUS, gt_normals=gt_normals, rm_normals=rm_normals,
+                        gt_mesh=gt, rm_mesh=rm)["all"]
     row = {
         **vertex_baseline(np.asarray(gt.vertices), np.asarray(rm.vertices)),
         "chamfer": m["chamfer_mean"],
@@ -172,7 +173,8 @@ def sampling_uncertainty(gt, rm, sizes=SAMPLING_SIZES, n_seeds=5, taus=TAUS):
         for k in range(n_seeds):
             gt_points, gt_normals = sample_surface(gt, n, 2 * k, return_normals=True)
             rm_points, rm_normals = sample_surface(rm, n, 2 * k + 1, return_normals=True)
-            m = compute_metrics(gt_points, rm_points, taus, gt_normals=gt_normals, rm_normals=rm_normals)["all"]
+            m = compute_metrics(gt_points, rm_points, taus, gt_normals=gt_normals, rm_normals=rm_normals,
+                                gt_mesh=gt, rm_mesh=rm)["all"]
             row = {"n_samples": n, "seed_pair": k, "chamfer": m["chamfer_mean"], "hd95": m["hd95"],
                    "fscore_auc": m["fscore_auc"], "normal_consistency": m["normal_consistency"]}
             row.update({f"fscore_{tau_key(t)}": m[f"fscore_{tau_key(t)}"] for t in taus})

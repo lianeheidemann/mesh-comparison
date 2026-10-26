@@ -1,0 +1,35 @@
+model {
+  file: "model.sdf"
+}
+name: "TURBOPROP_AIRPLANE_WITH_PILOT"
+description: "TURBOPROP AIRPLANE WITH PILOT"
+version: 1
+authors {
+  name: "Google"
+  email: "scanned-objects@google.com"
+}
+legal {
+  copyright: "Copyright 2020 Google LLC."
+  license: "Creative Commons Attribution 4.0 International"
+}
+annotations {
+  key: "brand"
+  value: "PlanToys"
+}
+annotations {
+  key: "mpn"
+  value: "6046"
+}
+annotations {
+  key: "sku"
+  value: "0604602"
+}
+compatibilities {
+  name: "Gazebo"
+  version {
+    major: 11
+  }
+}
+categories {
+  first: "Toys"
+}

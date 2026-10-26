@@ -182,7 +182,7 @@ The robustness study checks invariance to re-triangulation and sensitivity to no
 ### Ground-truth meshes
 
 ```bash
-python scripts/fetch_gso.py      # the 20 selected Google Scanned Objects -> gt/gso/ with manifest.csv
+python scripts/fetch_gso.py --out data/gso/meshes   # the 20 selected Google Scanned Objects, already in the repository (Git LFS: run `git lfs pull` after cloning)
 python scripts/check_gt.py gt/ --manifest gt/manifest.csv --cutoff YYYY-MM-DD
 ```
 

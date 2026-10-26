@@ -1,0 +1,4 @@
+# Google Scanned Objects meshes and textures (scripts/fetch_gso.py --out data/gso/meshes)
+data/gso/meshes/**/*.obj filter=lfs diff=lfs merge=lfs -text
+data/gso/meshes/**/*.png filter=lfs diff=lfs merge=lfs -text
+data/gso/meshes/**/*.jpg filter=lfs diff=lfs merge=lfs -text

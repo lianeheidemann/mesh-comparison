@@ -1,6 +1,6 @@
 # 03 — Começar com testes e critérios de aceitação, não adicioná-los no fim
 
-> **Projeto novo:** criar o primeiro teste antes de ampliar a primeira funcionalidade. **Mesh Comparison: 🟡 pytest está na CI, mas a validação científica abrangente continua pendente.**
+> **Projeto novo:** criar o primeiro teste antes de ampliar a primeira funcionalidade. **Mesh Comparison: 🟡 pytest está na CI e os testes de aceitação T-01–T-07 e T-10 foram implementados; T-08 e T-09 continuam pendentes.**
 
 ## Por que é parte essencial do harness?
 
@@ -38,23 +38,50 @@ Um agente que apenas escreve código e recebe mensagens do tipo “ok” não di
 | Transformações de bbox, MSE e subsampling | ✅ | [`tests/test_common.py`](../../../tests/test_common.py); não comprova ICP end-to-end |
 | Helpers perceptuais (PSNR, máscaras, estatísticas) | ✅ | [`tests/test_perceptual.py`](../../../tests/test_perceptual.py) |
 | Device e parâmetros de interface | ✅ | [`tests/test_device.py`](../../../tests/test_device.py) usa simulações; [`tests/test_gui_config.py`](../../../tests/test_gui_config.py) verifica comandos/configuração, **não uma janela real** |
-| Cenários completos de malhas deformadas, incompletas e densidades distintas | 🟡 | [Plano de validação](../../implementation/step-by-step/10-limitacoes-evolucao.md) registra as lacunas |
+| Cenários de malhas idênticas, rígidas, escaladas, deformadas, incompletas e densidades distintas (T-01–T-06) | ✅ | [`tests/test_scientific_contracts.py`](../../../tests/test_scientific_contracts.py), com valores esperados derivados à mão ou de transformações controladas |
+| PSNR legado (T-07) e entradas inválidas (T-10) | ✅ | [`tests/test_scientific_contracts.py`](../../../tests/test_scientific_contracts.py) |
+| Comparação original × atual (T-09) | ❌ | Exige executar o [código original](https://github.com/ThiagoFigueiroRibeiro/MeshComparison) com entradas, parâmetros e versões idênticos |
 | Regressão do fluxo multivista LPIPS/PSNR/SSIM | ❓ | Testes integrados com renderização e modelos reais ainda precisam ser demonstrados |
 
 ### Casos que devem ser acrescentados neste projeto
 
-- **Expandir a identidade já testada entre nuvens de pontos** para malhas reais GT = RM, distância aproximadamente zero e execução completa do pipeline.
-- **Expandir os testes existentes de deslocamento e bbox** para translação/escala em malhas e distância *antes* e *depois* do ICP.
-- Deformação localizada, buracos e densidades desiguais → verificar direção da comparação e efeito da amostragem.
-- LPIPS, PSNR e SSIM → fixar views, iluminação, máscara, resolução e parâmetros, documentando variações possíveis CPU/GPU.
-- Casos inválidos → erro explícito, sem sucesso silencioso; hashes e entradas preservados.
+- [x] **Identidade em malhas reais** GT = RM, distância zero e execução do pipeline geométrico completo (T-01).
+- [x] **Translação/rotação e escala** em malhas, com MSE *antes* e *depois* do ICP, gatilho estritamente maior que o limiar e escala recuperada pelo ICP de similaridade (T-02, T-03, CC-04).
+- [x] Ordem dos vértices, deformação localizada, região ausente e densidades desiguais → direção da comparação e efeito da amostragem (T-04–T-06).
+- [x] PSNR legado com erro conhecido e diferença de `10*log10(3)` dB para a convenção usual (T-07).
+- [x] Casos inválidos → FBX, arquivo inexistente, GT degenerada e máscara vazia com erro explícito (T-10).
+- [ ] LPIPS e SSIM com renderização real → fixar views, iluminação, máscara, resolução e parâmetros, documentando variações possíveis CPU/GPU (T-08).
+- [ ] Saídas do original × atual com entradas, parâmetros e versões idênticos (T-09).
 
 ## Critérios de aceite
 
 - [ ] Uma funcionalidade tem teste determinístico antes ou junto com sua implementação.
 - [ ] Unitário, integração e smoke test estão diferenciados.
-- [ ] Teste deliberadamente quebrado produz falha observável.
-- [ ] Entradas, tolerâncias e saídas foram documentadas.
+- [x] Teste deliberadamente quebrado produz falha observável (localmente; ainda não demonstrado na CI).
+- [x] Entradas, tolerâncias e saídas foram documentadas (cabeçalho de `tests/test_scientific_contracts.py`).
 - [ ] Alterações em contrato exigem revisão e atualização explícita do baseline.
+
+## Evidência de execução (27/10/2026)
+
+Execução local, **não** na CI: Linux, Python 3.12, NumPy 2.5.4, SciPy 1.18.1, Trimesh 5.2.0, Open3D 0.20.0, pyrender 0.1.45 com `PYOPENGL_PLATFORM=egl`; sem `torch`/`lpips` instalados.
+
+| Comando | Resultado |
+| --- | --- |
+| `pytest -q tests/test_scientific_contracts.py` | 17 passaram |
+| `pytest -q` (suíte completa) | 56 passaram; 1 falhou por ambiente (`test_perceptual_outputs_match_the_original_schema`: `lpips` ausente) |
+| `ruff check .` | sem erros |
+
+**Falha proposital:** cada mutação abaixo foi aplicada temporariamente ao código, os novos testes foram executados e o código foi restaurado. Todas foram detectadas:
+
+| Mutação | Contrato | Testes que falharam |
+| --- | --- | --- |
+| PSNR dividido por `3N` | CC-09 | 1 |
+| Gatilho do ICP `>=` em vez de `>` | CC-04 | 1 |
+| Chamfer como média de distâncias quadradas | CC-05 | 1 |
+| ICP sem escala uniforme | CC-04 | 1 |
+| Normalização de cada malha pela própria diagonal | CC-02 | 4 |
+| Saturação do heatmap no P99 | CC-06 | 1 |
+
+Tolerâncias: STL grava coordenadas em `float32`, então o MSE normalizado após o ICP é comparado com `1e-10`, seis ordens de grandeza abaixo do limiar padrão `1e-4`; relações exatas (conversão de unidades, ordem dos vértices) usam `rel=1e-12`. Esses testes caracterizam a implementação **atual**; não comprovam equivalência com o código original (T-09).
 
 **Próxima etapa:** [04 — CI e proteção](04-ci-e-protecao.md).

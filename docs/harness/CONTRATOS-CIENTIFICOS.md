@@ -228,18 +228,18 @@ Esse manifesto é **proposta**, não recurso já comprovado no original.
 
 | ID | Cenário | Critério observável | Estado nesta revisão |
 | --- | --- | --- | --- |
-| T-01 | GT = RM, mesma geometria/vértices | Distâncias geométricas ~0, MSE pré-ICP ~0 e ICP não acionado | **VALIDAR end-to-end** |
-| T-02 | RM transladada/rotacionada de modo conhecido | Gatilho conforme MSE pré, transformação RM→GT documentada, métricas pós computadas | **VALIDAR** |
-| T-03 | RM com escala diferente | Preservar escala no pré-ICP; registrar possível correção pelo ICP de similaridade | **VALIDAR** |
-| T-04 | Permutação da ordem dos mesmos vértices | Métricas de vizinho mais próximo equivalentes dentro de tolerância | **VALIDAR** |
-| T-05 | Densidade não uniforme/ausência de superfície | Documentar a sensibilidade de métricas entre vértices e direção dos erros | **VALIDAR** |
-| T-06 | Deformação localizada | Heatmap GT→RM e métricas geométricas respondem de forma coerente | **VALIDAR** |
-| T-07 | Imagens RGB e máscara sintéticas | PSNR calculado pela **fórmula legada**, inclusive casos `Inf/NaN` | **VALIDAR** |
+| T-01 | GT = RM, mesma geometria/vértices | Distâncias geométricas ~0, MSE pré-ICP ~0 e ICP não acionado | **Teste implementado** (`tests/test_scientific_contracts.py`), inclusive pipeline geométrico completo |
+| T-02 | RM transladada/rotacionada de modo conhecido | Gatilho conforme MSE pré, transformação RM→GT documentada, métricas pós computadas | **Teste implementado** (`tests/test_scientific_contracts.py`); limiar igual/abaixo também testado (CC-04) |
+| T-03 | RM com escala diferente | Preservar escala no pré-ICP; registrar possível correção pelo ICP de similaridade | **Teste implementado** (`tests/test_scientific_contracts.py`): o ICP recupera `1/fator` e o erro pós-ICP fica ~0 |
+| T-04 | Permutação da ordem dos mesmos vértices | Métricas de vizinho mais próximo equivalentes dentro de tolerância | **Teste implementado** (`tests/test_scientific_contracts.py`) |
+| T-05 | Densidade não uniforme/ausência de superfície | Documentar a sensibilidade de métricas entre vértices e direção dos erros | **Teste implementado** (`tests/test_scientific_contracts.py`), com valores esperados exatos em grades |
+| T-06 | Deformação localizada | Heatmap GT→RM e métricas geométricas respondem de forma coerente | **Teste implementado** (`tests/test_scientific_contracts.py`) |
+| T-07 | Imagens RGB e máscara sintéticas | PSNR calculado pela **fórmula legada**, inclusive casos `Inf/NaN` | **Teste implementado** (`tests/test_scientific_contracts.py`; `Inf/NaN` em `tests/test_perceptual.py`) |
 | T-08 | Mesmo par renderizado, mesmos parâmetros | Contratos de câmeras, PNGs e métricas perceptuais dentro de tolerâncias justificadas | **VALIDAR** |
 | T-09 | Saídas originais vs. refatoradas | Comparar valores e schemas sob **entradas/parâmetros/versões idênticos** | **VALIDAR** |
-| T-10 | Dados inválidos/sem máscara/GT degenerada | Falha visível e sem resultados apresentados como sucesso | **VALIDAR** |
+| T-10 | Dados inválidos/sem máscara/GT degenerada | Falha visível e sem resultados apresentados como sucesso | **Teste implementado** (`tests/test_scientific_contracts.py`): FBX, arquivo inexistente, GT degenerada, máscara vazia |
 
-**Separação importante:** os testes unitários existentes em `tests/` cobrem partes das fórmulas; os testes `test_output_schema.py` e `test_worker.py` já possuem integração por subprocesso. Não reimplementar o que existe: **estender** com resultados esperados e tolerâncias justificadas. Nenhum teste adicional foi criado nem executado por este documento.
+**Separação importante:** os testes unitários existentes em `tests/` cobrem partes das fórmulas; os testes `test_output_schema.py` e `test_worker.py` já possuem integração por subprocesso. Não reimplementar o que existe: **estender** com resultados esperados e tolerâncias justificadas. Os testes de `tests/test_scientific_contracts.py` (27/10/2026) caracterizam a implementação **atual** com valores esperados conhecidos; T-08 e T-09 continuam pendentes e nenhum deles comprova equivalência com o código original. Evidência de execução em [03 — Testes e regressões](step-by-step/03-testes-e-regressoes.md#evidência-de-execução-27102026).
 
 ## 7. Regras de governança para agentes
 
@@ -276,6 +276,6 @@ Esse manifesto é **proposta**, não recurso já comprovado no original.
 3. Se for desejável corrigir PSNR, adotar comparação ponto-superfície ou mudar ICP, criar **nova metodologia versionada**, um ADR e métricas separadas; **não sobrescrever** resultados históricos como se fossem equivalentes.
 4. Validar PR em ambiente real, com revisão humana, antes de declarar este conjunto de contratos **aprovado/verificado**.
 
-**Leituras vinculadas:** [guia de Harness](README.md), [testes e regressões](step-by-step/03-testes-e-regressoes.md), [plano de validação científica](../implementation/step-by-step/10-limitacoes-evolucao.md).
+**Leituras vinculadas:** [guia de Harness](README.md), [testes e regressões](step-by-step/03-testes-e-regressoes.md).
 
 **Autoria técnica de referência:** código-fonte de [ThiagoFigueiroRibeiro/MeshComparison](https://github.com/ThiagoFigueiroRibeiro/MeshComparison). Este documento caracteriza a metodologia observada e propõe verificações para o projeto derivado; não declara que o original seja uma referência científica publicada ou validada externamente.

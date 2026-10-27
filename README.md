@@ -158,8 +158,6 @@ Ways 1 and 2 write the files listed under [Outputs](#user-content-outputs). Chec
 mesh-gui
 ```
 
-(or `python -m meshcomparison.gui`). The interface opens 20 % smaller than the system scale (`QT_SCALE_FACTOR=0.8`); set `QT_SCALE_FACTOR=1` to restore it. Select the GT and RM (STL, OBJ, PLY, OFF, GLB/GLTF), a new output folder, the pipelines and the LPIPS device (Auto prefers CUDA), optionally the **Input view**, and click **Run evaluation**. The 3D view shows the aligned meshes and heatmap. **Results** has four tabs: *Geometric summary* (Chamfer, HD95, precision/recall @1 %, F-score @1/2/5 %, AUC-F and normal consistency per region, plus sampling, alignment with the MSE before/after it, the input view and a warning when the GT or RM file is a multi-mesh scene), *Perceptual summary* (LPIPS, PSNR, SSIM over the views), *Images* (GT/RM renders, heatmap, saved view pairs) and *Figures* (the plots below).
-
 Fixed parameters (`RunConfig`, `src/meshcomparison/gui/config.py`): ICP threshold `1e-4`, render `1600 × 1200`, elevation `25.264°`, geometric camera azimuth `-135°`, `100` perceptual views (images saved for views 1, 33, 66), camera margin `1.05`, radius factor `1.45`, 100 000 samples per mesh, τ = 1/2/5 %.
 
 ### Metric figures

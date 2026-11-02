@@ -17,11 +17,15 @@ As métricas geométricas podem ser calculadas para a superfície inteira e, qua
 
 ## Métricas herdadas com definição revisada
 
-**Chamfer** continua no conjunto, mas agora compara amostras uniformes por área e distâncias até os triângulos da outra malha. A fórmula é metade da média GT→RM somada à média RM→GT. Menor é melhor. O nome já existia; o cálculo atual reduz a dependência da densidade e da triangulação.
+**Chamfer** usa um nome que já existia, mas a versão atual não é o Chamfer vértice a vértice do código antigo. Agora compara amostras uniformes por área e distâncias até os triângulos da outra malha. A fórmula é metade da média GT→RM somada à média RM→GT. Menor é melhor. Essa definição reduz a dependência da densidade e da triangulação.
 
 **PSNR** continua sendo uma métrica de imagem. A implementação atual calcula o erro quadrático médio sobre os três canais RGB dos pixels na união das máscaras (3N valores) e então aplica PSNR. Maior é melhor; um erro zero resulta em infinito. Isso corrige o denominador da versão anterior, que usava N.
 
-**Chamfer, HD95, F-score, curva F(τ), AUC-F e NC** agora usam distâncias ponto-superfície: cada amostra é comparada com o ponto mais próximo nos triângulos da outra malha. Essa revisão, registrada no [ADR 0004](adr/0004-point-to-surface.md), remove o piso de erro causado pela distância entre duas amostragens discretas. Não é uma métrica nova, mas uma mudança no método de cálculo.
+**Chamfer, HD95, F-score, curva F(τ), AUC-F e NC** agora usam distâncias ponto-superfície: cada amostra é comparada com o ponto mais próximo nos triângulos da outra malha. Essa revisão, registrada no [ADR 0004](adr/0004-point-to-surface.md), remove o piso de erro causado pela distância entre duas amostragens discretas. É uma mudança de método, não uma métrica adicional.
+
+## Diferenças em relação ao conjunto antigo
+
+O protocolo atual deixa de usar as distâncias **vértice a vértice** do conjunto anterior: Chamfer e RMSE calculados entre vértices, além do Hausdorff máximo. O Chamfer atual tem definição por superfície; o HD95 é a medida robusta de discrepâncias altas. Precisão, recall, F-score, AUC-F e NC fazem parte do conjunto adotado nos ADRs 0001 e 0002. O PSNR também mudou para o cálculo padrão sobre os 3N valores RGB. Por isso, os resultados antigos não devem ser comparados diretamente com os atuais.
 
 ## Métricas perceptuais
 
@@ -33,7 +37,7 @@ As métricas geométricas podem ser calculadas para a superfície inteira e, qua
 - **Escala do ICP** registra o fator de escala uniforme aplicado no alinhamento; serve para inspecionar o ajuste.
 - **Heatmap** visualiza as distâncias da GT alinhada à RM. O limite de cor usa o percentil 95 para reduzir a influência de valores extremos.
 
-As distâncias geométricas são normalizadas pela diagonal da caixa delimitadora da GT; as colunas em unidades da GT são obtidas multiplicando esse valor pela diagonal original. Os resultados são estimativas sobre 100 000 amostras por malha, com sementes fixas. Valores registrados antes da mudança para ponto-superfície não são diretamente comparáveis aos atuais.
+As distâncias geométricas são normalizadas pela diagonal da caixa delimitadora da GT; as colunas em unidades da GT são obtidas multiplicando esse valor pela diagonal original. Os resultados são estimativas sobre 100 000 amostras por malha, com sementes fixas.
 
 ## Onde ficam no código
 

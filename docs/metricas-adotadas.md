@@ -25,7 +25,7 @@ As métricas geométricas podem ser calculadas para a superfície inteira e, qua
 
 ## Métricas perceptuais
 
-**SSIM** estima semelhança estrutural entre imagens renderizadas, e **LPIPS** compara características perceptuais extraídas por uma rede neural. São calculadas em vistas compartilhadas da GT e da RM, com fundo mascarado. Para ambas, valores menores indicam maior semelhança? **Não:** SSIM é melhor quanto maior; LPIPS é melhor quanto menor. O projeto agrega os resultados das vistas por estatísticas como mediana e média.
+**SSIM** estima semelhança estrutural entre imagens renderizadas, e **LPIPS** compara características perceptuais extraídas por uma rede neural. São calculadas em vistas compartilhadas da GT e da RM, com o fundo fora da união das máscaras zerado. **SSIM é melhor quanto maior; LPIPS é melhor quanto menor.** O projeto agrega os resultados das vistas por estatísticas como mediana e média. Os ADRs sobre o conjunto geométrico não apresentam SSIM e LPIPS como métricas recém-adotadas; elas compõem a avaliação perceptual por imagens.
 
 ## O que não deve ser confundido com métrica de qualidade
 

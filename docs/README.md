@@ -3,6 +3,7 @@
 | Documento | Conteúdo |
 | --- | --- |
 | [README principal](../README.md) | Visão geral, métricas, instalação, uso, saídas e limitações |
+| [Métricas recentemente adotadas](metricas-adotadas.md) | Explicação das novas métricas, mudanças em métricas herdadas e diferenças em relação ao código antigo |
 | [ADRs](adr/) | Decisões sobre as métricas: [0001](adr/0001-evaluation-v2.md) amostras de superfície · [0002](adr/0002-robustness-study.md) NC, F(τ) e estudo de robustez · [0003](adr/0003-single-metric-standard.md) padrão único · [0004](adr/0004-point-to-surface.md) ponto-superfície · [0005](adr/0005-icp-global-start.md) ICP com início global |
 | [Implementação e validação](implementation/README.md) | Testes existentes e validação pendente |
 | [Escolha das GTs](gt/README.md) | Como escolher e limpar malhas de referência sem contaminação do treino; manifesto e verificador |

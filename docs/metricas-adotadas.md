@@ -2,6 +2,10 @@
 
 Este guia explica as métricas incorporadas ao protocolo atual e diferencia métricas novas das que já existiam no código antigo, mas tiveram sua definição alterada. As decisões técnicas e os estudos estão nos [ADRs 0001–0004](adr/).
 
+![Fluxo das métricas geométricas, da amostragem das malhas aos indicadores](assets/metricas-geometricas.svg)
+
+*Fluxo geométrico: distâncias ponto-superfície alimentam métricas de erro, cobertura, tolerância e orientação.*
+
 ## O que foi acrescentado
 
 | Métrica | O que mede | Como interpretar |
@@ -24,6 +28,10 @@ As métricas geométricas podem ser calculadas para a superfície inteira e, qua
 **Chamfer, HD95, F-score, curva F(τ), AUC-F e NC** agora usam distâncias ponto-superfície: cada amostra é comparada com o ponto mais próximo nos triângulos da outra malha. Essa revisão, registrada no [ADR 0004](adr/0004-point-to-surface.md), remove o piso de erro causado pela distância entre duas amostragens discretas. É uma mudança de método, não uma métrica adicional.
 
 ## Diferenças em relação ao conjunto antigo
+
+![Comparação visual entre as métricas do código antigo e o protocolo atual](assets/evolucao-metricas.svg)
+
+*O Chamfer permanece com definição revisada; HD95, métricas de cobertura, curva F(τ), AUC-F e NC compõem a avaliação geométrica atual.*
 
 O protocolo atual deixa de usar as distâncias **vértice a vértice** do conjunto anterior: Chamfer e RMSE calculados entre vértices, além do Hausdorff máximo. O Chamfer atual tem definição por superfície; o HD95 é a medida robusta de discrepâncias altas. Precisão, recall, F-score, AUC-F e NC fazem parte do conjunto adotado nos ADRs 0001 e 0002. O PSNR também mudou para o cálculo padrão sobre os 3N valores RGB. Por isso, os resultados antigos não devem ser comparados diretamente com os atuais.
 
